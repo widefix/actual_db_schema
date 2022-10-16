@@ -26,6 +26,12 @@ As the result, the code is failing with an error "null value provided for non-nu
 Moreover, a DB rake task generates a diff on `schema.rb` that's not relevant to this branch.
 I can switch to **branch A** and roll back the migration, but I need to remember that branch or waste time on it.
 
+Some example of this error:
+
+     ActiveRecord::NotNullViolation:
+       PG::NotNullViolation: ERROR:  null value in column "log" of relation "check_results" violates not-null constraint
+       DETAIL:  Failing row contains (8, 46, success, 2022-10-16 21:47:21.07212, 2022-10-16 21:47:21.07212, null).
+
 This code changes the standard migration behavior to save all run migrations inside `tmp/migrations` folder.
 Every run of schema dump (that's a dependency of `db:migrate` task as well) rolls back the "unknown" migrations
 for the current branch looking into the `tmp/migrations` folder.
