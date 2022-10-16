@@ -32,9 +32,9 @@ Some example of this error:
        PG::NotNullViolation: ERROR:  null value in column "log" of relation "check_results" violates not-null constraint
        DETAIL:  Failing row contains (8, 46, success, 2022-10-16 21:47:21.07212, 2022-10-16 21:47:21.07212, null).
 
-This code changes the standard migration behavior to save all run migrations inside `tmp/migrations` folder.
-Every run of schema dump (that's a dependency of `db:migrate` task as well) rolls back the "unknown" migrations
-for the current branch looking into the `tmp/migrations` folder.
+This gem saves all run migrations inside `tmp/migrations` folder.
+Every run of schema dump (that's a dependency of `db:migrate` task as well) rolls back the "unknown" for the current branch migrations
+looking into the `tmp/migrations` folder.
 
 Using this gem you need to run `rails db:migrate` in the current branch and it will actualize the DB schema.
 You will never have wrongly generated `schema.rb`.
