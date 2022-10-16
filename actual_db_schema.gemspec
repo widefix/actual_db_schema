@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = <<~DESC
     Switching between branches with migrations and running them can make your DB inconsistent
     and not working in another branch if not roll the migration back.
-    Install this gem and forget about that issue by running the standard rake db:migrate."
+    Install this gem and forget about that issue by running the standard rake db:migrate.
   DESC
   spec.homepage = "https://github.com/widefix/actual_db_schema"
   spec.license = "MIT"
