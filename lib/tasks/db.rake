@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "active_record/migration"
 
 def migrated_folder
@@ -5,9 +7,10 @@ def migrated_folder
 end
 
 def migration_filename(fullpath)
-  fullpath.split('/').last
+  fullpath.split("/").last
 end
 
+# Track migrated migrations inside the tmp folder
 module MigrationProxyPatch
   def migrate(direction)
     if direction == :up
@@ -15,12 +18,13 @@ module MigrationProxyPatch
     else
       FileUtils.rm(migrated_folder.join(basename))
     end
-    migration.migrate(direction)
+    super(direction)
   end
 end
 
 ActiveRecord::MigrationProxy.prepend(MigrationProxyPatch)
 
+# Run only one migration that's being rolled back
 module MigratorPath
   def runnable
     migration = migrations.first # there is only one migration, because we pass only one here
@@ -28,6 +32,7 @@ module MigratorPath
   end
 end
 
+# Add new command to roll back the phantom migrations
 module MigrationContextPatch
   def rollback_branches
     migrations.each do
@@ -50,9 +55,9 @@ module MigrationContextPatch
 end
 
 namespace :db do
-  desc 'Rollback migrations that were run inside not a merged branch.'
+  desc "Rollback migrations that were run inside not a merged branch."
   task rollback_branches: :load_config do
-    ActiveRecord::Tasks::DatabaseTasks.raise_for_multi_db(command: 'db:rollback_branches')
+    ActiveRecord::Tasks::DatabaseTasks.raise_for_multi_db(command: "db:rollback_branches")
 
     context = ActiveRecord::Base.connection.migration_context
     context.extend(MigrationContextPatch)

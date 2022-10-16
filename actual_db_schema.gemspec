@@ -9,7 +9,11 @@ Gem::Specification.new do |spec|
   spec.email = ["ka8725@gmail.com"]
 
   spec.summary = "Keep your DB clean and consistent between branches."
-  spec.description = "Switching between branches with migrations and running them makes your DB inconsistent on another branch if forget to roll the migration back. Install this gem and forget about that issue by running the standard rake db:migrate."
+  spec.description = <<~DESC
+    Switching between branches with migrations and running them can make your DB inconsistent
+    and not working in another branch if not roll the migration back.
+    Install this gem and forget about that issue by running the standard rake db:migrate."
+  DESC
   spec.homepage = "https://github.com/widefix/actual_db_schema"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 2.6.0"
