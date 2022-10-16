@@ -36,8 +36,7 @@ This gem saves all run migrations inside `tmp/migrations` folder.
 Every run of schema dump (that's a dependency of `db:migrate` task as well) rolls back the "unknown" for the current branch migrations
 looking into the `tmp/migrations` folder.
 
-Using this gem you need to run `rails db:migrate` in the current branch and it will actualize the DB schema.
-You will never have wrongly generated `schema.rb`.
+You just need to run `rails db:migrate` in the current branch to actualize the DB schema. With its hand, you will never have wrongly generated `schema.rb`.
 
 ## Development
 
