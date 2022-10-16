@@ -1,28 +1,39 @@
 # ActualDbSchema
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/actual_db_schema`. To experiment with that code, run `bin/console` for an interactive prompt.
+Keep DB schema consistent while switching between branches with no additional actions.
 
-TODO: Delete this and the text above, and describe your gem
+## Problem
+
+In **branch A** I add a mandatory (not null) field into DB via migration and run it.
+Then I switch to another **branch B**. This branch's code is not aware of that field.
+As the result, the code is failing with an error "null value provided for non-null field".
+Moreover, a db schema rake generates a diff on `schema.rb` that's not related to this branch.
+I can switch to **branch A** and roll back the migration, but I need to remember that branch or waste time for it.
+
+This code changes the standard migration behavior to save all run migrations inside `tmp/migrations` folder.
+Every run of schema dump (that's a dependency of `db:migrate` task as well) it rolls back the "unknown" migrations
+for the current branch looking into the `tmp/migrations` folder.
+
+Using this gem you need to run `rails db:migrate` in the current branch and it will actualize the DB schema.
+You will never have wrongly generated `schema.rb`.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'actual_db_schema'
+group :development do
+  gem "actual_db_schema"
+end
 ```
 
 And then execute:
 
     $ bundle install
 
-Or install it yourself as:
-
-    $ gem install actual_db_schema
-
 ## Usage
 
-TODO: Write usage instructions here
+Just run `rails db:migrate` inside the branch.
 
 ## Development
 
@@ -32,7 +43,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/actual_db_schema. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/actual_db_schema/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/widefix/actual_db_schema. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/widefix/actual_db_schema/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
 
@@ -40,4 +51,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the ActualDbSchema project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/actual_db_schema/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the ActualDbSchema project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/widefix/actual_db_schema/blob/master/CODE_OF_CONDUCT.md).
