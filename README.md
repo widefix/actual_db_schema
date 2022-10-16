@@ -2,21 +2,6 @@
 
 Keep DB schema consistent while switching between branches with no additional actions.
 
-## Problem
-
-In **branch A** I add a mandatory (not null) field into DB via migration and run it.
-Then I switch to another **branch B**. This branch's code is not aware of that field.
-As the result, the code is failing with an error "null value provided for non-null field".
-Moreover, a db schema rake generates a diff on `schema.rb` that's not related to this branch.
-I can switch to **branch A** and roll back the migration, but I need to remember that branch or waste time for it.
-
-This code changes the standard migration behavior to save all run migrations inside `tmp/migrations` folder.
-Every run of schema dump (that's a dependency of `db:migrate` task as well) it rolls back the "unknown" migrations
-for the current branch looking into the `tmp/migrations` folder.
-
-Using this gem you need to run `rails db:migrate` in the current branch and it will actualize the DB schema.
-You will never have wrongly generated `schema.rb`.
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -33,7 +18,20 @@ And then execute:
 
 ## Usage
 
-Just run `rails db:migrate` inside the branch.
+TL;TR: Just run `rails db:migrate` inside the current branch.
+
+In **branch A** I add a mandatory (not null) field into DB via migration and run it.
+Then I switch to another **branch B**. This branch's code is not aware of that field.
+As the result, the code is failing with an error "null value provided for non-null field".
+Moreover, a db schema rake generates a diff on `schema.rb` that's not related to this branch.
+I can switch to **branch A** and roll back the migration, but I need to remember that branch or waste time for it.
+
+This code changes the standard migration behavior to save all run migrations inside `tmp/migrations` folder.
+Every run of schema dump (that's a dependency of `db:migrate` task as well) it rolls back the "unknown" migrations
+for the current branch looking into the `tmp/migrations` folder.
+
+Using this gem you need to run `rails db:migrate` in the current branch and it will actualize the DB schema.
+You will never have wrongly generated `schema.rb`.
 
 ## Development
 
