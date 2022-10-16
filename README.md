@@ -1,6 +1,6 @@
 # ActualDbSchema
 
-Keep DB schema consistent while switching between branches with no additional actions.
+Keep Rails DB schema consistent while switching between branches with no additional actions.
 
 ## Installation
 
