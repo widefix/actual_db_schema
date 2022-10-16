@@ -35,8 +35,8 @@ end
 # Add new command to roll back the phantom migrations
 module MigrationContextPatch
   def rollback_branches
-    migrations.each do
-      migrator = ActiveRecord::Migrator.new(:down, [_1], schema_migration, _1.version)
+    migrations.each do |migration|
+      migrator = ActiveRecord::Migrator.new(:down, [migration], schema_migration, migration.version)
       migrator.extend(MigratorPath)
       migrator.migrate
     end
