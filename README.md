@@ -18,7 +18,7 @@ And then execute:
 
 ## Usage
 
-TL;TR: Just run `rails db:migrate` inside the current branch.
+TLTR; Just run `rails db:migrate` inside the current branch.
 
 In **branch A** I add a mandatory (not null) field into DB via migration and run it.
 Then I switch to another **branch B**. This branch's code is not aware of that field.
