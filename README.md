@@ -38,7 +38,7 @@ looking into the `tmp/migrations` folder.
 
 You just need to run `rails db:migrate` in the current branch to actualize the DB schema. With its hand, you will never have wrongly generated `schema.rb`.
 
-> Note, this solution implies that your migrations are reversible. The cases with irreversible migrations should be solved manually. At the moment, these migrations are ignored by the gem.
+> Note, this solution implies that your migrations are reversible. The cases with irreversible migrations should be solved manually. At the moment, these migrations are ignored by the gem and you will see a warning if some migrations can't roll back automatically.
 
 ## Development
 
