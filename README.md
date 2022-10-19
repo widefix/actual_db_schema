@@ -1,3 +1,5 @@
+[![Gem Version](https://badge.fury.io/rb/actual_db_schema.svg)](https://badge.fury.io/rb/actual_db_schema)
+
 # ActualDbSchema
 
 Keep Rails DB schema consistent while switching between branches with no additional actions.
