@@ -12,6 +12,7 @@ def migration_filename(fullpath)
   fullpath.split("/").last
 end
 
+# All patches are namespaced into this module
 module ActualDbSchema
   class << self
     attr_accessor :failed
