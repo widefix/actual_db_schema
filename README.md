@@ -38,6 +38,8 @@ looking into the `tmp/migrations` folder.
 
 You just need to run `rails db:migrate` in the current branch to actualize the DB schema. With its hand, you will never have wrongly generated `schema.rb`.
 
+> Note, this solution implies that your migrations are reversible. The cases with irreversible migrations should be solved manually. These migrations are ignored by the gem.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
