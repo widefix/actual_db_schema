@@ -1,32 +1,35 @@
 # frozen_string_literal: true
 
-if Rails.env.development?
-  require "active_record/migration"
+return unless Rails.env.development?
 
-  def migrated_folder
-    Rails.root.join("tmp", "migrated").tap { |folder| FileUtils.mkdir_p(folder) }
+require "active_record/migration"
+
+def migrated_folder
+  Rails.root.join("tmp", "migrated").tap { |folder| FileUtils.mkdir_p(folder) }
+end
+
+def migration_filename(fullpath)
+  fullpath.split("/").last
+end
+
+# All patches are namespaced into this module
+module ActualDbSchema
+  class << self
+    attr_accessor :failed
   end
 
-  def migration_filename(fullpath)
-    fullpath.split("/").last
-  end
+  self.failed = []
 
   # Track migrated migrations inside the tmp folder
   module MigrationProxyPatch
     def migrate(direction)
-      if direction == :up
-        FileUtils.copy(filename, migrated_folder.join(basename))
-      else
-        FileUtils.rm(migrated_folder.join(basename))
-      end
       super(direction)
+      FileUtils.copy(filename, migrated_folder.join(basename)) if direction == :up
     end
   end
 
-  ActiveRecord::MigrationProxy.prepend(MigrationProxyPatch)
-
   # Run only one migration that's being rolled back
-  module MigratorPath
+  module MigratorPatch
     def runnable
       migration = migrations.first # there is only one migration, because we pass only one here
       ran?(migration) ? [migration] : []
@@ -38,8 +41,12 @@ if Rails.env.development?
     def rollback_branches
       migrations.each do |migration|
         migrator = ActiveRecord::Migrator.new(:down, [migration], schema_migration, migration.version)
-        migrator.extend(MigratorPath)
+        migrator.extend(ActualDbSchema::MigratorPatch)
         migrator.migrate
+      rescue StandardError => e
+        raise unless e.message.include?("ActiveRecord::IrreversibleMigration")
+
+        ActualDbSchema.failed << migration
       end
     end
 
@@ -54,17 +61,27 @@ if Rails.env.development?
       other_branches_files.reject { migration_filename(_1).in?(current_branch_file_names) }
     end
   end
+end
 
-  namespace :db do
-    desc "Rollback migrations that were run inside not a merged branch."
-    task rollback_branches: :load_config do
-      ActiveRecord::Tasks::DatabaseTasks.raise_for_multi_db(command: "db:rollback_branches")
+ActiveRecord::MigrationProxy.prepend(ActualDbSchema::MigrationProxyPatch)
 
-      context = ActiveRecord::Base.connection.migration_context
-      context.extend(MigrationContextPatch)
-      context.rollback_branches
+namespace :db do
+  desc "Rollback migrations that were run inside not a merged branch."
+  task rollback_branches: :load_config do
+    ActiveRecord::Tasks::DatabaseTasks.raise_for_multi_db(command: "db:rollback_branches")
+
+    context = ActiveRecord::Base.connection.migration_context
+    context.extend(ActualDbSchema::MigrationContextPatch)
+    context.rollback_branches
+    if ActualDbSchema.failed.any?
+      puts ""
+      puts "[ActualDbSchema] Irreversible migrations were found from other branches. Roll them back or fix manually:"
+      puts ""
+      puts ActualDbSchema.failed.map { |migration| "- #{migration.filename}" }.join("\n")
+      puts ""
     end
-
-    task _dump: :rollback_branches
+    # raise ActualDbSchema.failed.inspect
   end
+
+  task _dump: :rollback_branches
 end
