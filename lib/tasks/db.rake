@@ -38,13 +38,9 @@ module ActualDbSchema
 
   # Add new command to roll back the phantom migrations
   module MigrationContextPatch
-    def rollback_branches # rubocop:disable Metrics/MethodLength
+    def rollback_branches
       migrations.each do |migration|
-        migrator = if ActiveRecord::Migration.current_version < 6
-                     ActiveRecord::Migrator.new(:down, [migration], migration.version)
-                   else
-                     ActiveRecord::Migrator.new(:down, [migration], schema_migration, migration.version)
-                   end
+        migrator = down_migrator_for(migration)
         migrator.extend(ActualDbSchema::MigratorPatch)
         migrator.migrate
       rescue StandardError => e
@@ -55,6 +51,14 @@ module ActualDbSchema
     end
 
     private
+
+    def down_migrator_for(migration)
+      if ActiveRecord::Migration.current_version < 6
+        ActiveRecord::Migrator.new(:down, [migration], migration.version)
+      else
+        ActiveRecord::Migrator.new(:down, [migration], schema_migration, migration.version)
+      end
+    end
 
     def migration_files
       paths = Array(migrations_paths)
