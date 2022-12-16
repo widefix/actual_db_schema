@@ -38,9 +38,13 @@ module ActualDbSchema
 
   # Add new command to roll back the phantom migrations
   module MigrationContextPatch
-    def rollback_branches
+    def rollback_branches # rubocop:disable Metrics/MethodLength
       migrations.each do |migration|
-        migrator = ActiveRecord::Migrator.new(:down, [migration], schema_migration, migration.version)
+        migrator = if ActiveRecord::Migration.current_version < 6
+                     ActiveRecord::Migrator.new(:down, [migration], migration.version)
+                   else
+                     ActiveRecord::Migrator.new(:down, [migration], schema_migration, migration.version)
+                   end
         migrator.extend(ActualDbSchema::MigratorPatch)
         migrator.migrate
       rescue StandardError => e
@@ -57,8 +61,8 @@ module ActualDbSchema
       current_branch_files = Dir[*paths.flat_map { |path| "#{path}/**/[0-9]*_*.rb" }]
       other_branches_files = Dir["#{migrated_folder}/**/[0-9]*_*.rb"]
 
-      current_branch_file_names = current_branch_files.map { migration_filename(_1) }
-      other_branches_files.reject { migration_filename(_1).in?(current_branch_file_names) }
+      current_branch_file_names = current_branch_files.map { |f| migration_filename(f) }
+      other_branches_files.reject { |f| migration_filename(f).in?(current_branch_file_names) }
     end
   end
 end
@@ -68,7 +72,9 @@ ActiveRecord::MigrationProxy.prepend(ActualDbSchema::MigrationProxyPatch)
 namespace :db do
   desc "Rollback migrations that were run inside not a merged branch."
   task rollback_branches: :load_config do
-    ActiveRecord::Tasks::DatabaseTasks.raise_for_multi_db(command: "db:rollback_branches")
+    if ActiveRecord::Migration.current_version >= 6
+      ActiveRecord::Tasks::DatabaseTasks.raise_for_multi_db(command: "db:rollback_branches")
+    end
 
     context = ActiveRecord::Base.connection.migration_context
     context.extend(ActualDbSchema::MigrationContextPatch)
