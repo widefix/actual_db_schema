@@ -39,7 +39,7 @@ module ActualDbSchema
   # Add new command to roll back the phantom migrations
   module MigrationContextPatch
     def rollback_branches
-      migrations.each do |migration|
+      migrations.reverse_each do |migration|
         migrator = down_migrator_for(migration)
         migrator.extend(ActualDbSchema::MigratorPatch)
         migrator.migrate
