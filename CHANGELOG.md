@@ -1,4 +1,8 @@
-## [0.2.0] - 2023-01-23
+## [0.4.0] - 2023-07-05
+
+- rollback migrations in the reversed order
+
+## [0.3.0] - 2023-01-23
 
 - add Rails 6 and older support
 
