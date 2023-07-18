@@ -28,6 +28,7 @@ describe "db:rollback_branches" do
 
   it "keeps migrated migrations in tmp/migrated folder" do
     run_migrations
+    debugger
     # raise Dir[app_file("tmp/migrated")].inspect
   end
 end
