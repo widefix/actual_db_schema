@@ -4,6 +4,7 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "rails/all"
 require "actual_db_schema"
 require "minitest/autorun"
+require "debug"
 
 class FakeApplication < Rails::Application
   def initialize

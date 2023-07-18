@@ -10,6 +10,10 @@ def remove_app_dir(name)
   FileUtils.rm_rf(Rails.application.config.root.join(name))
 end
 
+def run_migrations
+  Rake::Task["db:migrate"].invoke
+end
+
 describe "db:rollback_branches" do
   before do
     remove_app_dir("tmp/migrated")
@@ -18,12 +22,12 @@ describe "db:rollback_branches" do
 
   it "creates the tmp/migrated folder" do
     refute File.exist?(app_file("tmp/migrated"))
-    Rake::Task["db:migrate"].invoke
+    run_migrations
     assert File.exist?(app_file("tmp/migrated"))
   end
 
   it "keeps migrated migrations in tmp/migrated folder" do
-    Rake::Task["db:migrate"].invoke
+    run_migrations
     # raise Dir[app_file("tmp/migrated")].inspect
   end
 end

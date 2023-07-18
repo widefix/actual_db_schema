@@ -77,11 +77,17 @@ GEM
     concurrent-ruby (1.2.2)
     crass (1.0.6)
     date (3.3.3)
+    debug (1.8.0)
+      irb (>= 1.5.0)
+      reline (>= 0.3.1)
     erubi (1.12.0)
     globalid (1.1.0)
       activesupport (>= 5.0)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
+    io-console (0.6.0)
+    irb (1.7.4)
+      reline (>= 0.3.6)
     json (2.6.2)
     loofah (2.21.3)
       crass (~> 1.0.2)
@@ -112,7 +118,6 @@ GEM
     parallel (1.22.1)
     parser (3.1.2.1)
       ast (~> 2.4.1)
-    pg (1.4.6)
     racc (1.7.1)
     rack (2.2.7)
     rack-test (2.1.0)
@@ -148,6 +153,8 @@ GEM
     rainbow (3.1.1)
     rake (13.0.6)
     regexp_parser (2.6.0)
+    reline (0.3.6)
+      io-console (~> 0.5)
     rexml (3.2.5)
     rubocop (1.36.0)
       json (~> 2.3)
@@ -179,8 +186,8 @@ PLATFORMS
 
 DEPENDENCIES
   actual_db_schema!
+  debug
   minitest (~> 5.0)
-  pg
   rails
   rake (~> 13.0)
   rubocop (~> 1.21)
