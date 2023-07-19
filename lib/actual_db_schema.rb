@@ -4,5 +4,15 @@ require_relative "actual_db_schema/version"
 
 # The main module definition
 module ActualDbSchema
-  require "railtie" if defined?(Rails)
+  raise NotImplementedError, "ActualDbSchema is only supported in Rails" unless defined?(Rails)
+
+  require "railtie"
+
+  class << self
+    attr_accessor :config
+  end
+
+  self.config = {
+    enabled: Rails.env.development?
+  }
 end

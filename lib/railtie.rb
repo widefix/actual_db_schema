@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "actual_db_schema"
 require "rails"
 
 module ActualDbSchema

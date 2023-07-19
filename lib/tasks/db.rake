@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-return unless Rails.env.development?
+return unless ActualDbSchema.config.fetch(:enabled, true)
 
 require "active_record/migration"
 
@@ -82,6 +82,7 @@ namespace :db do
 
     context = ActiveRecord::Base.connection.migration_context
     context.extend(ActualDbSchema::MigrationContextPatch)
+    ActualDbSchema.failed = []
     context.rollback_branches
     if ActualDbSchema.failed.any?
       puts ""
@@ -90,7 +91,6 @@ namespace :db do
       puts ActualDbSchema.failed.map { |migration| "- #{migration.filename}" }.join("\n")
       puts ""
     end
-    # raise ActualDbSchema.failed.inspect
   end
 
   task _dump: :rollback_branches

@@ -6,6 +6,8 @@ require "actual_db_schema"
 require "minitest/autorun"
 require "debug"
 
+Rails.env = "test"
+
 class FakeApplication < Rails::Application
   def initialize
     super
@@ -15,11 +17,11 @@ end
 
 Rails.application = FakeApplication.new
 
-ActiveRecord::Tasks::DatabaseTasks.database_configuration = {
-  test: {
-    adapter: :sqlite3,
-    database: "db/test.sqlite3"
-  }
+db_config = {
+  adapter: "sqlite3",
+  database: "tmp/test.sqlite3",
 }
+ActiveRecord::Tasks::DatabaseTasks.database_configuration = { test: db_config }
+ActiveRecord::Base.establish_connection(**db_config)
 
-ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: "db/test.sqlite3")
+ActualDbSchema.config[:enabled] = true
