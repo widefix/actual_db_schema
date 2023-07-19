@@ -1,5 +1,7 @@
 AllCops:
   TargetRubyVersion: 2.6
+  Exclude:
+    - 'test/dummy_app/**/*'
 
 Style/StringLiterals:
   Enabled: true

@@ -19,7 +19,7 @@ Rails.application = FakeApplication.new
 
 db_config = {
   adapter: "sqlite3",
-  database: "tmp/test.sqlite3",
+  database: "tmp/test.sqlite3"
 }
 ActiveRecord::Tasks::DatabaseTasks.database_configuration = { test: db_config }
 ActiveRecord::Base.establish_connection(**db_config)
