@@ -7,5 +7,4 @@
 /spec/reports/
 /tmp/
 /test/dummy_app/tmp/
-/test/dummy_app/db/migrate/
-!/test/dummy_app/db/migrate/.keep
+/test/dummy_app/db/migrate/*.rb
