@@ -29,11 +29,6 @@ def run_migrations
   Rake::Task["db:rollback_branches"].reenable
 end
 
-def dump_schema
-  Rake::Task["db:schema:dump"].invoke
-  Rake::Task["db:schema:dump"].reenable
-end
-
 def run_sql(sql)
   ActiveRecord::Base.connection.execute(sql)
 end
