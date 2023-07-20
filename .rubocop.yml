@@ -14,3 +14,12 @@ Style/StringLiteralsInInterpolation:
 
 Layout/LineLength:
   Max: 120
+
+Metrics/BlockLength:
+  Exclude:
+    - test/**/*
+    - actual_db_schema.gemspec
+
+Metrics/MethodLength:
+  Exclude:
+    -  test/**/*
