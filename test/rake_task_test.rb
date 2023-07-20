@@ -31,7 +31,12 @@ def applied_migrations
 end
 
 describe "db:rollback_branches" do
+  let(:migrated_files) do
+    Dir.glob(app_file("tmp/migrated/*.rb")).map { |f| File.basename(f) }.sort
+  end
+
   before do
+    ActiveRecord::SchemaMigration.create_table
     run_sql("delete from schema_migrations")
     remove_app_dir("tmp/migrated")
     Rails.application.load_tasks
@@ -52,6 +57,6 @@ describe "db:rollback_branches" do
 
   it "keeps migrated migrations in tmp/migrated folder" do
     run_migrations
-    # raise Dir[app_file("tmp/migrated")].inspect
+    assert_equal %w[20130906111511_first.rb 20130906111512_second.rb], migrated_files
   end
 end
