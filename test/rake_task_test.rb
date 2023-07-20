@@ -54,12 +54,16 @@ def delete_migrations_files
   end
 end
 
+def define_migration_file(filename, content)
+  File.write(app_file("db/migrate/#{filename}"), content, mode: "w")
+end
+
 def define_migrations
   {
     first: "20130906111511_first.rb",
     second: "20130906111512_second.rb"
   }.each do |key, file_name|
-    File.write(app_file("db/migrate/#{file_name}"), %(
+    define_migration_file(file_name, <<~RUBY)
       class #{key.to_s.camelize} < ActiveRecord::Migration[7.0]
         def up
           TestingState.up << :#{key}
@@ -69,8 +73,13 @@ def define_migrations
           TestingState.down << :#{key}
         end
       end
-    ), mode: "w")
+    RUBY
   end
+end
+
+def prepare_phantom_migrations
+  run_migrations
+  delete_migrations_files # simulate switching branches
 end
 
 describe "db:rollback_branches" do
@@ -106,10 +115,33 @@ describe "db:rollback_branches" do
   end
 
   it "rolls back the migrations in the reversed order" do
-    run_migrations
+    prepare_phantom_migrations
     assert_empty TestingState.down
-    delete_migrations_files # simulate switching branches
     run_migrations
     assert_equal %i[second first], TestingState.down
+  end
+
+  describe "with irreversible migration" do
+    before do
+      define_migration_file("20130906111513_irreversible.rb", <<~RUBY)
+        class Irreversible < ActiveRecord::Migration[7.0]
+          def up
+            TestingState.up << :irreversible
+          end
+
+          def down
+            raise ActiveRecord::IrreversibleMigration
+          end
+        end
+      RUBY
+    end
+
+    it "keeps track of the irreversible migrations" do
+      prepare_phantom_migrations
+      assert_equal %i[first second irreversible], TestingState.up
+      assert_empty ActualDbSchema.failed
+      run_migrations
+      assert_equal(%w[20130906111513_irreversible.rb], ActualDbSchema.failed.map { |m| File.basename(m.filename) })
+    end
   end
 end
