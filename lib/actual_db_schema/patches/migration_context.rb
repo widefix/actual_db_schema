@@ -22,8 +22,10 @@ module ActualDbSchema
       def down_migrator_for(migration)
         if ActiveRecord::Migration.current_version < 6
           ActiveRecord::Migrator.new(:down, [migration], migration.version)
-        else
+        elsif ActiveRecord::Migration.current_version < 7.1
           ActiveRecord::Migrator.new(:down, [migration], schema_migration, migration.version)
+        else
+          ActiveRecord::Migrator.new(:down, [migration], schema_migration, internal_metadata, migration.version)
         end
       end
 
