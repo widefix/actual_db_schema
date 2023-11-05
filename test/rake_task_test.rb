@@ -59,7 +59,7 @@ def define_migrations
     second: "20130906111512_second.rb"
   }.each do |key, file_name|
     define_migration_file(file_name, <<~RUBY)
-      class #{key.to_s.camelize} < ActiveRecord::Migration[7.0]
+      class #{key.to_s.camelize} < ActiveRecord::Migration[6.0]
         def up
           TestingState.up << :#{key}
         end
@@ -84,7 +84,11 @@ describe "db:rollback_branches" do
 
   before do
     delete_migrations_files
-    ActiveRecord::SchemaMigration.create_table
+    if ActiveRecord::SchemaMigration.respond_to?(:create_table)
+      ActiveRecord::SchemaMigration.create_table
+    else
+      ActiveRecord::SchemaMigration.new(ActiveRecord::Base.connection).create_table
+    end
     run_sql("delete from schema_migrations")
     remove_app_dir("tmp/migrated")
     define_migrations
@@ -119,7 +123,7 @@ describe "db:rollback_branches" do
   describe "with irreversible migration" do
     before do
       define_migration_file("20130906111513_irreversible.rb", <<~RUBY)
-        class Irreversible < ActiveRecord::Migration[7.0]
+        class Irreversible < ActiveRecord::Migration[6.0]
           def up
             TestingState.up << :irreversible
           end

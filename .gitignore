@@ -8,3 +8,5 @@
 /tmp/
 /test/dummy_app/tmp/
 /test/dummy_app/db/migrate/*.rb
+.ruby-version
+.ruby-gemset
