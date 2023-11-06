@@ -1,3 +1,7 @@
+## [0.5.0] - 2023-11-06
+
+- Rails 7.1 support added
+
 ## [0.4.0] - 2023-07-05
 
 - rollback migrations in the reversed order
