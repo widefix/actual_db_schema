@@ -50,8 +50,7 @@ And then execute:
 
 Just run `rails db:migrate` inside the current branch.
 
-> **Warning**
->
+> [!WARNING]
 > This solution implies that all migrations are reversible. The irreversible migrations should be solved manually. At the moment, the gem ignores them. You will see a warning if some migrations can't roll back automatically.
 
 ## Development
