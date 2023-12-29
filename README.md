@@ -6,7 +6,7 @@ Keep consistent DB schema across branches in your Rails project. Just install `a
 
 ## Why ActualDbSchema
 
-To grasp the purpose of this gem and the issue it addresses, review the problem definition outlined below.
+Still not clear why it's needed? To grasp the purpose of this gem and the issue it addresses, review the problem definition outlined below.
 
 ### The problem definition
 
