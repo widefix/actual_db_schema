@@ -2,7 +2,7 @@
 
 # ActualDbSchema
 
-Keep consistent DB schema across branches in your Rails project. Just install `actual_db_schema` gem and run `db:migrate` in your branch as usual. No additional steps needed.
+Keep consistent DB schema across branches in your Rails project. Just install `actual_db_schema` gem and run `db:migrate` in branches as usual. No additional steps needed.
 
 ## Why ActualDbSchema?
 
