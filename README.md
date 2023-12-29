@@ -2,9 +2,9 @@
 
 # ActualDbSchema
 
-Keep consistent DB schema across branches in your Rails project. Just install `actual_db_schema` gem and run `db:migrate` in branches as usual. No additional steps needed.
+Keep consistent DB schema across branches in your Rails project. Just install `actual_db_schema` gem and run `db:migrate` in branches as usual. It automatically rolls back not relavant migrations (*phantom migrations*). No additional steps needed.
 
-## Why ActualDbSchema?
+## Why ActualDbSchema
 
 To grasp the purpose of this gem and the issue it addresses, review the problem definition outlined below.
 
@@ -20,7 +20,7 @@ Here's an example of this error:
 
 Furthermore, the `db:migrate` task on **branch B** generates an irrelevant diff on the `schema.rb` file, reflecting the new column added in **branch A**.
 
-To fix this, you need to switch back to **branch A**, find the migration that added the problematic field (we'll call it a *phantom migration*), and roll it back. It's a pain, especially if you have a lot of branches in your project, because you have to remember which branch the *phantom migration* is in and then manually roll it back.
+To fix this, you need to switch back to **branch A**, find the migration that added the problematic field, and roll it back. We'll call it a *phantom migration*. It's a pain, especially if you have a lot of branches in your project, because you have to remember which branch the *phantom migration* is in and then manually roll it back.
 
 With `actual_db_schema` gem you don't need to care about that anymore. It saves your time doing all this dirty stuff for you behind the scene automatically.
 
