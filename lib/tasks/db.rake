@@ -23,5 +23,24 @@ namespace :db do
     end
   end
 
+  desc "List all phantom migrations - non-relevant migrations that were run inside not a merged branch."
+  task phantom_migrations: :load_config do
+    unless ActualDbSchema.config.fetch(:enabled, true)
+      raise "ActualDbSchema is disabled. Set ActualDbSchema.config[:enabled] = true to enable it."
+    end
+
+    context = ActiveRecord::Base.connection.migration_context
+    context.extend(ActualDbSchema::Patches::MigrationContext)
+
+    puts "\nPhantom migrations\n\n"
+    puts "The following is a list of non-relevant migrations that were run inside a branch that has not been merged."
+    puts "\ndatabase: #{ActiveRecord::Base.connection_db_config.database}\n\n"
+    puts "#{'Status'.center(8)}  #{'Migration ID'.ljust(14)}  Migration Name"
+    puts "-" * 50
+    context.migrations.each do |migration|
+      puts "#{'up'.center(8)}  #{migration.version.to_s.ljust(14)}  #{migration.filename.gsub(Rails.root.to_s + "/", "")}"
+    end
+  end
+
   task _dump: :rollback_branches
 end
