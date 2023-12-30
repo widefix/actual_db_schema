@@ -2,7 +2,37 @@
 
 # ActualDbSchema
 
-Keep Rails DB schema consistent while switching between branches with no additional actions.
+Does switching between branches in a Rails app mess up your DB schema?
+
+Keep the DB schema actual across branches in your Rails project. Just install `actual_db_schema` gem and run `db:migrate` in branches as usual. It automatically rolls back the *phantom migrations* (non-relevant to the current branch). No additional steps are needed.
+
+## Why ActualDbSchema
+
+Still not clear why it's needed? To grasp the purpose of this gem and the issue it addresses, review the problem definition outlined below.
+
+### The problem definition
+
+Imagine you're working on **branch A**. You add a not-null column to a database table with a migration. You run the migration. Then you switch to **branch B**. The code in **branch B** isn't aware of this newly added field. When it tries to write data to the table, it fails with an error `null value provided for non-null field`. Why? The existing code is writing a null value into the column with a not-null constraint.
+
+Here's an example of this error:
+
+    ActiveRecord::NotNullViolation:
+      PG::NotNullViolation: ERROR:  null value in column "log" of relation "check_results" violates not-null constraint
+      DETAIL:  Failing row contains (8, 46, success, 2022-10-16 21:47:21.07212, 2022-10-16 21:47:21.07212, null).
+
+Furthermore, the `db:migrate` task on **branch B** generates an irrelevant diff on the `schema.rb` file, reflecting the new column added in **branch A**.
+
+To fix this, you need to switch back to **branch A**, find the migration that added the problematic field, and roll it back. We'll call it a *phantom migration*. It's a pain, especially if you have a lot of branches in your project because you have to remember which branch the *phantom migration* is in and then manually roll it back.
+
+With `actual_db_schema` gem you don't need to care about that anymore. It saves you time by handling all this dirty work behind the scenes automatically.
+
+### How it solves the issue
+
+This gem stores all run migrations with their code in the `tmp/migrations` folder. Whenever you perform a schema dump, it rolls back the *phantom migrations*.
+
+The *phantom migrations* list is the difference between the migrations you've executed (in the `tmp/migrations` folder) and the current ones (in the `db/migrate` folder).
+
+Therefore, all you do is run rails `db:migrate` in your current branch. `actual_db_schema` will ensure the DB schema is up-to-date. You'll never have an inaccurate `schema.rb` file again.
 
 ## Installation
 
@@ -20,28 +50,10 @@ And then execute:
 
 ## Usage
 
-TLTR; Just run `rails db:migrate` inside the current branch.
+Just run `rails db:migrate` inside the current branch.
 
-In **branch A** I add a mandatory (not null) field into DB via migration and run it.
-Then I switch to another **branch B**. This branch's code is not aware of that field.
-As the result, the code is failing with an error "null value provided for non-null field".
-Moreover, a DB rake task generates a diff on `schema.rb` that's not relevant to this branch.
-I can switch to **branch A** and roll back the migration, but I need to remember that branch or waste time on it.
-
-Some example of this error:
-
-     ActiveRecord::NotNullViolation:
-       PG::NotNullViolation: ERROR:  null value in column "log" of relation "check_results" violates not-null constraint
-       DETAIL:  Failing row contains (8, 46, success, 2022-10-16 21:47:21.07212, 2022-10-16 21:47:21.07212, null).
-
-This gem saves all run migrations inside `tmp/migrations` folder.
-Every run of schema dump (that's a dependency of `db:migrate` task as well) rolls back the "unknown" for the current branch migrations
-looking into the `tmp/migrations` folder.
-
-You just need to run `rails db:migrate` in the current branch to actualize the DB schema. With its hand, you will never have wrongly generated `schema.rb`.
-
-> **Warning**
-> This solution implies that all migrations are reversible. The cases with irreversible migrations should be solved manually. At the moment, these migrations are ignored by the gem and you will see a warning if some migrations can't roll back automatically.
+> [!WARNING]
+> This solution implies that all migrations are reversible. The irreversible migrations should be solved manually. At the moment, the gem ignores them. You will see warnings in the terminal for each irreversible migrations.
 
 ## Development
 
