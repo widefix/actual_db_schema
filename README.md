@@ -2,7 +2,7 @@
 
 # ActualDbSchema
 
-Does juggling branches in a Rails app mess up your DB schema?
+Does switching between branches in a Rails app mess up your DB schema?
 
 Keep the DB schema actual across branches in your Rails project. Just install `actual_db_schema` gem and run `db:migrate` in branches as usual. It automatically rolls back the *phantom migrations* (non-relevant to the current branch). No additional steps are needed.
 
