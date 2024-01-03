@@ -1,3 +1,8 @@
+## [0.6.0] - 2024-01-03
+
+- Added db:phantom_migrations task to display phantom migrations
+- Updated README
+
 ## [0.5.0] - 2023-11-06
 
 - Rails 7.1 support added
