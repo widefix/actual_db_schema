@@ -55,6 +55,10 @@ Just run `rails db:migrate` inside the current branch.
 > [!WARNING]
 > This solution implies that all migrations are reversible. The irreversible migrations should be solved manually. At the moment, the gem ignores them. You will see warnings in the terminal for each irreversible migrations.
 
+The gem offers the following rake tasks that can be manually run according to your preferences:
+- `rails db:rollback_branches` - run it to manually rolls back phantom migrations.
+- `rails db:phantom_migrations` - displays a list of phantom migrations.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
