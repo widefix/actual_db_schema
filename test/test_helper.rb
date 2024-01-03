@@ -25,3 +25,26 @@ ActiveRecord::Tasks::DatabaseTasks.database_configuration = { test: db_config }
 ActiveRecord::Base.establish_connection(**db_config)
 
 ActualDbSchema.config[:enabled] = true
+
+class TestingState
+  class << self
+    attr_accessor :up, :down, :output
+  end
+
+  def self.reset
+    self.up = []
+    self.down = []
+    self.output = +""
+  end
+
+  reset
+end
+
+module Kernel
+  alias original_puts puts
+
+  def puts(*args)
+    TestingState.output << args.join("\n")
+    original_puts(*args)
+  end
+end
