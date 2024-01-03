@@ -6,6 +6,9 @@ require_relative "actual_db_schema/patches/migration_proxy"
 require_relative "actual_db_schema/patches/migrator"
 require_relative "actual_db_schema/patches/migration_context"
 
+require_relative "actual_db_schema/commands/rollback"
+require_relative "actual_db_schema/commands/list"
+
 # The main module definition
 module ActualDbSchema
   raise NotImplementedError, "ActualDbSchema is only supported in Rails" unless defined?(Rails)
