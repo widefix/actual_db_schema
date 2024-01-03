@@ -2,19 +2,6 @@
 
 require "test_helper"
 
-class TestingState
-  class << self
-    attr_accessor :up, :down
-  end
-
-  def self.reset
-    self.up = []
-    self.down = []
-  end
-
-  reset
-end
-
 def app_file(path)
   Rails.application.config.root.join(path)
 end
@@ -77,24 +64,26 @@ def prepare_phantom_migrations
   delete_migrations_files # simulate switching branches
 end
 
-describe "db:rollback_branches" do
-  let(:migrated_files) do
-    Dir.glob(app_file("tmp/migrated/*.rb")).map { |f| File.basename(f) }.sort
+def cleanup
+  delete_migrations_files
+  if ActiveRecord::SchemaMigration.respond_to?(:create_table)
+    ActiveRecord::SchemaMigration.create_table
+  else
+    ActiveRecord::SchemaMigration.new(ActiveRecord::Base.connection).create_table
   end
+  run_sql("delete from schema_migrations")
+  remove_app_dir("tmp/migrated")
+  define_migrations
+  Rails.application.load_tasks
+  TestingState.reset
+end
 
-  before do
-    delete_migrations_files
-    if ActiveRecord::SchemaMigration.respond_to?(:create_table)
-      ActiveRecord::SchemaMigration.create_table
-    else
-      ActiveRecord::SchemaMigration.new(ActiveRecord::Base.connection).create_table
-    end
-    run_sql("delete from schema_migrations")
-    remove_app_dir("tmp/migrated")
-    define_migrations
-    Rails.application.load_tasks
-    TestingState.reset
-  end
+def migrated_files
+  Dir.glob(app_file("tmp/migrated/*.rb")).map { |f| File.basename(f) }.sort
+end
+
+describe "db:rollback_branches" do
+  before { cleanup }
 
   it "creates the tmp/migrated folder" do
     refute File.exist?(app_file("tmp/migrated"))
@@ -142,5 +131,23 @@ describe "db:rollback_branches" do
       run_migrations
       assert_equal(%w[20130906111513_irreversible.rb], ActualDbSchema.failed.map { |m| File.basename(m.filename) })
     end
+  end
+end
+
+describe "db:phantom_migrations" do
+  before { cleanup }
+
+  def run_task
+    Rake::Task["db:phantom_migrations"].invoke
+    Rake::Task["db:phantom_migrations"].reenable
+  end
+
+  it "shows the list of phantom migrations" do
+    prepare_phantom_migrations
+    run_task
+    assert_match(/ Status   Migration ID    Migration File/, TestingState.output)
+    assert_match(/--------------------------------------------------/, TestingState.output)
+    assert_match(%r{   up     20130906111511  tmp/migrated/20130906111511_first.rb}, TestingState.output)
+    assert_match(%r{   up     20130906111512  tmp/migrated/20130906111512_second.rb}, TestingState.output)
   end
 end
