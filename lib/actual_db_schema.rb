@@ -6,6 +6,7 @@ require_relative "actual_db_schema/patches/migration_proxy"
 require_relative "actual_db_schema/patches/migrator"
 require_relative "actual_db_schema/patches/migration_context"
 
+require_relative "actual_db_schema/commands/base"
 require_relative "actual_db_schema/commands/rollback"
 require_relative "actual_db_schema/commands/list"
 
