@@ -3,7 +3,7 @@
 module ActualDbSchema
   module Commands
     # Rolls back all phantom migrations
-    class Rollback
+    class Rollback < Base
       private
 
       def call_impl

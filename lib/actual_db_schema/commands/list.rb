@@ -3,7 +3,7 @@
 module ActualDbSchema
   module Commands
     # Shows the list of phantom migrations
-    class List
+    class List < Base
       private
 
       def call_impl
