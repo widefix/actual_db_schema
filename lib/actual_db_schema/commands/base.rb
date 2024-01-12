@@ -9,9 +9,9 @@ module ActualDbSchema
           raise "ActualDbSchema is disabled. Set ActualDbSchema.config[:enabled] = true to enable it."
         end
 
-        if ActiveRecord::Migration.current_version >= 6
-          ActiveRecord::Tasks::DatabaseTasks.raise_for_multi_db(command: "db:rollback_branches")
-        end
+        # if ActiveRecord::Migration.current_version >= 6
+        #   ActiveRecord::Tasks::DatabaseTasks.raise_for_multi_db(command: "db:rollback_branches")
+        # end
 
         call_impl
       end
