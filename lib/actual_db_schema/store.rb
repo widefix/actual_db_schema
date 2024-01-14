@@ -23,7 +23,7 @@ module ActualDbSchema
 
     def record_metadata(filename)
       version = File.basename(filename).scan(/(\d+)_.*\.rb/).first.first
-      CSV.open(store_file, "ab") do |csv|
+      CSV.open(store_file, "a") do |csv|
         csv << [
           version,
           Time.current.iso8601,
