@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require "active_record/migration"
-require "CSV"
+require "csv"
+require_relative "actual_db_schema/git"
 require_relative "actual_db_schema/store"
 require_relative "actual_db_schema/version"
 require_relative "actual_db_schema/patches/migration_proxy"

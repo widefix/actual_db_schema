@@ -27,15 +27,9 @@ module ActualDbSchema
         csv << [
           version,
           Time.current.iso8601,
-          `git rev-parse --abbrev-ref HEAD`.strip
+          Git.current_branch
         ]
       end
-    end
-
-    def current_branch
-      `git rev-parse --abbrev-ref HEAD`.strip
-    rescue Errno::ENOENT
-      "unknown"
     end
 
     def folder

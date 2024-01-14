@@ -25,16 +25,17 @@ module ActualDbSchema
       end
 
       def separator_width
-        (8 + 14 + branch_column_width + 2 + "Migration File".length)
+        header.map(&:length).sum + (header.size - 1) * 2
       end
 
       def header
-        [
-          "Status".center(8),
-          "Migration ID".ljust(14),
-          "Branch".ljust(branch_column_width),
-          "Migration File"
-        ]
+        @header ||=
+          [
+            "Status".center(8),
+            "Migration ID".ljust(14),
+            "Branch".ljust(branch_column_width),
+            "Migration File".ljust(16)
+          ]
       end
 
       def table
@@ -51,7 +52,7 @@ module ActualDbSchema
         [
           status.center(8),
           version.to_s.ljust(14),
-          branch_for(version).ljust(14),
+          branch_for(version).ljust(branch_column_width),
           migration.filename.gsub("#{Rails.root}/", "")
         ].join("  ")
       end
@@ -70,7 +71,7 @@ module ActualDbSchema
       end
 
       def branch_column_width
-        longest_branch_name.length + 2
+        longest_branch_name.length
       end
     end
   end
