@@ -6,7 +6,7 @@ module ActualDbSchema
     module MigrationProxy
       def migrate(direction)
         super(direction)
-        FileUtils.copy(filename, ActualDbSchema.migrated_folder.join(basename)) if direction == :up
+        ActualDbSchema::Store.instance.write(filename) if direction == :up
       end
     end
   end
