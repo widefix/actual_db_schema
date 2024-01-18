@@ -143,11 +143,13 @@ describe "db:phantom_migrations" do
   end
 
   it "shows the list of phantom migrations" do
-    prepare_phantom_migrations
-    run_task
-    assert_match(/ Status   Migration ID    Migration File/, TestingState.output)
-    assert_match(/--------------------------------------------------/, TestingState.output)
-    assert_match(%r{   up     20130906111511  tmp/migrated/20130906111511_first.rb}, TestingState.output)
-    assert_match(%r{   up     20130906111512  tmp/migrated/20130906111512_second.rb}, TestingState.output)
+    ActualDbSchema::Git.stub(:current_branch, "fix-bug") do
+      prepare_phantom_migrations
+      run_task
+      assert_match(/ Status   Migration ID    Branch   Migration File/, TestingState.output)
+      assert_match(/---------------------------------------------------/, TestingState.output)
+      assert_match(%r{   up     20130906111511  fix-bug  tmp/migrated/20130906111511_first.rb}, TestingState.output)
+      assert_match(%r{   up     20130906111512  fix-bug  tmp/migrated/20130906111512_second.rb}, TestingState.output)
+    end
   end
 end
