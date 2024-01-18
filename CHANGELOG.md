@@ -1,3 +1,7 @@
+## [0.7.0] - 2024-01-18
+
+- db:phantom_migrations displays the branch in which the phantion migration was run
+
 ## [0.6.0] - 2024-01-03
 
 - Added db:phantom_migrations task to display phantom migrations
