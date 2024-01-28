@@ -18,11 +18,21 @@ end
 Rails.application = FakeApplication.new
 
 db_config = {
-  adapter: "sqlite3",
-  database: "tmp/test.sqlite3"
+  "primary" => {
+    "adapter" => "sqlite3",
+    "database" => "tmp/primary.sqlite3"
+  },
+  "secondary" => {
+    "adapter" => "sqlite3",
+    "database" => "tmp/secondary.sqlite3"
+  }
 }
-ActiveRecord::Tasks::DatabaseTasks.database_configuration = { test: db_config }
-ActiveRecord::Base.establish_connection(**db_config)
+
+ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => db_config }
+
+db_config.each do |db_name, config|
+  ActiveRecord::Base.establish_connection(config)
+end
 
 ActualDbSchema.config[:enabled] = true
 
