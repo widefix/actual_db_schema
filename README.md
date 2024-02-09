@@ -28,9 +28,9 @@ With `actual_db_schema` gem you don't need to care about that anymore. It saves 
 
 ### How it solves the issue
 
-This gem stores all run migrations with their code in the `tmp/migrations` folder. Whenever you perform a schema dump, it rolls back the *phantom migrations*.
+This gem stores all run migrations with their code in the `tmp/migrated` folder. Whenever you perform a schema dump, it rolls back the *phantom migrations*.
 
-The *phantom migrations* list is the difference between the migrations you've executed (in the `tmp/migrations` folder) and the current ones (in the `db/migrate` folder).
+The *phantom migrations* list is the difference between the migrations you've executed (in the `tmp/migrated` folder) and the current ones (in the `db/migrate` folder).
 
 Therefore, all you do is run rails `db:migrate` in your current branch. `actual_db_schema` will ensure the DB schema is up-to-date. You'll never have an inaccurate `schema.rb` file again.
 
