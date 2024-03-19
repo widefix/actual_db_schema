@@ -38,6 +38,7 @@ Gem::Specification.new do |spec|
   # Uncomment to register a new dependency of your gem
   spec.add_runtime_dependency "activerecord", ">= 6.0.0"
   spec.add_runtime_dependency "activesupport", ">= 6.0.0"
+  spec.add_runtime_dependency "csv"
 
   spec.add_development_dependency "appraisal"
   spec.add_development_dependency "debug"
