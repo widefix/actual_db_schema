@@ -1,3 +1,7 @@
+## [0.7.1] - 2024-03-19
+
+- add csv as a dependency since Ruby 3.3 has removed it from the standard library
+
 ## [0.7.0] - 2024-01-18
 
 - db:phantom_migrations displays the branch in which the phantion migration was run
