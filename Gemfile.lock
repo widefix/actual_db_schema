@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    actual_db_schema (0.7.1)
+    actual_db_schema (0.7.2)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
       csv
@@ -93,7 +93,7 @@ GEM
     concurrent-ruby (1.2.2)
     connection_pool (2.4.1)
     crass (1.0.6)
-    csv (3.2.8)
+    csv (3.3.0)
     date (3.3.3)
     debug (1.8.0)
       irb (>= 1.5.0)

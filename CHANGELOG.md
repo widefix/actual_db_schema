@@ -1,3 +1,6 @@
+## [0.7.2] - 2024-03-30
+- update title and description in Rubygems
+
 ## [0.7.1] - 2024-03-19
 
 - add csv as a dependency since Ruby 3.3 has removed it from the standard library

@@ -13,14 +13,14 @@ Gem::Specification.new do |spec|
     Wipe out inconsistent DB and schema.rb when switching branches.
     Just install this gem and use the standard rake db:migrate command.
   DESC
-  spec.homepage = "https://github.com/widefix/actual_db_schema"
+  spec.homepage = "https://blog.widefix.com/actual-db-schema/"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 2.7.0"
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = spec.homepage
+  spec.metadata["source_code_uri"] = "https://github.com/widefix/actual_db_schema"
   spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/main/CHANGELOG.md"
 
   # Specify which files should be added to the gem when it is released.
