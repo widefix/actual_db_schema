@@ -8,11 +8,10 @@ Gem::Specification.new do |spec|
   spec.authors = ["Andrei Kaleshka"]
   spec.email = ["ka8725@gmail.com"]
 
-  spec.summary = "Keep your DB clean and consistent between branches."
+  spec.summary = "Keep your DB and schema.rb consistent in dev branches."
   spec.description = <<~DESC
-    Switching between branches with migrations and running them can make your DB inconsistent
-    and not working in another branch if not roll the migration back.
-    Install this gem and forget about that issue by running the standard rake db:migrate.
+    Wipe out inconsistent DB and schema.rb when switching branches.
+    Just install this gem and use the standard rake db:migrate command.
   DESC
   spec.homepage = "https://github.com/widefix/actual_db_schema"
   spec.license = "MIT"
