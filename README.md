@@ -50,6 +50,8 @@ And then execute:
 
 ## Usage
 
+### Common way
+
 Just run `rails db:migrate` inside the current branch.
 
 > [!WARNING]
@@ -58,6 +60,57 @@ Just run `rails db:migrate` inside the current branch.
 The gem offers the following rake tasks that can be manually run according to your preferences:
 - `rails db:rollback_branches` - run it to manually rolls back phantom migrations.
 - `rails db:phantom_migrations` - displays a list of phantom migrations.
+
+### Local way
+
+If you whant to use `actual_db_schema` gem aside of your project's Gemfile you can create a file in the root of your project named `Gemfile.local` with the following content:
+
+```
+eval_gemfile 'Gemfile'
+gem 'actual_db_schema'
+*# add another favorite gems of yours*
+```
+
+Install the gem with single command:
+
+```
+BUNDLE_GEMFILE=Gemfile.local bundle install
+```
+
+or define the environment variable in your shell profile or .env file:
+
+```
+export BUNDLE_GEMFILE=Gemfile.local
+```
+
+and then install with:
+
+```
+bundle install
+```
+
+Enjoy the gem that has been installed just for you locally. The changes in the Gemfile are not committed. The gem is not installed for anyone else. But don’t forget to add these lines to `.gitignore` file:
+
+```
+Gemfile.local
+Gemfile.local.lock
+```
+
+If you want to commit changes into the original Gemfile, you should unset the BUNDLE_GEMFILE environment variable:
+
+```
+unset BUNDLE_GEMFILE
+```
+
+or temprorary set it to the original Gemfile:
+
+```
+BUNDLE_GEMFILE=Gemfile bundle install
+```
+
+Now, install the gem with the following command:
+
+
 
 ## Development
 
