@@ -108,10 +108,6 @@ or temprorary set it to the original Gemfile:
 BUNDLE_GEMFILE=Gemfile bundle install
 ```
 
-Now, install the gem with the following command:
-
-
-
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
