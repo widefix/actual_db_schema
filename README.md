@@ -59,10 +59,6 @@ The gem offers the following rake tasks that can be manually run according to yo
 - `rails db:rollback_branches` - run it to manually rolls back phantom migrations.
 - `rails db:phantom_migrations` - displays a list of phantom migrations.
 
-The gem offers the following rake tasks that can be manually run according to your preferences:
-- `rails db:rollback_branches` - run it to manually rolls back phantom migrations.
-- `rails db:phantom_migrations` - displays a list of phantom migrations.
-
 ### Local usage
 
 If you're enough of a geek to want to develop with your beloved gems alongside the general Gemfile but separate from it, you could leverage this trick:
