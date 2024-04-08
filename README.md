@@ -72,8 +72,7 @@ gem 'actual_db_schema'
 ```
 
 - install the gems with single command `BUNDLE_GEMFILE=Gemfile.local bundle install`
-- alternatively, define the environment variable in your shell profile or .env file `export BUNDLE_GEMFILE=Gemfile.local`
-- and then install with `bundle install`
+- alternatively, define the environment variable in your shell profile or .env file `export BUNDLE_GEMFILE=Gemfile.local` and then install with `bundle install`
 
 Enjoy the gems that have been installed locally just for you. Remember, the changes in the Gemfile have not been committed, and the gems are not installed for anyone else. Don’t forget to add these lines to your `.gitignore` file:
 
