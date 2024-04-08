@@ -59,6 +59,35 @@ The gem offers the following rake tasks that can be manually run according to yo
 - `rails db:rollback_branches` - run it to manually rolls back phantom migrations.
 - `rails db:phantom_migrations` - displays a list of phantom migrations.
 
+The gem offers the following rake tasks that can be manually run according to your preferences:
+- `rails db:rollback_branches` - run it to manually rolls back phantom migrations.
+- `rails db:phantom_migrations` - displays a list of phantom migrations.
+
+### Local usage
+
+If you're enough of a geek to want to develop with your beloved gems alongside the general Gemfile but separate from it, you could leverage this trick:
+
+- create a root file named `Gemfile.local` with this contents
+
+```
+eval_gemfile 'Gemfile'
+gem 'actual_db_schema'
+*# add more of your favorite gems*
+```
+
+- install the gems with single command `BUNDLE_GEMFILE=Gemfile.local bundle install`
+- alternatively, define the environment variable in your shell profile or .env file `export BUNDLE_GEMFILE=Gemfile.local`
+- and then install with `bundle install`
+
+Enjoy the gems that have been installed locally just for you. Remember, the changes in the Gemfile have not been committed, and the gems are not installed for anyone else. Don’t forget to add these lines to your `.gitignore` file:
+
+```
+Gemfile.local
+Gemfile.local.lock
+```
+
+If you want to commit changes into the original Gemfile, you should unset the BUNDLE_GEMFILE environment variable using `unset BUNDLE_GEMFILE` or temprorary set it to the original Gemfile with `BUNDLE_GEMFILE=Gemfile bundle install`
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
