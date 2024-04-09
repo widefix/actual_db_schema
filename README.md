@@ -61,7 +61,7 @@ The gem offers the following rake tasks that can be manually run according to yo
 
 ### Local usage
 
-If you're enough of a geek to want to develop with your beloved gems alongside the general Gemfile but separate from it, you could leverage this trick:
+If you're passionate enough about developing with your beloved gems alongside the general Gemfile but separate from it, you could leverage this trick:
 
 - create a root file named `Gemfile.local` with this contents
 
@@ -74,7 +74,7 @@ gem 'actual_db_schema'
 - install the gems with single command `BUNDLE_GEMFILE=Gemfile.local bundle install`
 - alternatively, define the environment variable in your shell profile or .env file `export BUNDLE_GEMFILE=Gemfile.local` and then install with `bundle install`
 
-Enjoy the gems that have been installed locally just for you. Remember, the changes in the Gemfile have not been committed, and the gems are not installed for anyone else. Don’t forget to add these lines to your `.gitignore` file:
+The changes made in the local Gemfile should not be committed. Therefore, add it to `~/.gitignore` file. Note, it's a global config to eliminate any commits into the repo:
 
 ```
 Gemfile.local
@@ -82,6 +82,8 @@ Gemfile.local.lock
 ```
 
 If you want to commit changes into the original Gemfile, you should unset the BUNDLE_GEMFILE environment variable using `unset BUNDLE_GEMFILE` or temprorary set it to the original Gemfile with `BUNDLE_GEMFILE=Gemfile bundle install`
+
+[Read more about your Gemfile customizing](https://blog.widefix.com/personal-gemfile-for-development/)
 
 ## Development
 
