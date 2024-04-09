@@ -83,7 +83,7 @@ Gemfile.local.lock
 
 If you want to commit changes into the original Gemfile, you should unset the BUNDLE_GEMFILE environment variable using `unset BUNDLE_GEMFILE` or temprorary set it to the original Gemfile with `BUNDLE_GEMFILE=Gemfile bundle install`
 
-[Read more about your Gemfile customizing](https://blog.widefix.com/personal-gemfile-for-development/)
+[Learn more about customizing your Gemfile](https://blog.widefix.com/personal-gemfile-for-development/)
 
 ## Development
 
