@@ -48,6 +48,8 @@ And then execute:
 
     $ bundle install
 
+If you cannot commit changes to the repo or Gemfile, consider the local Gemfile installation described in this [post](https://blog.widefix.com/personal-gemfile-for-development/).
+
 ## Usage
 
 Just run `rails db:migrate` inside the current branch.
@@ -58,32 +60,6 @@ Just run `rails db:migrate` inside the current branch.
 The gem offers the following rake tasks that can be manually run according to your preferences:
 - `rails db:rollback_branches` - run it to manually rolls back phantom migrations.
 - `rails db:phantom_migrations` - displays a list of phantom migrations.
-
-### Local usage
-
-If you're passionate enough about developing with your beloved gems alongside the general Gemfile but separate from it, you could leverage this trick:
-
-- create a root file named `Gemfile.local` with this contents
-
-```
-eval_gemfile 'Gemfile'
-gem 'actual_db_schema'
-*# add more of your favorite gems*
-```
-
-- install the gems with single command `BUNDLE_GEMFILE=Gemfile.local bundle install`
-- alternatively, define the environment variable in your shell profile or .env file `export BUNDLE_GEMFILE=Gemfile.local` and then install with `bundle install`
-
-The changes made in the local Gemfile should not be committed. Therefore, add it to `~/.gitignore` file. Note, it's a global config to eliminate any commits into the repo:
-
-```
-Gemfile.local
-Gemfile.local.lock
-```
-
-If you want to commit changes into the original Gemfile, you should unset the BUNDLE_GEMFILE environment variable using `unset BUNDLE_GEMFILE` or temprorary set it to the original Gemfile with `BUNDLE_GEMFILE=Gemfile bundle install`
-
-[Learn more about customizing your Gemfile](https://blog.widefix.com/personal-gemfile-for-development/)
 
 ## Development
 
