@@ -48,6 +48,8 @@ And then execute:
 
     $ bundle install
 
+If you cannot commit changes to the repo or Gemfile, consider the local Gemfile installation described in [this post](https://blog.widefix.com/personal-gemfile-for-development/).
+
 ## Usage
 
 Just run `rails db:migrate` inside the current branch.
