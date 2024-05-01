@@ -34,7 +34,7 @@ module ActualDbSchema
     end
 
     def folder
-      ActualDbSchema.migrated_folder
+      ActualDbSchema.migrated_folders.first
     end
 
     def store_file

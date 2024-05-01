@@ -32,7 +32,7 @@ module ActualDbSchema
       def migration_files
         paths = Array(migrations_paths)
         current_branch_files = Dir[*paths.flat_map { |path| "#{path}/**/[0-9]*_*.rb" }]
-        other_branches_files = Dir["#{ActualDbSchema.migrated_folder}/**/[0-9]*_*.rb"]
+        other_branches_files = Dir[*ActualDbSchema.migrated_folders.flat_map { |path| "#{path}/**/[0-9]*_*.rb" }]
 
         current_branch_file_names = current_branch_files.map { |f| ActualDbSchema.migration_filename(f) }
         other_branches_files.reject { |f| ActualDbSchema.migration_filename(f).in?(current_branch_file_names) }

@@ -41,6 +41,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "appraisal"
   spec.add_development_dependency "debug"
+  spec.add_development_dependency "minitest-around"
   spec.add_development_dependency "rails"
   spec.add_development_dependency "sqlite3"
 

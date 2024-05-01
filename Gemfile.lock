@@ -122,6 +122,8 @@ GEM
     marcel (1.0.2)
     mini_mime (1.1.5)
     minitest (5.20.0)
+    minitest-around (0.5.0)
+      minitest (~> 5.0)
     mutex_m (0.1.2)
     net-imap (0.4.4)
       date
@@ -230,6 +232,7 @@ DEPENDENCIES
   appraisal
   debug
   minitest (~> 5.0)
+  minitest-around
   rails
   rake
   rubocop (~> 1.21)

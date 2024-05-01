@@ -4,6 +4,7 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "rails/all"
 require "actual_db_schema"
 require "minitest/autorun"
+require "minitest/around/spec"
 require "debug"
 require "support/test_utils"
 
@@ -18,18 +19,23 @@ end
 
 Rails.application = FakeApplication.new
 
-db_config = {
-  adapter: "sqlite3",
-  database: "tmp/test.sqlite3"
-}
-ActiveRecord::Tasks::DatabaseTasks.database_configuration = { test: db_config }
-ActiveRecord::Base.establish_connection(**db_config)
-
-ActualDbSchema.config[:enabled] = true
-
 class TestingState
   class << self
     attr_accessor :up, :down, :output
+  end
+
+  def self.db_config
+    {
+      "primary" => {
+        adapter: "sqlite3",
+        database: "tmp/primary.sqlite3"
+      },
+      "secondary" => {
+        adapter: "sqlite3",
+        database: "tmp/secondary.sqlite3",
+        migrations_paths: Rails.root.join("db", "migrate_secondary").to_s
+      }
+    }
   end
 
   def self.reset
@@ -40,6 +46,11 @@ class TestingState
 
   reset
 end
+
+ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config }
+ActiveRecord::Base.establish_connection(TestingState.db_config["primary"])
+
+ActualDbSchema.config[:enabled] = true
 
 module Kernel
   alias original_puts puts
