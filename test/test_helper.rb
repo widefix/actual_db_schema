@@ -48,7 +48,7 @@ class TestingState
 end
 
 ActiveRecord::Tasks::DatabaseTasks.database_configuration = { test: TestingState.db_config }
-ActiveRecord::Base.establish_connection(TestingState.db_config["primary"])
+ActiveRecord::Base.establish_connection(**TestingState.db_config["primary"])
 
 ActualDbSchema.config[:enabled] = true
 
