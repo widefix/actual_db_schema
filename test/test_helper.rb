@@ -26,11 +26,11 @@ class TestingState
 
   def self.db_config
     {
-      "primary" => {
+      primary: {
         adapter: "sqlite3",
         database: "tmp/primary.sqlite3"
       },
-      "secondary" => {
+      secondary: {
         adapter: "sqlite3",
         database: "tmp/secondary.sqlite3",
         migrations_paths: Rails.root.join("db", "migrate_secondary").to_s
@@ -47,8 +47,8 @@ class TestingState
   reset
 end
 
-ActiveRecord::Tasks::DatabaseTasks.database_configuration = { test: TestingState.db_config }
-ActiveRecord::Base.establish_connection(**TestingState.db_config["primary"])
+ActiveRecord::Tasks::DatabaseTasks.database_configuration = { test: TestingState.db_config.fetch(:primary) }
+ActiveRecord::Base.establish_connection(**TestingState.db_config.fetch(:primary))
 
 ActualDbSchema.config[:enabled] = true
 

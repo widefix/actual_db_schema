@@ -9,7 +9,7 @@ describe "multiple databases support" do
 
   around do |block|
     original_db_config = ActiveRecord::Base.connection_db_config
-    ActiveRecord::Base.establish_connection(TestingState.db_config["secondary"])
+    ActiveRecord::Base.establish_connection(TestingState.db_config.fetch(:secondary))
     utils.cleanup
     block.call
   ensure
