@@ -9,11 +9,16 @@ describe "multiple databases support" do
 
   around do |block|
     original_db_config = ActiveRecord::Base.connection_db_config
+    original = ActiveRecord::Tasks::DatabaseTasks.database_configuration
+    ActiveRecord::Tasks::DatabaseTasks.database_configuration = {
+      test: TestingState.db_config.fetch(:secondary)
+    }
     ActiveRecord::Base.establish_connection(TestingState.db_config.fetch(:secondary))
     utils.cleanup
     block.call
   ensure
     ActiveRecord::Base.establish_connection(original_db_config)
+    ActiveRecord::Tasks::DatabaseTasks.database_configuration = original
   end
 
   describe "db:rollback_branches" do
