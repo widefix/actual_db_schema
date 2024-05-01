@@ -33,16 +33,20 @@ module ActualDbSchema
   end
 
   def self.migrated_folders
-    return [Rails.root.join("tmp", "migrated")] unless migrations_paths
+    return [default_migrated_folder] unless migrations_paths
 
     Array(migrations_paths).map do |path|
       if path.end_with?("db/migrate")
-        Rails.root.join("tmp", "migrated")
+        default_migrated_folder
       else
         postfix = path.split("/").last
         Rails.root.join("tmp", "migrated_#{postfix}")
       end
     end
+  end
+
+  def default_migrated_folder
+    Rails.root.join("tmp", "migrated")
   end
 
   def self.migrations_paths
