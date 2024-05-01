@@ -29,7 +29,24 @@ module ActualDbSchema
   }
 
   def self.migrated_folder
-    Rails.root.join("tmp", "migrated").tap { |folder| FileUtils.mkdir_p(folder) }
+    migrated_folders.first
+  end
+
+  def self.migrated_folders
+    return [Rails.root.join("tmp", "migrated")] unless migrations_paths
+
+    Array(migrations_paths).map do |path|
+      if path.end_with?("db/migrate")
+        Rails.root.join("tmp", "migrated")
+      else
+        postfix = path.split("/").last
+        Rails.root.join("tmp", "migrated_#{postfix}")
+      end
+    end
+  end
+
+  def self.migrations_paths
+    ActiveRecord::Base.connection_db_config.migrations_paths
   end
 
   def self.migration_filename(fullpath)

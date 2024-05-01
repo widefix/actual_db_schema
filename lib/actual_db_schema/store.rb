@@ -9,6 +9,7 @@ module ActualDbSchema
 
     def write(filename)
       basename = File.basename(filename)
+      FileUtils.mkdir_p(folder)
       FileUtils.copy(filename, folder.join(basename))
       record_metadata(filename)
     end
