@@ -18,15 +18,6 @@ end
 
 Rails.application = FakeApplication.new
 
-db_config = {
-  adapter: "sqlite3",
-  database: "tmp/test.sqlite3"
-}
-ActiveRecord::Tasks::DatabaseTasks.database_configuration = { test: db_config }
-ActiveRecord::Base.establish_connection(**db_config)
-
-ActualDbSchema.config[:enabled] = true
-
 class TestingState
   class << self
     attr_accessor :up, :down, :output
@@ -38,8 +29,25 @@ class TestingState
     self.output = +""
   end
 
+  def self.db_config
+    {
+      "primary" => {
+        "adapter" => "sqlite3",
+        "database" => "tmp/primary.sqlite3",
+        "migrations_paths" => Rails.root.join("db", "migrate").to_s
+      },
+      "secondary" => {
+        "adapter" => "sqlite3",
+        "database" => "tmp/secondary.sqlite3",
+        "migrations_paths" => Rails.root.join("db", "migrate_secondary").to_s
+      }
+    }
+  end
+
   reset
 end
+
+ActualDbSchema.config[:enabled] = true
 
 module Kernel
   alias original_puts puts

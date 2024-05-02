@@ -2,21 +2,23 @@
 
 require "test_helper"
 
-describe "single db" do
-  let(:utils) { TestUtils.new }
+describe "multiple databases support" do
+  let(:utils) do
+    TestUtils.new(migrations_path: "db/migrate_secondary", migrated_path: "tmp/migrated_migrate_secondary")
+  end
 
   before do
-    ActiveRecord::Base.configurations = { "test" => TestingState.db_config["primary"] }
-    ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config["primary"] }
-    ActiveRecord::Base.establish_connection(**TestingState.db_config["primary"])
+    ActiveRecord::Base.configurations = { "test" => TestingState.db_config["secondary"] }
+    ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config["secondary"] }
+    ActiveRecord::Base.establish_connection(**TestingState.db_config["secondary"])
     utils.cleanup
   end
 
   describe "db:rollback_branches" do
-    it "creates the tmp/migrated folder" do
-      refute File.exist?(utils.app_file("tmp/migrated"))
+    it "creates the tmp/migrated_migrate_secondary folder" do
+      refute File.exist?(utils.app_file("tmp/migrated_migrate_secondary"))
       utils.run_migrations
-      assert File.exist?(utils.app_file("tmp/migrated"))
+      assert File.exist?(utils.app_file("tmp/migrated_migrate_secondary"))
     end
 
     it "migrates the migrations" do
@@ -70,8 +72,14 @@ describe "single db" do
         Rake::Task["db:phantom_migrations"].reenable
         assert_match(/ Status   Migration ID    Branch   Migration File/, TestingState.output)
         assert_match(/---------------------------------------------------/, TestingState.output)
-        assert_match(%r{   up     20130906111511  fix-bug  tmp/migrated/20130906111511_first.rb}, TestingState.output)
-        assert_match(%r{   up     20130906111512  fix-bug  tmp/migrated/20130906111512_second.rb}, TestingState.output)
+        assert_match(
+          %r{   up     20130906111511  fix-bug  tmp/migrated_migrate_secondary/20130906111511_first.rb},
+          TestingState.output
+        )
+        assert_match(
+          %r{   up     20130906111512  fix-bug  tmp/migrated_migrate_secondary/20130906111512_second.rb},
+          TestingState.output
+        )
       end
     end
   end
