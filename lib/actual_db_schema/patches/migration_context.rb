@@ -5,7 +5,6 @@ module ActualDbSchema
     # Add new command to roll back the phantom migrations
     module MigrationContext
       def rollback_branches
-        ActualDbSchema.failed = []
         migrations.reverse_each do |migration|
           migrator = down_migrator_for(migration)
           migrator.extend(ActualDbSchema::Patches::Migrator)

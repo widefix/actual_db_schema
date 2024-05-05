@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-describe "multiple databases support" do
+describe "second db support" do
   let(:utils) do
     TestUtils.new(migrations_path: "db/migrate_secondary", migrated_path: "tmp/migrated_migrate_secondary")
   end

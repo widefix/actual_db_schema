@@ -26,6 +26,7 @@ class TestingState
   def self.reset
     self.up = []
     self.down = []
+    ActualDbSchema.failed = []
     self.output = +""
   end
 
