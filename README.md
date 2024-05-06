@@ -52,7 +52,7 @@ If you cannot commit changes to the repo or Gemfile, consider the local Gemfile 
 
 ## Usage
 
-Just run `rails db:migrate` inside the current branch.
+Just run `rails db:migrate` inside the current branch. It will roll back all phantom migrations for all configured databases in your `database.yml.`
 
 > [!WARNING]
 > This solution implies that all migrations are reversible. The irreversible migrations should be solved manually. At the moment, the gem ignores them. You will see warnings in the terminal for each irreversible migrations.
