@@ -5,7 +5,12 @@ require "test_helper"
 describe "single db" do
   let(:utils) { TestUtils.new }
 
-  before { utils.cleanup }
+  before do
+    ActiveRecord::Base.configurations = { "test" => TestingState.db_config["primary"] }
+    ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config["primary"] }
+    ActiveRecord::Base.establish_connection(**TestingState.db_config["primary"])
+    utils.cleanup
+  end
 
   describe "db:rollback_branches" do
     it "creates the tmp/migrated folder" do

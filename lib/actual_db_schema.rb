@@ -56,6 +56,14 @@ module ActualDbSchema
   def self.migration_filename(fullpath)
     fullpath.split("/").last
   end
+
+  def self.for_each_db_connection
+    configs = ActiveRecord::Base.configurations.configs_for(env_name: ActiveRecord::Tasks::DatabaseTasks.env)
+    configs.each do |db_config|
+      ActiveRecord::Base.establish_connection(db_config)
+      yield
+    end
+  end
 end
 
 ActiveRecord::MigrationProxy.prepend(ActualDbSchema::Patches::MigrationProxy)
