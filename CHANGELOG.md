@@ -1,3 +1,6 @@
+## [0.7.3] - 2024-04-06
+- add multipe databases support
+
 ## [0.7.2] - 2024-03-30
 - update title and description in Rubygems
 
