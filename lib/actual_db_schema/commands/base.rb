@@ -20,7 +20,7 @@ module ActualDbSchema
 
       def context
         @context ||=
-          ActiveRecord::Base.connection.migration_context.tap do |c|
+          ActiveRecord::Base.connection_pool.migration_context.tap do |c|
             c.extend(ActualDbSchema::Patches::MigrationContext)
           end
       end
