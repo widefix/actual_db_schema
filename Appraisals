@@ -7,7 +7,7 @@
   end
 end
 
-appraise "rails-edge" do
+appraise "rails.edge" do
   gem "rails", github: "rails/rails", branch: "main"
   gem "activerecord", github: "rails/rails"
   gem "activesupport", github: "rails/rails"
