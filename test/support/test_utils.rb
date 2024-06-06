@@ -140,15 +140,24 @@ class TestUtils
 
   def cleanup_call(prefix_name = nil)
     delete_migrations_files(prefix_name)
-    if ActiveRecord::SchemaMigration.respond_to?(:create_table)
-      ActiveRecord::SchemaMigration.create_table
-    else
-      ActiveRecord::SchemaMigration.new(ActiveRecord::Base.connection).create_table
-    end
+    create_schema_migration_table
     run_sql("delete from schema_migrations")
     remove_app_dir(MIGRATED_PATHS.fetch(prefix_name&.to_sym, migrated_paths.first))
     define_migrations(prefix_name)
     Rails.application.load_tasks
+  end
+
+  def create_schema_migration_table
+    if ActiveRecord::SchemaMigration.respond_to?(:create_table)
+      ActiveRecord::SchemaMigration.create_table
+    else
+      ar_version = Gem::Version.new(ActiveRecord::VERSION::STRING)
+      if ar_version >= Gem::Version.new("7.2.0") || (ar_version >= Gem::Version.new("7.1.0") && ar_version.prerelease?)
+        ActiveRecord::SchemaMigration.new(ActiveRecord::Base.connection_pool).create_table
+      else
+        ActiveRecord::SchemaMigration.new(ActiveRecord::Base.connection).create_table
+      end
+    end
   end
 
   def delete_migrations_files_for(path)

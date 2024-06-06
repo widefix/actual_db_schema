@@ -7,7 +7,8 @@
 /spec/reports/
 /tmp/
 /test/dummy_app/tmp/
-/test/dummy_app/db/migrate/*.rb
-/test/dummy_app/db/schema.rb
+/test/dummy_app/db/*/*.rb
+/test/dummy_app/db/*.rb
 .ruby-version
 .ruby-gemset
+/gemfiles/*.gemfile.lock
