@@ -8,7 +8,7 @@
 end
 
 appraise "rails.edge" do
-  gem "rails", github: "rails/rails", branch: "main"
-  gem "activerecord", github: "rails/rails"
-  gem "activesupport", github: "rails/rails"
+  gem "rails", ">= 7.2.0.beta"
+  gem "activerecord", ">= 7.2.0.beta"
+  gem "activesupport", ">= 7.2.0.beta"
 end
