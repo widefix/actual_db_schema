@@ -6,3 +6,9 @@
     gem "activesupport", "~> #{version}.0"
   end
 end
+
+appraise "rails.edge" do
+  gem "rails", ">= 7.2.0.beta"
+  gem "activerecord", ">= 7.2.0.beta"
+  gem "activesupport", ">= 7.2.0.beta"
+end
