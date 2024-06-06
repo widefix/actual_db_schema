@@ -1,6 +1,5 @@
 ## [0.7.4] - 2024-06-06
 - Rails 7.2 support added
-- Added edge rails to the Appraisals testing matrix
 
 ## [0.7.3] - 2024-04-06
 - add multipe databases support
