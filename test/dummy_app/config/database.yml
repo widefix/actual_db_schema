@@ -1,0 +1,11 @@
+test:
+  primary:
+    adapter: sqlite3
+    database: tmp/primary.sqlite3
+    migrations_paths: 
+      - <%= Rails.root.join('db', 'migrate').to_s %>
+  secondary:
+    adapter: sqlite3
+    database: tmp/secondary.sqlite3
+    migrations_paths:
+      - <%= Rails.root.join('db', 'migrate_secondary').to_s %>

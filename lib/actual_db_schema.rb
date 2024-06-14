@@ -50,7 +50,11 @@ module ActualDbSchema
   end
 
   def self.migrations_paths
-    ActiveRecord::Base.connection_db_config.migrations_paths
+    if ActiveRecord::Base.respond_to?(:connection_db_config)
+      ActiveRecord::Base.connection_db_config.migrations_paths
+    else
+      ActiveRecord::Base.connection_config[:migrations_paths]
+    end
   end
 
   def self.migration_filename(fullpath)
@@ -60,7 +64,8 @@ module ActualDbSchema
   def self.for_each_db_connection
     configs = ActiveRecord::Base.configurations.configs_for(env_name: ActiveRecord::Tasks::DatabaseTasks.env)
     configs.each do |db_config|
-      ActiveRecord::Base.establish_connection(db_config)
+      config = db_config.respond_to?(:config) ? db_config.config : db_config
+      ActiveRecord::Base.establish_connection(config)
       yield
     end
   end
