@@ -1,0 +1,11 @@
+test:
+  primary:
+    adapter: sqlite3
+    database: tmp/primary.sqlite3
+    migrations_paths: 
+      - <%= ENV['PRIMARY_MIGRATIONS_PATH'] %>
+  secondary:
+    adapter: sqlite3
+    database: tmp/secondary.sqlite3
+    migrations_paths:
+      - <%= ENV['SECONDARY_MIGRATIONS_PATH'] %>
