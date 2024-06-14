@@ -75,6 +75,26 @@ To release a new version do the following in the order:
 - make the commit and push;
 - run `bundle exec rake release`. This will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
+### Running Tests with Specific Rails Versions
+
+The following versions can be specifically tested using Appraisal
+- 6.0
+- 6.1
+- 7.0
+- 7.1
+- edge
+
+To run tests with a specific version of Rails using Appraisal:
+- Run all tests with Rails 6.0:
+  ```sh
+  bundle exec appraisal rails.6.0 rake test
+- Run tests for a specific file:
+  ```sh
+  bundle exec appraisal rails.6.0 rake test TEST=test/rake_task_test.rb
+- Run a specific test:
+  ```sh
+  bundle exec appraisal rails.6.0 rake test TEST=test/rake_task_test.rb TESTOPTS="--name=/db::db:rollback_branches#test_0003_keeps/"
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/widefix/actual_db_schema. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/widefix/actual_db_schema/blob/master/CODE_OF_CONDUCT.md).
