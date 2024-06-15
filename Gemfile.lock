@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    actual_db_schema (0.7.3)
+    actual_db_schema (0.7.4)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
       csv
@@ -133,6 +133,8 @@ GEM
     net-smtp (0.4.0)
       net-protocol
     nio4r (2.5.9)
+    nokogiri (1.15.4-arm64-darwin)
+      racc (~> 1.4)
     nokogiri (1.15.4-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.15.4-x86_64-linux)
@@ -204,6 +206,7 @@ GEM
       parser (>= 3.2.1.0)
     ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
+    sqlite3 (1.6.8-arm64-darwin)
     sqlite3 (1.6.8-x86_64-darwin)
     sqlite3 (1.6.8-x86_64-linux)
     stringio (3.0.8)
@@ -219,6 +222,7 @@ GEM
     zeitwerk (2.6.12)
 
 PLATFORMS
+  arm64-darwin-23
   x86_64-darwin-20
   x86_64-darwin-22
   x86_64-linux
