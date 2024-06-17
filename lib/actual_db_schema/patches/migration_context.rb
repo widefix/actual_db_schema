@@ -4,6 +4,26 @@ module ActualDbSchema
   module Patches
     # Add new command to roll back the phantom migrations
     module MigrationContext
+      def manually_rollback_branches
+        total_migrations = migrations.size
+        migrations.reverse_each.with_index(1) do |migration, index|
+          puts "\n(#{index}/#{total_migrations}) Migration: #{migration.filename}\n\n"
+          puts File.read(migration.filename)
+
+          print "Do you want to rollback this migration? [y,n] "
+          answer = gets.chomp.downcase
+
+          if answer == "y"
+            migrator = down_migrator_for(migration)
+            migrator.extend(ActualDbSchema::Patches::Migrator)
+            migrator.migrate
+            puts "Rolled back: #{migration.filename}"
+          elsif answer == "n"
+            puts "Skipped: #{migration.filename}"
+          end
+        end
+      end
+
       def rollback_branches
         migrations.reverse_each do |migration|
           migrator = down_migrator_for(migration)
