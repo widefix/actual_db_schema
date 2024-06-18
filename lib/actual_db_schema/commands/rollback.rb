@@ -5,14 +5,13 @@ module ActualDbSchema
     # Rolls back all phantom migrations
     class Rollback < Base
       def initialize(manual_mode)
-        debugger
         @manual_mode = manual_mode
+        super()
       end
 
       private
 
       def call_impl
-        debugger
         @manual_mode ? context.manually_rollback_branches : context.rollback_branches
 
         return if ActualDbSchema.failed.empty?

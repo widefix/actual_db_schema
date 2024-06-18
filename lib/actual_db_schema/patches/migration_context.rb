@@ -5,34 +5,19 @@ module ActualDbSchema
     # Add new command to roll back the phantom migrations
     module MigrationContext
       def manually_rollback_branches
-        total_migrations = migrations.size
-        migrations.reverse_each.with_index(1) do |migration, index|
-          puts "\n(#{index}/#{total_migrations}) Migration: #{migration.filename}\n\n"
+        migrations.reverse_each do |migration|
           puts File.read(migration.filename)
-
-          print "Do you want to rollback this migration? [y,n] "
-          answer = gets.chomp.downcase
-
-          if answer == "y"
-            migrator = down_migrator_for(migration)
-            migrator.extend(ActualDbSchema::Patches::Migrator)
-            migrator.migrate
-            puts "Rolled back: #{migration.filename}"
-          elsif answer == "n"
-            puts "Skipped: #{migration.filename}"
-          end
+          prompt_user_for_migration(migration)
+        rescue StandardError => e
+          handle_migration_error(e, migration)
         end
       end
 
       def rollback_branches
         migrations.reverse_each do |migration|
-          migrator = down_migrator_for(migration)
-          migrator.extend(ActualDbSchema::Patches::Migrator)
-          migrator.migrate
+          migrate(migration)
         rescue StandardError => e
-          raise unless e.message.include?("ActiveRecord::IrreversibleMigration")
-
-          ActualDbSchema.failed << migration
+          handle_migration_error(e, migration)
         end
       end
 
@@ -55,6 +40,39 @@ module ActualDbSchema
 
         current_branch_file_names = current_branch_files.map { |f| ActualDbSchema.migration_filename(f) }
         other_branches_files.reject { |f| ActualDbSchema.migration_filename(f).in?(current_branch_file_names) }
+      end
+
+      def prompt_user_for_migration(migration)
+        loop do
+          print "Do you want to rollback this migration? [y,n] "
+          answer = $stdin.gets.chomp.downcase
+          break if process_user_input(answer, migration)
+        end
+      end
+
+      def handle_migration_error(error, migration)
+        raise unless error.message.include?("ActiveRecord::IrreversibleMigration")
+
+        ActualDbSchema.failed << migration
+      end
+
+      def migrate(migration)
+        migrator = down_migrator_for(migration)
+        migrator.extend(ActualDbSchema::Patches::Migrator)
+        migrator.migrate
+      end
+
+      def process_user_input(answer, migration)
+        case answer
+        when "y"
+          migrate(migration)
+          true
+        when "n"
+          true
+        else
+          puts "Invalid answer. Please enter 'y' or 'n'."
+          false
+        end
       end
     end
   end
