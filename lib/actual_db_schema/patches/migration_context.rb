@@ -6,6 +6,8 @@ module ActualDbSchema
     module MigrationContext
       def manually_rollback_branches
         migrations.reverse_each do |migration|
+          next unless status_up?(migration)
+
           puts File.read(migration.filename)
           prompt_user_for_migration(migration)
         rescue StandardError => e
@@ -40,6 +42,12 @@ module ActualDbSchema
 
         current_branch_file_names = current_branch_files.map { |f| ActualDbSchema.migration_filename(f) }
         other_branches_files.reject { |f| ActualDbSchema.migration_filename(f).in?(current_branch_file_names) }
+      end
+
+      def status_up?(migration)
+        migrations_status.any? do |status, version|
+          status == "up" && version.to_s == migration.version.to_s
+        end
       end
 
       def prompt_user_for_migration(migration)

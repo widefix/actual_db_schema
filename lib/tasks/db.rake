@@ -2,12 +2,20 @@
 
 namespace :db do
   desc "Rollback migrations that were run inside not a merged branch."
-  task :rollback_branches, [:mode] => :load_config do |_t, args|
-    manual_mode = args[:mode] == "manual"
-
+  task rollback_branches: :load_config do
     ActualDbSchema.failed = []
     ActualDbSchema.for_each_db_connection do
-      ActualDbSchema::Commands::Rollback.new(manual_mode).call
+      ActualDbSchema::Commands::Rollback.new(false).call
+    end
+  end
+
+  namespace :rollback_branches do
+    desc "Manually rollback phantom migrations one by one"
+    task manual: :load_config do
+      ActualDbSchema.failed = []
+      ActualDbSchema.for_each_db_connection do
+        ActualDbSchema::Commands::Rollback.new(true).call
+      end
     end
   end
 

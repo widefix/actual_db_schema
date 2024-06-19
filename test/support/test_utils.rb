@@ -60,6 +60,15 @@ class TestUtils
     end
   end
 
+  def simulate_input(input)
+    original_stdin = $stdin
+    fake_stdin = StringIO.new("#{([input] * 30).join("\n")}\n")
+    $stdin = fake_stdin
+    yield
+  ensure
+    $stdin = original_stdin
+  end
+
   def delete_migrations_files(prefix_name = nil)
     path = MIGRATION_PATHS.fetch(prefix_name&.to_sym, migrations_paths.first)
     delete_migrations_files_for(path)

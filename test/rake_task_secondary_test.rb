@@ -64,6 +64,33 @@ describe "second db support" do
     end
   end
 
+  describe "db:rollback_branches:manual" do
+    before do
+      utils.define_migration_file("20130906111513_irreversible.rb", <<~RUBY)
+        class Irreversible < ActiveRecord::Migration[6.0]
+          def up
+            TestingState.up << :irreversible
+          end
+
+          def down
+            raise ActiveRecord::IrreversibleMigration
+          end
+        end
+      RUBY
+    end
+
+    it "keeps track of the irreversible migrations" do
+      utils.prepare_phantom_migrations
+      assert_equal %i[first second irreversible], TestingState.up
+      assert_empty ActualDbSchema.failed
+      utils.simulate_input("y") do
+        Rake::Task["db:rollback_branches:manual"].invoke
+        Rake::Task["db:rollback_branches:manual"].reenable
+      end
+      assert_equal(%w[20130906111513_irreversible.rb], ActualDbSchema.failed.map { |m| File.basename(m.filename) })
+    end
+  end
+
   describe "db:phantom_migrations" do
     it "shows the list of phantom migrations" do
       ActualDbSchema::Git.stub(:current_branch, "fix-bug") do
