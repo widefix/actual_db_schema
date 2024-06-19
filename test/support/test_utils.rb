@@ -61,12 +61,8 @@ class TestUtils
   end
 
   def simulate_input(input)
-    original_stdin = $stdin
-    fake_stdin = StringIO.new("#{([input] * 99).join("\n")}\n")
-    $stdin = fake_stdin
+    $stdin = StringIO.new("#{([input] * 999).join("\n")}\n")
     yield
-  ensure
-    $stdin = original_stdin
   end
 
   def delete_migrations_files(prefix_name = nil)
