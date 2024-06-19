@@ -89,6 +89,17 @@ describe "second db support" do
       end
       assert_equal(%w[20130906111513_irreversible.rb], ActualDbSchema.failed.map { |m| File.basename(m.filename) })
     end
+
+    it "skips migrations if the input is 'n'" do
+      utils.prepare_phantom_migrations
+      assert_equal %i[first second irreversible], TestingState.up
+      assert_empty ActualDbSchema.failed
+      utils.simulate_input("n") do
+        Rake::Task["db:rollback_branches:manual"].invoke
+        Rake::Task["db:rollback_branches:manual"].reenable
+      end
+      assert_equal([], ActualDbSchema.failed.map { |m| File.basename(m.filename) })
+    end
   end
 
   describe "db:phantom_migrations" do

@@ -62,7 +62,7 @@ class TestUtils
 
   def simulate_input(input)
     original_stdin = $stdin
-    fake_stdin = StringIO.new("#{([input] * 30).join("\n")}\n")
+    fake_stdin = StringIO.new("#{([input] * 99).join("\n")}\n")
     $stdin = fake_stdin
     yield
   ensure
