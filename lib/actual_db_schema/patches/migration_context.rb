@@ -53,7 +53,7 @@ module ActualDbSchema
       def user_wants_rallback
         print "Rollback this migration? [y,n] "
         answer = $stdin.gets.chomp.downcase
-        answer.downcase == "y" || "yes"
+        %w[y yes].include?(answer)
       end
 
       def handle_migration_error(error, migration)
