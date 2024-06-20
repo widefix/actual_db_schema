@@ -5,7 +5,7 @@ namespace :db do
   task rollback_branches: :load_config do
     ActualDbSchema.failed = []
     ActualDbSchema.for_each_db_connection do
-      ActualDbSchema::Commands::Rollback.new(false).call
+      ActualDbSchema::Commands::Rollback.new.call
     end
   end
 
@@ -14,7 +14,7 @@ namespace :db do
     task manual: :load_config do
       ActualDbSchema.failed = []
       ActualDbSchema.for_each_db_connection do
-        ActualDbSchema::Commands::Rollback.new(true).call
+        ActualDbSchema::Commands::Rollback.new(manual_mode: true).call
       end
     end
   end

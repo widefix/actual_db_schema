@@ -9,7 +9,7 @@ module ActualDbSchema
           next unless status_up?(migration)
 
           puts File.read(migration.filename)
-          prompt_user_for_migration(migration)
+          migrate(migration) if user_wants_rallback
         rescue StandardError => e
           handle_migration_error(e, migration)
         end
@@ -50,12 +50,10 @@ module ActualDbSchema
         end
       end
 
-      def prompt_user_for_migration(migration)
-        loop do
-          print "Do you want to rollback this migration? [y,n] "
-          answer = $stdin.gets.chomp.downcase
-          break if process_user_input(answer, migration)
-        end
+      def user_wants_rallback
+        print "Rollback this migration? [y,n] "
+        answer = $stdin.gets.chomp.downcase
+        answer == "y"
       end
 
       def handle_migration_error(error, migration)
@@ -68,19 +66,6 @@ module ActualDbSchema
         migrator = down_migrator_for(migration)
         migrator.extend(ActualDbSchema::Patches::Migrator)
         migrator.migrate
-      end
-
-      def process_user_input(answer, migration)
-        case answer
-        when "y"
-          migrate(migration)
-          true
-        when "n"
-          true
-        else
-          puts "Invalid answer. Please enter 'y' or 'n'."
-          false
-        end
       end
     end
   end
