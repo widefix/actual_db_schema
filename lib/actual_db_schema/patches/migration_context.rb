@@ -4,20 +4,12 @@ module ActualDbSchema
   module Patches
     # Add new command to roll back the phantom migrations
     module MigrationContext
-      def manually_rollback_branches
+      def rollback_branches(manual_mode: false)
         migrations.reverse_each do |migration|
           next unless status_up?(migration)
 
-          puts File.read(migration.filename)
-          migrate(migration) if user_wants_rallback?
-        rescue StandardError => e
-          handle_migration_error(e, migration)
-        end
-      end
-
-      def rollback_branches
-        migrations.reverse_each do |migration|
-          migrate(migration)
+          show_info_for(migration) if manual_mode
+          migrate(migration) if !manual_mode || user_wants_rollback?
         rescue StandardError => e
           handle_migration_error(e, migration)
         end
@@ -50,10 +42,19 @@ module ActualDbSchema
         end
       end
 
-      def user_wants_rallback?
-        print "Rollback this migration? [y,n] "
+      def user_wants_rollback?
+        print "\nRollback this migration? [y,n] "
         answer = $stdin.gets.chomp.downcase
         answer[0] == "y"
+      end
+
+      def show_info_for(migration)
+        puts "\nPreparing to manually rollback the current database migration."
+        puts "Please review the migration details carefully before proceeding.\n\n"
+        puts "Branch: #{branch_for(migration.version.to_s)}"
+        puts "Database: #{db_config[:database]}"
+        puts "Version: #{migration.version}\n\n"
+        puts File.read(migration.filename)
       end
 
       def handle_migration_error(error, migration)
@@ -66,6 +67,22 @@ module ActualDbSchema
         migrator = down_migrator_for(migration)
         migrator.extend(ActualDbSchema::Patches::Migrator)
         migrator.migrate
+      end
+
+      def db_config
+        @db_config ||= if ActiveRecord::Base.respond_to?(:connection_db_config)
+                         ActiveRecord::Base.connection_db_config.configuration_hash
+                       else
+                         ActiveRecord::Base.connection_config
+                       end
+      end
+
+      def branch_for(version)
+        metadata.fetch(version, {})[:branch] || "unknown"
+      end
+
+      def metadata
+        @metadata ||= ActualDbSchema::Store.instance.read
       end
     end
   end

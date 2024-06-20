@@ -12,7 +12,7 @@ module ActualDbSchema
       private
 
       def call_impl
-        @manual_mode ? context.manually_rollback_branches : context.rollback_branches
+        context.rollback_branches(manual_mode: @manual_mode)
 
         return if ActualDbSchema.failed.empty?
 
