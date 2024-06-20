@@ -49,8 +49,8 @@ module ActualDbSchema
       end
 
       def show_info_for(migration)
-        puts "\nPreparing to manually rollback the current database migration."
-        puts "Please review the migration details carefully before proceeding.\n\n"
+        puts "\n[ActualDbSchema] A phantom migration was found and is about to be rolled back."
+        puts "Please make a decision from the options below to proceed.\n\n"
         puts "Branch: #{branch_for(migration.version.to_s)}"
         puts "Database: #{db_config[:database]}"
         puts "Version: #{migration.version}\n\n"
