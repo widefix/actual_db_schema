@@ -85,6 +85,55 @@ describe "multipe db support" do
     end
   end
 
+  describe "db:rollback_branches:manual" do
+    it "skips migrations if the input is 'n'" do
+      utils.prepare_phantom_migrations
+      assert_equal %i[first_primary second_primary first_secondary second_secondary], TestingState.up
+      assert_empty TestingState.down
+      assert_empty ActualDbSchema.failed
+
+      utils.simulate_input("n") do
+        Rake::Task["db:rollback_branches:manual"].invoke
+        Rake::Task["db:rollback_branches:manual"].reenable
+      end
+      assert_empty TestingState.down
+      assert_equal %i[first_primary second_primary first_secondary second_secondary], TestingState.up
+    end
+
+    describe "with irreversible migration" do
+      before do
+        %w[primary secondary].each do |prefix|
+          utils.define_migration_file("20130906111513_irreversible_#{prefix}.rb", <<~RUBY, prefix: prefix)
+            class Irreversible#{prefix.camelize} < ActiveRecord::Migration[6.0]
+              def up
+                TestingState.up << :irreversible_#{prefix}
+              end
+
+              def down
+                raise ActiveRecord::IrreversibleMigration
+              end
+            end
+          RUBY
+        end
+      end
+
+      it "keeps track of the irreversible migrations" do
+        utils.prepare_phantom_migrations(TestingState.db_config)
+        assert_equal(
+          %i[first_primary second_primary irreversible_primary irreversible_secondary first_secondary second_secondary],
+          TestingState.up
+        )
+        assert_empty ActualDbSchema.failed
+        utils.simulate_input("y") do
+          Rake::Task["db:rollback_branches:manual"].invoke
+          Rake::Task["db:rollback_branches:manual"].reenable
+        end
+        failed = ActualDbSchema.failed.map { |m| File.basename(m.filename) }
+        assert_equal(%w[20130906111513_irreversible_primary.rb 20130906111513_irreversible_secondary.rb], failed)
+      end
+    end
+  end
+
   describe "db:phantom_migrations" do
     it "shows the list of phantom migrations" do
       ActualDbSchema::Git.stub(:current_branch, "fix-bug") do

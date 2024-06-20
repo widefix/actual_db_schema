@@ -9,6 +9,16 @@ namespace :db do
     end
   end
 
+  namespace :rollback_branches do
+    desc "Manually rollback phantom migrations one by one"
+    task manual: :load_config do
+      ActualDbSchema.failed = []
+      ActualDbSchema.for_each_db_connection do
+        ActualDbSchema::Commands::Rollback.new(manual_mode: true).call
+      end
+    end
+  end
+
   desc "List all phantom migrations - non-relevant migrations that were run inside not a merged branch."
   task phantom_migrations: :load_config do
     ActualDbSchema.for_each_db_connection do

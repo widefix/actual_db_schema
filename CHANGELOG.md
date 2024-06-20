@@ -1,3 +1,6 @@
+## [0.7.5] - 2024-06-20
+- Added db:rollback_migrations:manual task to manually rolls back phantom migrations one by one
+
 ## [0.7.4] - 2024-06-06
 - Rails 7.2 support added
 - Rails 6.0 support added

@@ -59,6 +59,7 @@ Just run `rails db:migrate` inside the current branch. It will roll back all pha
 
 The gem offers the following rake tasks that can be manually run according to your preferences:
 - `rails db:rollback_branches` - run it to manually rolls back phantom migrations.
+- `rails db:rollback_branches:manual` - run it to manually rolls back phantom migrations one by one.
 - `rails db:phantom_migrations` - displays a list of phantom migrations.
 
 ## Development
