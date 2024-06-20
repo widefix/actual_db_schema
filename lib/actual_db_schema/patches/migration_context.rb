@@ -9,7 +9,7 @@ module ActualDbSchema
           next unless status_up?(migration)
 
           puts File.read(migration.filename)
-          migrate(migration) if user_wants_rallback
+          migrate(migration) if user_wants_rallback?
         rescue StandardError => e
           handle_migration_error(e, migration)
         end
@@ -50,10 +50,10 @@ module ActualDbSchema
         end
       end
 
-      def user_wants_rallback
+      def user_wants_rallback?
         print "Rollback this migration? [y,n] "
         answer = $stdin.gets.chomp.downcase
-        %w[y yes].include?(answer)
+        answer[0] == "y"
       end
 
       def handle_migration_error(error, migration)
