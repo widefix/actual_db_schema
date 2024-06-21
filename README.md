@@ -62,6 +62,25 @@ The gem offers the following rake tasks that can be manually run according to yo
 - `rails db:rollback_branches:manual` - run it to manually rolls back phantom migrations one by one.
 - `rails db:phantom_migrations` - displays a list of phantom migrations.
 
+## Disabling Automatic Rollback
+
+By default, the automatic rollback of migrations is enabled. If you prefer to perform manual rollbacks, you can disable the automatic rollback in two ways:
+
+### Using Environment Variable
+
+Set the environment variable `ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED` to `true`:
+
+```sh
+export ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED=true
+```
+
+### Using Initializer
+Add the following line to your initializer file (config/initializers/actual_db_schema.rb):
+
+```ruby
+ActualDbSchema.config[:auto_rollback_disabled] = true
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -89,12 +108,15 @@ To run tests with a specific version of Rails using Appraisal:
 - Run all tests with Rails 6.0:
   ```sh
   bundle exec appraisal rails.6.0 rake test
+  ```
 - Run tests for a specific file:
   ```sh
   bundle exec appraisal rails.6.0 rake test TEST=test/rake_task_test.rb
+  ```
 - Run a specific test:
   ```sh
   bundle exec appraisal rails.6.0 rake test TEST=test/rake_task_test.rb TESTOPTS="--name=/db::db:rollback_branches#test_0003_keeps/"
+  ```
 
 ## Contributing
 
