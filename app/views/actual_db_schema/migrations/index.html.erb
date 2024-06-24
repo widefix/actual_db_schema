@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Migrations</title>
+</head>
+<body>
+  <h1>Phantom Migrations</h1>
+
+  <table class="migrations-list">
+    <thead>
+      <tr>
+        <th>Status</th>
+        <th>Migration ID</th>
+        <th>Branch</th>
+        <th>Migration File</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @phantom_migrations.each do |migration| %>
+        <tr>
+          <td><%= migration[:status] %></td>
+          <td><%= migration[:version] %></td>
+          <td><%= migration[:branch] %></td>
+          <td><%= migration[:filename] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</body>
+</html>
+

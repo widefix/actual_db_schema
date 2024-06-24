@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "actual_db_schema/engine"
 require "active_record/migration"
 require "csv"
 require_relative "actual_db_schema/git"
