@@ -26,7 +26,7 @@ module ActualDbSchema
   self.failed = []
   self.config = {
     enabled: Rails.env.development?,
-    auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"] == "true"
+    auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?
   }
 
   def self.migrated_folder

@@ -5,7 +5,7 @@ module ActualDbSchema
     # Rolls back all phantom migrations
     class Rollback < Base
       def initialize(manual_mode: false)
-        @manual_mode = manual_mode || manual_mode_as_default?
+        @manual_mode = manual_mode || manual_mode_default?
         super()
       end
 
@@ -23,7 +23,7 @@ module ActualDbSchema
         puts ""
       end
 
-      def manual_mode_as_default?
+      def manual_mode_default?
         ActualDbSchema.config[:auto_rollback_disabled]
       end
     end

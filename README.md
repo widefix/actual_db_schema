@@ -66,7 +66,7 @@ The gem offers the following rake tasks that can be manually run according to yo
 
 By default, the automatic rollback of migrations is enabled. If you prefer to perform manual rollbacks, you can disable the automatic rollback in two ways:
 
-### Using Environment Variable
+### 1.Using Environment Variable
 
 Set the environment variable `ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED` to `true`:
 
@@ -74,8 +74,8 @@ Set the environment variable `ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED` to `true`
 export ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED=true
 ```
 
-### Using Initializer
-Add the following line to your initializer file (config/initializers/actual_db_schema.rb):
+### 2.Using Initializer
+Add the following line to your initializer file (`config/initializers/actual_db_schema.rb`):
 
 ```ruby
 ActualDbSchema.config[:auto_rollback_disabled] = true
