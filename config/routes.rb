@@ -2,7 +2,9 @@
 
 ActualDbSchema::Engine.routes.draw do
   root to: "migrations#index"
-  namespace :actual_db_schema do
-    resources :migrations, only: [:index]
+  resources :migrations, only: %i[index show] do
+    member do
+      post :rollback
+    end
   end
 end
