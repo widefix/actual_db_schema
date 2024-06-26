@@ -1,88 +1,41 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Phantom Migrations</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f8f9fa;
-    }
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-    .migrations-list {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-      background-color: #fff;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .migrations-list th, .migrations-list td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    .migrations-list th {
-      background-color: #f4f4f4;
-    }
-    .migrations-list tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    .actions {
-      display: flex;
-      gap: 10px;
-    }
-    .button {
-      padding: 5px 10px;
-      border: none;
-      color: #fff;
-      background-color: #007bff;
-      cursor: pointer;
-      text-decoration: none;
-      border-radius: 3px;
-    }
-    .button:hover {
-      background-color: #0056b3;
-    }
-    .button-rollback {
-      background-color: #dc3545;
-    }
-    .button-rollback:hover {
-      background-color: #c82333;
-    }
-  </style>
-</head>
-<body>
-  <h1>Phantom Migrations</h1>
-
-  <table class="migrations-list">
-    <thead>
-      <tr>
-        <th>Status</th>
-        <th>Migration ID</th>
-        <th>Name</th>
-        <th>Branch</th>
-        <th>Database</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @migrations.each do |migration| %>
-        <tr>
-          <td><%= migration[:status] %></td>
-          <td><%= migration[:version] %></td>
-          <td><%= migration[:name] %></td>
-          <td><%= migration[:branch] %></td>
-          <td><%= migration[:database] %></td>
-          <td class="actions">
-            <%= link_to 'Show', actual_db_schema.migration_path(migration[:version]), class: 'button' %>
-            <%= button_to 'Rollback', rollback_migration_path(migration[:version]), method: :post, class: 'button button-rollback' %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</body>
+  <head>
+    <title>Phantom Migrations</title>
+    <%= stylesheet_link_tag 'actual_db_schema/styles', media: 'all' %>
+  </head>
+  <body>
+    <div>
+      <h2>Phantom Migrations</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Migration ID</th>
+            <th>Name</th>
+            <th>Branch</th>
+            <th>Database</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @migrations.each do |migration| %>
+            <tr>
+              <td><%= migration[:status] %></td>
+              <td><%= migration[:version] %></td>
+              <td><%= migration[:name] %></td>
+              <td><%= migration[:branch] %></td>
+              <td><%= migration[:database] %></td>
+              <td>
+                <div class='button-container'>
+                  <%= link_to 'Show', actual_db_schema.migration_path(id: migration[:version], database: migration[:database]), class: 'button' %>
+                  <%= button_to 'Rollback', rollback_migration_path(id: migration[:version], database: migration[:database]), method: :post, class: 'button' %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </body>
 </html>
