@@ -1,102 +1,45 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Migration Details</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f8f9fa;
-    }
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-    .migration-details {
-      max-width: 800px;
-      margin: 0 auto;
-      background-color: #fff;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      border-radius: 5px;
-    }
-    .migration-details h2 {
-      margin-top: 0;
-    }
-    .migration-details table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .migration-details th, .migration-details td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    .migration-details th {
-      background-color: #f4f4f4;
-    }
-    .migration-details pre {
-      background-color: #f4f4f4;
-      padding: 10px;
-      border-radius: 3px;
-      overflow: auto;
-    }
-    .actions {
-      text-align: center;
-      margin-top: 20px;
-    }
-    .button {
-      padding: 10px 20px;
-      border: none;
-      color: #fff;
-      background-color: #007bff;
-      cursor: pointer;
-      text-decoration: none;
-      border-radius: 3px;
-    }
-    .button:hover {
-      background-color: #0056b3;
-    }
-    .button-rollback {
-      margin-top: 16px;
-      background-color: #dc3545;
-    }
-    .button-rollback:hover {
-      background-color: #c82333;
-    }
-  </style>
-</head>
-<body>
-  <h1>Migration Details</h1>
+  <head>
+    <title>Migration Details</title>
+    <%= stylesheet_link_tag 'actual_db_schema/styles', media: 'all' %>
+  </head>
+  <body>
+    <div>
+      <h2>Migration <%= @migration[:name] %> Details</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th>Status</th>
+            <td><%= @migration[:status] %></td>
+          </tr>
+          <tr>
+            <th>Migration ID</th>
+            <td><%= @migration[:version] %></td>
+          </tr>
+          <tr>
+            <th>Branch</th>
+            <td><%= @migration[:branch] %></td>
+          </tr>
+          <tr>
+            <th>Database</th>
+            <td><%= @migration[:database] %></td>
+          </tr>
+          <tr>
+            <th>Path</th>
+            <td><%= @migration[:filename] %></td>
+          </tr>
+        </tbody>
+      </table>
 
-  <div class="migration-details">
-    <h2>Migration <%= @migration[:version] %>: <%= @migration[:name] %></h2>
-    <table>
-      <tr>
-        <th>Status</th>
-        <td><%= @migration[:status] %></td>
-      </tr>
-      <tr>
-        <th>Branch</th>
-        <td><%= @migration[:branch] %></td>
-      </tr>
-      <tr>
-        <th>Database</th>
-        <td><%= @migration[:database] %></td>
-      </tr>
-      <tr>
-        <th>Filename</th>
-        <td><%= @migration[:filename] %></td>
-      </tr>
-    </table>
-
-    <h3>Migration Code</h3>
-    <pre><%= File.read(@migration[:filename]) %></pre>
-
-    <div class="actions">
-      <%= link_to 'Back', actual_db_schema.migrations_path, class: 'button' %>
-      <%= button_to 'Rollback', rollback_migration_path(@migration[:version]), method: :post, class: 'button button-rollback' %>
+      <h3>Migration Code</h3>
+      <div>
+        <pre><%= File.read(@migration[:filename]) %></pre>
+      </div>
+      <div class='button-container'>
+        <%= link_to 'Back', actual_db_schema.migrations_path, class: 'button' %>
+        <%= button_to 'Rollback', rollback_migration_path(id: @migration[:version], database: @migration[:database]), method: :post, class: 'button' %>
+      </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>

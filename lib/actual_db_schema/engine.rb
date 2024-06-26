@@ -10,5 +10,9 @@ module ActualDbSchema
         mount ActualDbSchema::Engine => "/actual_db_schema"
       end
     end
+
+    initializer "actual_db_schema.assets.precompile" do |app|
+      app.config.assets.precompile += %w[actual_db_schema/styles.css]
+    end
   end
 end

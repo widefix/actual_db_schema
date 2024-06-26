@@ -4,19 +4,18 @@ module ActualDbSchema
   # Controller to display the list of phantom migrations for each database connection.
   class MigrationsController < ActionController::Base
     before_action :load_migrations, only: %i[index]
-    before_action :load_migration, only: %i[show rollback]
 
     def index; end
 
-    def show; end
+    def show
+      @migration = load_migration(params[:id], params[:database])
+    end
 
     def rollback
       version = params[:id]
+      database = params[:database]
 
-      ActualDbSchema.for_each_db_connection do
-        context = prepare_context
-        context.rollback_branches(manual_mode: false) if context.migrations.detect { |m| m.version.to_s == version }
-      end
+      rollback_migration(version, database)
 
       redirect_to actual_db_schema.migrations_path, notice: "Migration #{version} has been rolled back."
     end
@@ -39,29 +38,37 @@ module ActualDbSchema
       end
     end
 
-    def load_migration
-      @migration = find_migration_in_all_connections(params[:id])
-      render_not_found unless @migration
-    end
-
-    def find_migration_in_all_connections(version)
-      migration = nil
-
+    def load_migration(version, database)
       ActualDbSchema.for_each_db_connection do
+        next unless db_config[:database] == database
+
         context = prepare_context
         migration = find_migration_in_context(context, version)
-        break if migration
+        return migration if migration
       end
+      nil
+    end
 
-      migration
+    def rollback_migration(version, database)
+      ActualDbSchema.for_each_db_connection do
+        next unless db_config[:database] == database
+
+        context = prepare_context
+        if context.migrations.detect { |m| m.version.to_s == version }
+          context.run(:down, version.to_i)
+          break
+        end
+      end
     end
 
     def find_migration_in_context(context, version)
       migration = context.migrations.detect { |m| m.version.to_s == version }
-      status = context.migrations_status.detect { |_s, v| v.to_s == version }&.first || 'unknown'
+      return unless migration
+
+      status = context.migrations_status.detect { |_s, v| v.to_s == version }&.first || "unknown"
       build_migration_hash(status, migration.version.to_s, migration)
     end
-  
+
     def prepare_context
       context = fetch_migration_context
       context.extend(ActualDbSchema::Patches::MigrationContext)
