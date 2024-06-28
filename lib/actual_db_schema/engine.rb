@@ -7,7 +7,7 @@ module ActualDbSchema
 
     initializer "actual_db_schema.append_routes", after: "add_routing_paths" do |app|
       app.routes.append do
-        mount ActualDbSchema::Engine => "/actual_db_schema"
+        mount ActualDbSchema::Engine => "/rails"
       end
     end
 

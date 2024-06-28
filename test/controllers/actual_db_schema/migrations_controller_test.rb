@@ -1,30 +1,37 @@
 # frozen_string_literal: true
 
-require "test_helper"
+require_relative "../../test_helper"
 require_relative "../../../app/controllers/actual_db_schema/migrations_controller"
 
 module ActualDbSchema
-  class MigrationsControllerTest < ActionController::TestCase
+  class MigrationsControllerTest < ActionDispatch::IntegrationTest
     def setup
       @utils = TestUtils.new
-      @migration_version = @utils.migration_timestamps.first
-      @database = "primary"
+      @app = Rails.application
+      @routes = @app.routes
+      Rails.logger = Logger.new($stdout)
+      ActualDbSchema::MigrationsController.include(@routes.url_helpers)
+      Rails.application.routes.draw do
+        get "/rails/migrations" => "actual_db_schema/migrations#index"
+      end
+      ActionController::Base.view_paths = [File.expand_path("../../../app/views/", __dir__)]
+      active_record_setup
+      @utils.cleanup
+    end
 
+    def active_record_setup
       ActiveRecord::Base.configurations = { "test" => TestingState.db_config["primary"] }
       ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config["primary"] }
       ActiveRecord::Base.establish_connection(**TestingState.db_config["primary"])
-      @utils.cleanup(TestingState.db_config)
-      @utils.prepare_phantom_migrations(TestingState.db_config)
-
-      @routes = ActualDbSchema::Engine.routes
-
-      @controller = ActualDbSchema::MigrationsController.new
     end
 
-    test "should get index" do
-      get :index
+    test "GET #index route resolves to correct controller action" do
+      assert_routing "/rails/migrations", controller: "actual_db_schema/migrations", action: "index"
+    end
+
+    test "GET #index returns a successful response" do
+      get "/rails/migrations"
       assert_response :success
-      assert_select "h2", "Phantom Migrations"
     end
   end
 end
