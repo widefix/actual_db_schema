@@ -5,14 +5,16 @@ module ActualDbSchema
   class Engine < ::Rails::Engine
     isolate_namespace ActualDbSchema
 
-    initializer "actual_db_schema.append_routes", after: "add_routing_paths" do |app|
-      app.routes.append do
-        mount ActualDbSchema::Engine => "/rails"
+    initializer "actual_db_schema.append_routes", after: :add_routing_paths do |app|
+      if Rails.env.development? || Rails.env.test?
+        app.routes.append do
+          mount ActualDbSchema::Engine => "/rails"
+        end
       end
     end
 
     initializer "actual_db_schema.assets.precompile" do |app|
-      app.config.assets.precompile += %w[actual_db_schema/styles.css]
+      app.config.assets.precompile += %w[actual_db_schema/styles.css] if Rails.env.development?
     end
   end
 end
