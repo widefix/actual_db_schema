@@ -17,7 +17,7 @@ module ActualDbSchema
 
       rollback_migration(version, database)
 
-      redirect_to actual_db_schema.migrations_path, notice: "Migration #{version} has been rolled back."
+      redirect_to migrations_path, notice: "Migration #{version} has been rolled back."
     end
 
     private

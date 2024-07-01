@@ -28,7 +28,7 @@
               <td><%= migration[:database] %></td>
               <td>
                 <div class='button-container'>
-                  <%= link_to 'Show', actual_db_schema.migration_path(id: migration[:version], database: migration[:database]), class: 'button' %>
+                  <%= link_to 'Show', migration_path(id: migration[:version], database: migration[:database]), class: 'button' %>
                   <%= button_to 'Rollback', rollback_migration_path(id: migration[:version], database: migration[:database]), method: :post, class: 'button' %>
                 </div>
               </td>
