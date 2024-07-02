@@ -35,32 +35,65 @@ module ActualDbSchema
     test "GET #index returns a successful response" do
       get :index
       assert_response :success
-      assert_equal(2, @controller.instance_variable_get(:@migrations).count)
-      assert_equal(2, @controller.instance_variable_get(:@migrations).count { |migration| migration[:status] == "up" })
-      assert_equal(0, @controller.instance_variable_get(:@migrations).count do |migration|
-                        migration[:status] == "down"
-                      end)
+      assert_select "table" do
+        assert_select "tbody" do
+          assert_select "tr" do
+            assert_select "td", text: "up"
+            assert_select "td", text: "20130906111511"
+            assert_select "td", text: "First"
+          end
+          assert_select "tr" do
+            assert_select "td", text: "up"
+            assert_select "td", text: "20130906111512"
+            assert_select "td", text: "Second"
+          end
+        end
+      end
     end
 
     test "GET #show returns a successful response" do
       get :show, params: { id: "20130906111511", database: "tmp/primary.sqlite3" }
       assert_response :success
-      assert_equal "20130906111511", @controller.instance_variable_get(:@migration)[:version]
-      assert_equal "up", @controller.instance_variable_get(:@migration)[:status]
-      assert_equal "First", @controller.instance_variable_get(:@migration)[:name]
       assert_select "h2", text: "Migration First Details"
+      assert_select "table" do
+        assert_select "tr" do
+          assert_select "th", text: "Status"
+          assert_select "td", text: "up"
+        end
+        assert_select "tr" do
+          assert_select "th", text: "Migration ID"
+          assert_select "td", text: "20130906111511"
+        end
+        assert_select "tr" do
+          assert_select "th", text: "Database"
+          assert_select "td", text: "tmp/primary.sqlite3"
+        end
+      end
     end
 
     test "POST #rollback changes migration status to down" do
       post :rollback, params: { id: "20130906111511", database: "tmp/primary.sqlite3" }
       assert_response :redirect
       get :index
-      assert_equal(1, @controller.instance_variable_get(:@migrations).count { |migration| migration[:status] == "up" })
-      assert_equal(1, @controller.instance_variable_get(:@migrations).count do |migration|
-                        migration[:status] == "down"
-                      end)
+      assert_select "table" do
+        assert_select "tbody" do
+          assert_select "tr" do
+            assert_select "td", text: "down"
+            assert_select "td", text: "20130906111511"
+            assert_select "td", text: "First"
+          end
+          assert_select "tr" do
+            assert_select "td", text: "up"
+            assert_select "td", text: "20130906111512"
+            assert_select "td", text: "Second"
+          end
+        end
+      end
       get :show, params: { id: "20130906111511", database: "tmp/primary.sqlite3" }
-      assert_equal "down", @controller.instance_variable_get(:@migration)[:status]
+      assert_select "tr" do
+        assert_select "th", text: "Status"
+        assert_select "td", text: "down"
+      end
     end
   end
 end

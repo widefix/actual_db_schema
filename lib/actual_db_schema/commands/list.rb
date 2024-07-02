@@ -52,17 +52,13 @@ module ActualDbSchema
         [
           status.center(8),
           version.to_s.ljust(14),
-          branch_for(version).ljust(branch_column_width),
+          ActualDbSchema.branch_for(metadata, version).ljust(branch_column_width),
           migration.filename.gsub("#{Rails.root}/", "")
         ].join("  ")
       end
 
-      def branch_for(version)
-        metadata.fetch(version, {})[:branch] || "unknown"
-      end
-
       def metadata
-        @metadata ||= ActualDbSchema::Store.instance.read
+        @metadata ||= ActualDbSchema.metadata
       end
 
       def longest_branch_name
