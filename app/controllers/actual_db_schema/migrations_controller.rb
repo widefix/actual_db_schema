@@ -33,14 +33,14 @@ module ActualDbSchema
           migration = indexed_phantom_migrations[version]
           next unless migration
 
-          @migrations << build_migration_hash(status, version, migration)
+          @migrations << build_migration_struct(status, migration)
         end
       end
     end
 
     def load_migration(version, database)
       ActualDbSchema.for_each_db_connection do
-        next unless db_config[:database] == database
+        next unless ActualDbSchema.db_config[:database] == database
 
         context = prepare_context
         migration = find_migration_in_context(context, version)
@@ -51,7 +51,7 @@ module ActualDbSchema
 
     def rollback_migration(version, database)
       ActualDbSchema.for_each_db_connection do
-        next unless db_config[:database] == database
+        next unless ActualDbSchema.db_config[:database] == database
 
         context = prepare_context
         if context.migrations.detect { |m| m.version.to_s == version }
@@ -66,42 +66,24 @@ module ActualDbSchema
       return unless migration
 
       status = context.migrations_status.detect { |_s, v| v.to_s == version }&.first || "unknown"
-      build_migration_hash(status, migration.version.to_s, migration)
+      build_migration_struct(status, migration)
     end
 
     def prepare_context
-      context = fetch_migration_context
+      context = ActualDbSchema.fetch_migration_context
       context.extend(ActualDbSchema::Patches::MigrationContext)
       context
     end
 
-    def build_migration_hash(status, version, migration)
-      {
-        status: status,
-        version: version,
-        name: migration.name,
-        branch: branch_for(version),
-        database: db_config[:database],
-        filename: migration.filename
-      }
-    end
-
-    def fetch_migration_context
-      ar_version = Gem::Version.new(ActiveRecord::VERSION::STRING)
-      if ar_version >= Gem::Version.new("7.2.0") ||
-         (ar_version >= Gem::Version.new("7.1.0") && ar_version.prerelease?)
-        ActiveRecord::Base.connection_pool.migration_context
-      else
-        ActiveRecord::Base.connection.migration_context
-      end
-    end
-
-    def db_config
-      if ActiveRecord::Base.respond_to?(:connection_db_config)
-        ActiveRecord::Base.connection_db_config.configuration_hash
-      else
-        ActiveRecord::Base.connection_config
-      end
+    def build_migration_struct(status, migration)
+      ActualDbSchema::MigrationStruct.new(
+        status,
+        migration.version.to_s,
+        migration.name,
+        branch_for(migration.version),
+        ActualDbSchema.db_config[:database],
+        migration.filename
+      )
     end
 
     def branch_for(version)

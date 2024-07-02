@@ -30,6 +30,8 @@ module ActualDbSchema
     auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?
   }
 
+  MigrationStruct = Struct.new(:status, :version, :name, :branch, :database, :filename)
+
   def self.migrated_folder
     migrated_folders.first
   end
@@ -56,6 +58,23 @@ module ActualDbSchema
       ActiveRecord::Base.connection_db_config.migrations_paths
     else
       ActiveRecord::Base.connection_config[:migrations_paths]
+    end
+  end
+
+  def self.fetch_migration_context
+    ar_version = Gem::Version.new(ActiveRecord::VERSION::STRING)
+    if ar_version >= Gem::Version.new("7.2.0") || (ar_version >= Gem::Version.new("7.1.0") && ar_version.prerelease?)
+      ActiveRecord::Base.connection_pool.migration_context
+    else
+      ActiveRecord::Base.connection.migration_context
+    end
+  end
+
+  def self.db_config
+    if ActiveRecord::Base.respond_to?(:connection_db_config)
+      ActiveRecord::Base.connection_db_config.configuration_hash
+    else
+      ActiveRecord::Base.connection_config
     end
   end
 
