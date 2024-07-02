@@ -30,7 +30,7 @@ module ActualDbSchema
     auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?
   }
 
-  MigrationStruct = Struct.new(:status, :version, :name, :branch, :database, :filename)
+  MigrationStruct = Struct.new(:status, :version, :name, :branch, :database, :filename, keyword_init: true)
 
   def self.migrated_folder
     migrated_folders.first

@@ -76,13 +76,13 @@ module ActualDbSchema
     end
 
     def build_migration_struct(status, migration)
-      ActualDbSchema::MigrationStruct.new(
-        status,
-        migration.version.to_s,
-        migration.name,
-        branch_for(migration.version),
-        ActualDbSchema.db_config[:database],
-        migration.filename
+      MigrationStruct.new(
+        status: status,
+        version: migration.version.to_s,
+        name: migration.name,
+        branch: branch_for(migration.version),
+        database: ActualDbSchema.db_config[:database],
+        filename: migration.filename
       )
     end
 
