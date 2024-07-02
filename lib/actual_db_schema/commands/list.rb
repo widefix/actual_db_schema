@@ -19,18 +19,9 @@ module ActualDbSchema
         puts "\nPhantom migrations\n\n"
         puts "Below is a list of irrelevant migrations executed in unmerged branches."
         puts "To bring your database schema up to date, the migrations marked as \"up\" should be rolled back."
-        database_path = db_config[:database]
-        puts "\ndatabase: #{database_path}\n\n"
+        puts "\ndatabase: #{ActualDbSchema.db_config[:database]}\n\n"
         puts header.join("  ")
         puts "-" * separator_width
-      end
-
-      def db_config
-        if ActiveRecord::Base.respond_to?(:connection_db_config)
-          ActiveRecord::Base.connection_db_config.configuration_hash
-        else
-          ActiveRecord::Base.connection_config
-        end
       end
 
       def separator_width

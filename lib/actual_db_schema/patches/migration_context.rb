@@ -52,7 +52,7 @@ module ActualDbSchema
         puts "\n[ActualDbSchema] A phantom migration was found and is about to be rolled back."
         puts "Please make a decision from the options below to proceed.\n\n"
         puts "Branch: #{branch_for(migration.version.to_s)}"
-        puts "Database: #{db_config[:database]}"
+        puts "Database: #{ActualDbSchema.db_config[:database]}"
         puts "Version: #{migration.version}\n\n"
         puts File.read(migration.filename)
       end
@@ -67,14 +67,6 @@ module ActualDbSchema
         migrator = down_migrator_for(migration)
         migrator.extend(ActualDbSchema::Patches::Migrator)
         migrator.migrate
-      end
-
-      def db_config
-        @db_config ||= if ActiveRecord::Base.respond_to?(:connection_db_config)
-                         ActiveRecord::Base.connection_db_config.configuration_hash
-                       else
-                         ActiveRecord::Base.connection_config
-                       end
       end
 
       def branch_for(version)
