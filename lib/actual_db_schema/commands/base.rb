@@ -19,9 +19,7 @@ module ActualDbSchema
       end
 
       def context
-        @context ||= ActualDbSchema.fetch_migration_context.tap do |c|
-          c.extend(ActualDbSchema::Patches::MigrationContext)
-        end
+        @context ||= ActualDbSchema.prepare_context
       end
     end
   end

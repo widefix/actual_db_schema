@@ -1,3 +1,6 @@
+## [0.7.6] - 2024-07-02
+- Added UI
+
 ## [0.7.5] - 2024-06-20
 - Added db:rollback_migrations:manual task to manually rolls back phantom migrations one by one
 

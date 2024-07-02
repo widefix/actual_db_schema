@@ -70,6 +70,25 @@ http://localhost:3000/rails/migrations
 ```
 This page will display a list of phantom migrations for each database connection and provide options to view details and rollback migrations.
 
+## Disabling the UI
+
+By default, the UI is enabled. If you prefer to disable the UI, you can do so in two ways:
+
+### 1. Using Environment Variable
+
+Set the environment variable `ACTUAL_DB_SCHEMA_UI_DISABLED` to `true`:
+
+```sh
+export ACTUAL_DB_SCHEMA_UI_DISABLED=true
+```
+
+### 2. Using Initializer
+Add the following line to your initializer file (`config/initializers/actual_db_schema.rb`):
+
+```ruby
+ActualDbSchema.config[:ui_disabled] = true
+```
+
 ## Disabling Automatic Rollback
 
 By default, the automatic rollback of migrations is enabled. If you prefer to perform manual rollbacks, you can disable the automatic rollback in two ways:

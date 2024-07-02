@@ -51,7 +51,7 @@ module ActualDbSchema
       def show_info_for(migration)
         puts "\n[ActualDbSchema] A phantom migration was found and is about to be rolled back."
         puts "Please make a decision from the options below to proceed.\n\n"
-        puts "Branch: #{branch_for(migration.version.to_s)}"
+        puts "Branch: #{ActualDbSchema.branch_for(metadata, migration.version.to_s)}"
         puts "Database: #{ActualDbSchema.db_config[:database]}"
         puts "Version: #{migration.version}\n\n"
         puts File.read(migration.filename)
@@ -69,12 +69,8 @@ module ActualDbSchema
         migrator.migrate
       end
 
-      def branch_for(version)
-        metadata.fetch(version, {})[:branch] || "unknown"
-      end
-
       def metadata
-        @metadata ||= ActualDbSchema::Store.instance.read
+        @metadata ||= ActualDbSchema.metadata
       end
     end
   end

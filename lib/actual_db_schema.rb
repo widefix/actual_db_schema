@@ -27,7 +27,8 @@ module ActualDbSchema
   self.failed = []
   self.config = {
     enabled: Rails.env.development?,
-    auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?
+    auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?,
+    ui_disabled: Rails.env.production? || ENV["ACTUAL_DB_SCHEMA_UI_DISABLED"].present?
   }
 
   MigrationStruct = Struct.new(:status, :version, :name, :branch, :database, :filename, keyword_init: true)
@@ -88,6 +89,20 @@ module ActualDbSchema
       config = db_config.respond_to?(:config) ? db_config.config : db_config
       ActiveRecord::Base.establish_connection(config)
       yield
+    end
+  end
+
+  def self.branch_for(metadata, version)
+    metadata.fetch(version, {})[:branch] || "unknown"
+  end
+
+  def self.metadata
+    ActualDbSchema::Store.instance.read
+  end
+
+  def self.prepare_context
+    fetch_migration_context.tap do |c|
+      c.extend(ActualDbSchema::Patches::MigrationContext)
     end
   end
 end
