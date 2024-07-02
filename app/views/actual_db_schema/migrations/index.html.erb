@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Phantom Migrations</title>
+    <%= stylesheet_link_tag 'actual_db_schema/styles', media: 'all' %>
+  </head>
+  <body>
+    <div>
+      <h2>Phantom Migrations</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Migration ID</th>
+            <th>Name</th>
+            <th>Branch</th>
+            <th>Database</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @migrations.each do |migration| %>
+            <tr>
+              <td><%= migration[:status] %></td>
+              <td><%= migration[:version] %></td>
+              <td><%= migration[:name] %></td>
+              <td><%= migration[:branch] %></td>
+              <td><%= migration[:database] %></td>
+              <td>
+                <div class='button-container'>
+                  <%= link_to 'Show', migration_path(id: migration[:version], database: migration[:database]), class: 'button' %>
+                  <%= button_to 'Rollback', rollback_migration_path(id: migration[:version], database: migration[:database]), method: :post, class: 'button' %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

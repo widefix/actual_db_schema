@@ -1,0 +1,20 @@
+# frozen_string_literal: true
+
+module ActualDbSchema
+  # It isolates the namespace to avoid conflicts with the main application.
+  class Engine < ::Rails::Engine
+    isolate_namespace ActualDbSchema
+
+    initializer "actual_db_schema.append_routes", after: :add_routing_paths do |app|
+      if Rails.env.development? || Rails.env.test?
+        app.routes.append do
+          mount ActualDbSchema::Engine => "/rails"
+        end
+      end
+    end
+
+    initializer "actual_db_schema.assets.precompile" do |app|
+      app.config.assets.precompile += %w[actual_db_schema/styles.css] if Rails.env.development?
+    end
+  end
+end
