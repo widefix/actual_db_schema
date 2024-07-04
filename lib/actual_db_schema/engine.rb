@@ -6,7 +6,7 @@ module ActualDbSchema
     isolate_namespace ActualDbSchema
 
     initializer "actual_db_schema.initialize" do |app|
-      unless ActualDbSchema.config[:ui_disabled]
+      if ActualDbSchema.config[:ui_enabled]
         app.routes.append do
           mount ActualDbSchema::Engine => "/rails"
         end
