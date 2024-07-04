@@ -15,6 +15,10 @@ module ActualDbSchema
       instance.find(version, database)
     end
 
+    def self.rollback(version, database)
+      instance.rollback(version, database)
+    end
+
     def all
       migrations = []
 
@@ -40,6 +44,18 @@ module ActualDbSchema
         return migration if migration
       end
       nil
+    end
+
+    def rollback(version, database)
+      ActualDbSchema.for_each_db_connection do
+        next unless ActualDbSchema.db_config[:database] == database
+
+        context = ActualDbSchema.prepare_context
+        if context.migrations.detect { |m| m.version.to_s == version }
+          context.run(:down, version.to_i)
+          break
+        end
+      end
     end
 
     private
