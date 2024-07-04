@@ -37,8 +37,8 @@
         <pre><%= File.read(migration[:filename]) %></pre>
       </div>
       <div class='button-container'>
-        <%= link_to 'Back', migrations_path, class: 'button' %>
-        <%= button_to 'Rollback', rollback_migration_path(id: params[:id], database: params[:database]), method: :post, class: 'button' %>
+        <%= link_to '← Back', migrations_path, class: 'button' %>
+        <%= button_to '⎌ Rollback', rollback_migration_path(id: params[:id], database: params[:database]), method: :post, class: 'button' %>
       </div>
     </div>
   </body>
