@@ -5,7 +5,9 @@ module ActualDbSchema
   class MigrationsController < ActionController::Base
     def index; end
 
-    def show; end
+    def show
+      render :not_found, status: 404 unless migration
+    end
 
     def rollback
       rollback_migration(params[:id], params[:database])
@@ -18,15 +20,8 @@ module ActualDbSchema
       ActualDbSchema::Migration.instance.all
     end
 
-    helper_method def load_migration(version, database)
-      ActualDbSchema.for_each_db_connection do
-        next unless ActualDbSchema.db_config[:database] == database
-
-        context = ActualDbSchema.prepare_context
-        migration = find_migration_in_context(context, version)
-        return migration if migration
-      end
-      nil
+    helper_method def migration
+      ActualDbSchema::Migration.find(params[:id], params[:database])
     end
 
     def rollback_migration(version, database)
@@ -50,14 +45,6 @@ module ActualDbSchema
         database: ActualDbSchema.db_config[:database],
         filename: migration.filename
       )
-    end
-
-    def find_migration_in_context(context, version)
-      migration = context.migrations.detect { |m| m.version.to_s == version }
-      return unless migration
-
-      status = context.migrations_status.detect { |_s, v| v.to_s == version }&.first || "unknown"
-      build_migration_struct(status, migration)
     end
   end
 end

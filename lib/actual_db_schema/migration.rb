@@ -11,6 +11,10 @@ module ActualDbSchema
       instance.all
     end
 
+    def self.find(version, database)
+      instance.find(version, database)
+    end
+
     def all
       migrations = []
 
@@ -27,6 +31,17 @@ module ActualDbSchema
       migrations
     end
 
+    def find(version, database)
+      ActualDbSchema.for_each_db_connection do
+        next unless ActualDbSchema.db_config[:database] == database
+
+        context = ActualDbSchema.prepare_context
+        migration = find_migration_in_context(context, version)
+        return migration if migration
+      end
+      nil
+    end
+
     private
 
     def build_migration_struct(status, migration)
@@ -38,6 +53,14 @@ module ActualDbSchema
         database: ActualDbSchema.db_config[:database],
         filename: migration.filename
       )
+    end
+
+    def find_migration_in_context(context, version)
+      migration = context.migrations.detect { |m| m.version.to_s == version }
+      return unless migration
+
+      status = context.migrations_status.detect { |_s, v| v.to_s == version }&.first || "unknown"
+      build_migration_struct(status, migration)
     end
 
     def branch_for(version)
