@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ActualDbSchema
+  # The class manages connections to each database and provides the appropriate migration context for each connection.
   class DatabaseConnection
     include Singleton
 
