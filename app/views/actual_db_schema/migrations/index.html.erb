@@ -19,7 +19,7 @@
           </tr>
         </thead>
         <tbody>
-          <% load_migrations.each do |migration| %>
+          <% migrations.each do |migration| %>
             <tr>
               <td><%= migration[:status] %></td>
               <td><%= migration[:version] %></td>
