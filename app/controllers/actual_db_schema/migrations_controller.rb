@@ -14,20 +14,8 @@ module ActualDbSchema
 
     private
 
-    helper_method def load_migrations
-      migrations = []
-
-      ActualDbSchema.for_each_db_connection do
-        context = ActualDbSchema.prepare_context
-        indexed_migrations = context.migrations.index_by { |m| m.version.to_s }
-
-        context.migrations_status.each do |status, version|
-          migration = indexed_migrations[version]
-          migrations << build_migration_struct(status, migration) if migration
-        end
-      end
-
-      migrations
+    helper_method def migrations
+      ActualDbSchema::Migration.instance.all
     end
 
     helper_method def load_migration(version, database)
