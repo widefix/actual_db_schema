@@ -28,7 +28,7 @@ module ActualDbSchema
   self.config = {
     enabled: Rails.env.development?,
     auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?,
-    ui_disabled: Rails.env.production? || ENV["ACTUAL_DB_SCHEMA_UI_DISABLED"].present?
+    ui_enabled: Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_UI_ENABLED"].present?
   }
 
   MigrationStruct = Struct.new(:status, :version, :name, :branch, :database, :filename, keyword_init: true)
