@@ -89,6 +89,9 @@ Add the following line to your initializer file (`config/initializers/actual_db_
 ActualDbSchema.config[:ui_enabled] = true
 ```
 
+>With this option, the UI can be disabled for all environments or be enabled in specific ones.
+
+
 ## Disabling Automatic Rollback
 
 By default, the automatic rollback of migrations is enabled. If you prefer to perform manual rollbacks, you can disable the automatic rollback in two ways:
