@@ -76,10 +76,11 @@ By default, the UI is enabled in the development environment. If you prefer to e
 
 ### 1. Using Environment Variable
 
-Set the environment variable `ACTUAL_DB_SCHEMA_UI_ENABLED` to `true`:
+Set the environment variables `ACTUAL_DB_SCHEMA_UI_ENABLED` and `ACTUAL_DB_SCHEMA_ENABLED` to `true`:
 
 ```sh
 export ACTUAL_DB_SCHEMA_UI_ENABLED=true
+export ACTUAL_DB_SCHEMA_ENABLED=true
 ```
 
 ### 2. Using Initializer
@@ -87,9 +88,14 @@ Add the following line to your initializer file (`config/initializers/actual_db_
 
 ```ruby
 ActualDbSchema.config[:ui_enabled] = true
+ActualDbSchema.config[:enabled] = true
 ```
 
 > With this option, the UI can be disabled for all environments or be enabled in specific ones.
+
+> [!WARNING]
+> ActualDbSchema.config[:enabled] = false
+This option will completely disable the functionality of the gem in all environments
 
 
 ## Disabling Automatic Rollback
