@@ -28,7 +28,7 @@ module ActualDbSchema
 
   self.failed = []
   self.config = {
-    enabled: Rails.env.development?,
+    enabled: Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_ENABLED"].present?,
     auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?,
     ui_enabled: Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_UI_ENABLED"].present?
   }
