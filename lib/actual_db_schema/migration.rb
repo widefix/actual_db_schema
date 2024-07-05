@@ -81,7 +81,8 @@ module ActualDbSchema
     end
 
     def metadata
-      ActualDbSchema::Store.instance.read
+      @metadata ||= {}
+      @metadata[ActualDbSchema.db_config[:database]] ||= ActualDbSchema::Store.instance.read
     end
   end
 end

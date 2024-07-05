@@ -94,14 +94,6 @@ module ActualDbSchema
     end
   end
 
-  def self.branch_for(metadata, version)
-    metadata.fetch(version, {})[:branch] || "unknown"
-  end
-
-  def self.metadata
-    ActualDbSchema::Store.instance.read
-  end
-
   def self.prepare_context
     fetch_migration_context.tap do |c|
       c.extend(ActualDbSchema::Patches::MigrationContext)
