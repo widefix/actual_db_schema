@@ -20,8 +20,6 @@ require_relative "actual_db_schema/commands/list"
 module ActualDbSchema
   raise NotImplementedError, "ActualDbSchema is only supported in Rails" unless defined?(Rails)
 
-  require "railtie"
-
   class << self
     attr_accessor :config, :failed
   end
