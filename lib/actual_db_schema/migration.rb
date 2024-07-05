@@ -58,7 +58,7 @@ module ActualDbSchema
     private
 
     def build_migration_struct(status, migration)
-      MigrationStruct.new(
+      Migration.new(
         status: status,
         version: migration.version.to_s,
         name: migration.name,

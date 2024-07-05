@@ -33,8 +33,6 @@ module ActualDbSchema
     ui_enabled: Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_UI_ENABLED"].present?
   }
 
-  MigrationStruct = Struct.new(:status, :version, :name, :branch, :database, :filename, keyword_init: true)
-
   def self.migrated_folder
     migrated_folders.first
   end
