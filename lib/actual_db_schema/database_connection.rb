@@ -25,13 +25,13 @@ module ActualDbSchema
 
     def context
       ar_version = Gem::Version.new(ActiveRecord::VERSION::STRING)
-      @context ||= if ar_version >= Gem::Version.new("7.2.0") ||
-                      (ar_version >= Gem::Version.new("7.1.0") && ar_version.prerelease?)
-                     ActiveRecord::Base.connection_pool.migration_context
-                   else
-                     ActiveRecord::Base.connection.migration_context
-                   end
-      @context.extend(ActualDbSchema::Patches::MigrationContext)
+      context = if ar_version >= Gem::Version.new("7.2.0") ||
+                   (ar_version >= Gem::Version.new("7.1.0") && ar_version.prerelease?)
+                  ActiveRecord::Base.connection_pool.migration_context
+                else
+                  ActiveRecord::Base.connection.migration_context
+                end
+      context.extend(ActualDbSchema::Patches::MigrationContext)
     end
   end
 end
