@@ -4,7 +4,9 @@ module ActualDbSchema
   module Commands
     # Base class for all commands
     class Base
-      def initialize(context: nil)
+      attr_reader :context
+
+      def initialize(context)
         @context = context
       end
 
@@ -21,8 +23,6 @@ module ActualDbSchema
       def call_impl
         raise NotImplementedError
       end
-
-      attr_reader :context
     end
   end
 end

@@ -7,7 +7,7 @@ require_relative "actual_db_schema/git"
 require_relative "actual_db_schema/store"
 require_relative "actual_db_schema/version"
 require_relative "actual_db_schema/migration"
-require_relative "actual_db_schema/database_connection"
+require_relative "actual_db_schema/migration_context"
 require_relative "actual_db_schema/patches/migration_proxy"
 require_relative "actual_db_schema/patches/migrator"
 require_relative "actual_db_schema/patches/migration_context"
@@ -26,7 +26,7 @@ module ActualDbSchema
 
   self.failed = []
   self.config = {
-    enabled: Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_ENABLED"].present?,
+    enabled: Rails.env.development?,
     auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?,
     ui_enabled: Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_UI_ENABLED"].present?
   }

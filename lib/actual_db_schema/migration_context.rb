@@ -2,10 +2,10 @@
 
 module ActualDbSchema
   # The class manages connections to each database and provides the appropriate migration context for each connection.
-  class DatabaseConnection
+  class MigrationContext
     include Singleton
 
-    def for_each_migration_context
+    def each
       configs.each do |db_config|
         establish_connection(db_config)
         yield context
