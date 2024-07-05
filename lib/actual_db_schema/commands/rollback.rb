@@ -4,9 +4,9 @@ module ActualDbSchema
   module Commands
     # Rolls back all phantom migrations
     class Rollback < Base
-      def initialize(manual_mode: false)
+      def initialize(manual_mode: false, context: nil)
         @manual_mode = manual_mode || manual_mode_default?
-        super()
+        super(context: context)
       end
 
       private

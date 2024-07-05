@@ -60,15 +60,6 @@ module ActualDbSchema
     end
   end
 
-  def self.fetch_migration_context
-    ar_version = Gem::Version.new(ActiveRecord::VERSION::STRING)
-    if ar_version >= Gem::Version.new("7.2.0") || (ar_version >= Gem::Version.new("7.1.0") && ar_version.prerelease?)
-      ActiveRecord::Base.connection_pool.migration_context
-    else
-      ActiveRecord::Base.connection.migration_context
-    end
-  end
-
   def self.db_config
     if ActiveRecord::Base.respond_to?(:connection_db_config)
       ActiveRecord::Base.connection_db_config.configuration_hash
@@ -79,21 +70,6 @@ module ActualDbSchema
 
   def self.migration_filename(fullpath)
     fullpath.split("/").last
-  end
-
-  def self.for_each_db_connection
-    configs = ActiveRecord::Base.configurations.configs_for(env_name: ActiveRecord::Tasks::DatabaseTasks.env)
-    configs.each do |db_config|
-      config = db_config.respond_to?(:config) ? db_config.config : db_config
-      ActiveRecord::Base.establish_connection(config)
-      yield
-    end
-  end
-
-  def self.prepare_context
-    fetch_migration_context.tap do |c|
-      c.extend(ActualDbSchema::Patches::MigrationContext)
-    end
   end
 end
 

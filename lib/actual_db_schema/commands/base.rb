@@ -4,6 +4,10 @@ module ActualDbSchema
   module Commands
     # Base class for all commands
     class Base
+      def initialize(context: nil)
+        @context = context
+      end
+
       def call
         unless ActualDbSchema.config.fetch(:enabled, true)
           raise "ActualDbSchema is disabled. Set ActualDbSchema.config[:enabled] = true to enable it."
@@ -18,9 +22,7 @@ module ActualDbSchema
         raise NotImplementedError
       end
 
-      def context
-        @context ||= ActualDbSchema.prepare_context
-      end
+      attr_reader :context
     end
   end
 end
