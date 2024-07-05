@@ -141,6 +141,10 @@ class TestUtils
     end
   end
 
+  def branch_for(version)
+    metadata.fetch(version.to_s, {})[:branch]
+  end
+
   private
 
   def cleanup_call(prefix_name = nil)
@@ -188,5 +192,9 @@ class TestUtils
 
   def run_sql(sql)
     ActiveRecord::Base.connection.execute(sql)
+  end
+
+  def metadata
+    ActualDbSchema::Store.instance.read
   end
 end
