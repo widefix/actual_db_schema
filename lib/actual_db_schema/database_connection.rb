@@ -5,7 +5,7 @@ module ActualDbSchema
   class DatabaseConnection
     include Singleton
 
-    def for_each_db_connection
+    def for_each_migration_context
       configs.each do |db_config|
         establish_connection(db_config)
         yield context

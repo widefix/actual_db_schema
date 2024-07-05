@@ -4,6 +4,10 @@ module ActualDbSchema
   module Commands
     # Shows the list of phantom migrations
     class List < Base
+      def initialize(context: nil)
+        super(context: context)
+      end
+
       private
 
       def call_impl

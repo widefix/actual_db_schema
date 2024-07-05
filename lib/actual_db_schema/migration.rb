@@ -22,7 +22,7 @@ module ActualDbSchema
     def all
       migrations = []
 
-      DatabaseConnection.instance.for_each_db_connection do |context|
+      DatabaseConnection.instance.for_each_migration_context do |context|
         indexed_migrations = context.migrations.index_by { |m| m.version.to_s }
 
         context.migrations_status.each do |status, version|
@@ -35,7 +35,7 @@ module ActualDbSchema
     end
 
     def find(version, database)
-      DatabaseConnection.instance.for_each_db_connection do |context|
+      DatabaseConnection.instance.for_each_migration_context do |context|
         next unless ActualDbSchema.db_config[:database] == database
 
         migration = find_migration_in_context(context, version)
@@ -45,7 +45,7 @@ module ActualDbSchema
     end
 
     def rollback(version, database)
-      DatabaseConnection.instance.for_each_db_connection do |context|
+      DatabaseConnection.instance.for_each_migration_context do |context|
         next unless ActualDbSchema.db_config[:database] == database
 
         if context.migrations.detect { |m| m.version.to_s == version }
