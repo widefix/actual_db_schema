@@ -17,11 +17,11 @@ module ActualDbSchema
     private
 
     helper_method def migrations
-      ActualDbSchema::Migration.all
+      @migrations ||= ActualDbSchema::Migration.all
     end
 
     helper_method def migration
-      ActualDbSchema::Migration.find(params[:id], params[:database])
+      @migration ||= ActualDbSchema::Migration.find(params[:id], params[:database])
     end
   end
 end
