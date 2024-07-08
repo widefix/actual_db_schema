@@ -66,7 +66,7 @@ The gem offers the following rake tasks that can be manually run according to yo
 
 The UI for managing migrations is enabled automatically. To access the UI, simply navigate to the following URL in your web browser:
 ```
-http://localhost:3000/rails/migrations
+http://localhost:3000/rails/phantom_migrations
 ```
 This page displays a list of phantom migrations for each database connection and provides options to view details and rollback them.
 

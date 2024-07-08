@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Phantom Migration Details</title>
+    <%= stylesheet_link_tag 'actual_db_schema/styles', media: 'all' %>
+  </head>
+  <body>
+    <div>
+      <h2>Phantom Migration <%= phantom_migration[:name] %> Details</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th>Status</th>
+            <td><%= phantom_migration[:status] %></td>
+          </tr>
+          <tr>
+            <th>Migration ID</th>
+            <td><%= phantom_migration[:version] %></td>
+          </tr>
+          <tr>
+            <th>Branch</th>
+            <td><%= phantom_migration[:branch] %></td>
+          </tr>
+          <tr>
+            <th>Database</th>
+            <td><%= phantom_migration[:database] %></td>
+          </tr>
+          <tr>
+            <th>Path</th>
+            <td><%= phantom_migration[:filename] %></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Migration Code</h3>
+      <div>
+        <pre><%= File.read(phantom_migration[:filename]) %></pre>
+      </div>
+      <div class='button-container'>
+        <%= link_to '← Back', phantom_migrations_path, class: 'button' %>
+        <%= button_to '⎌ Rollback', rollback_phantom_migration_path(id: params[:id], database: params[:database]), method: :post, class: 'button' %>
+      </div>
+    </div>
+  </body>
+</html>
