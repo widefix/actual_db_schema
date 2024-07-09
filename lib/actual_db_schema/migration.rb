@@ -23,7 +23,6 @@ module ActualDbSchema
       migrations = []
 
       MigrationContext.instance.each do |context|
-        debugger
         indexed_migrations = context.migrations.index_by { |m| m.version.to_s }
 
         context.migrations_status.each do |status, version|
