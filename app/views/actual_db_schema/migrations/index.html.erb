@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Migrations</title>
+    <%= stylesheet_link_tag 'actual_db_schema/styles', media: 'all' %>
+  </head>
+  <body>
+    <div>
+      <h2>Migrations</h2>
+      <% if migrations.present? %>
+        <table>
+          <thead>
+            <tr>
+              <th>Migration ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% migrations.each do |migration| %>
+              <tr>
+                <td><%= migration[:version] %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p>No migrations found.</p>
+      <% end %>
+    </div>
+  </body>
+</html>
