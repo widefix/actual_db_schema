@@ -93,6 +93,11 @@ module ActualDbSchema
       end
     end
 
+    test "GET #show returns a 404 response if migration not found" do
+      get :show, params: { id: "nil", database: "tmp/primary.sqlite3" }
+      assert_response :not_found
+    end
+
     test "POST #rollback changes migration status to down" do
       post :rollback, params: { id: "20130906111511", database: "tmp/primary.sqlite3" }
       assert_response :redirect
