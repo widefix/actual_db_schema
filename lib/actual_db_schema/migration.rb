@@ -27,7 +27,7 @@ module ActualDbSchema
 
         context.migrations_status.each do |status, version|
           migration = indexed_migrations[version]
-          migrations << build_migration_struct(status, migration) if migration
+          migrations << build_migration_struct(status, migration) if migration && status == "up"
         end
       end
 
