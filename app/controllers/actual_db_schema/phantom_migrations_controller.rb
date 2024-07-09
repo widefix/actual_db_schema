@@ -6,7 +6,7 @@ module ActualDbSchema
     def index; end
 
     def show
-      render :not_found, status: 404 unless phantom_migration
+      render file: "#{Rails.root}/public/404.html", layout: false, status: :not_found unless phantom_migration
     end
 
     def rollback
