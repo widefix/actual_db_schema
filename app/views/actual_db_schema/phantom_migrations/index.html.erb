@@ -7,35 +7,39 @@
   <body>
     <div>
       <h2>Phantom Migrations</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Status</th>
-            <th>Migration ID</th>
-            <th>Name</th>
-            <th>Branch</th>
-            <th>Database</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% phantom_migrations.each do |migration| %>
+      <% if phantom_migrations.present? %>
+        <table>
+          <thead>
             <tr>
-              <td><%= migration[:status] %></td>
-              <td><%= migration[:version] %></td>
-              <td><%= migration[:name] %></td>
-              <td><%= migration[:branch] %></td>
-              <td><%= migration[:database] %></td>
-              <td>
-                <div class='button-container'>
-                  <%= link_to '👁 Show', phantom_migration_path(id: migration[:version], database: migration[:database]), class: 'button' %>
-                  <%= button_to '⎌ Rollback', rollback_phantom_migration_path(id: migration[:version], database: migration[:database]), method: :post, class: 'button' %>
-                </div>
-              </td>
+              <th>Status</th>
+              <th>Migration ID</th>
+              <th>Name</th>
+              <th>Branch</th>
+              <th>Database</th>
+              <th>Actions</th>
             </tr>
-          <% end %>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <% phantom_migrations.each do |migration| %>
+              <tr>
+                <td><%= migration[:status] %></td>
+                <td><%= migration[:version] %></td>
+                <td><%= migration[:name] %></td>
+                <td><%= migration[:branch] %></td>
+                <td><%= migration[:database] %></td>
+                <td>
+                  <div class='button-container'>
+                    <%= link_to '👁 Show', phantom_migration_path(id: migration[:version], database: migration[:database]), class: 'button' %>
+                    <%= button_to '⎌ Rollback', rollback_phantom_migration_path(id: migration[:version], database: migration[:database]), method: :post, class: 'button' %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p>No phantom migrations found.</p>
+      <% end %>
     </div>
   </body>
 </html>
