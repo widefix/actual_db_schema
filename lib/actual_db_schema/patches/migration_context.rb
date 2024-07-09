@@ -69,12 +69,12 @@ module ActualDbSchema
         migrator.migrate
       end
 
-      def metadata
-        @metadata ||= ActualDbSchema::Store.instance.read
-      end
-
       def branch_for(version)
         metadata.fetch(version, {})[:branch] || "unknown"
+      end
+
+      def metadata
+        @metadata ||= ActualDbSchema::Store.instance.read
       end
     end
   end
