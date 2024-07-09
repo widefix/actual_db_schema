@@ -74,6 +74,13 @@ module ActualDbSchema
       end
     end
 
+    test "GET #index when all migrations is down returns a not found text" do
+      @utils.run_migrations
+      get :index
+      assert_response :success
+      assert_select "p", text: "No phantom migrations found."
+    end
+
     test "GET #show returns a successful response" do
       get :show, params: { id: "20130906111511", database: "tmp/primary.sqlite3" }
       assert_response :success
