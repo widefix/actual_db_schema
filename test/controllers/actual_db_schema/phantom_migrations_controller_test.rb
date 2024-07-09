@@ -37,6 +37,11 @@ module ActualDbSchema
       assert_response :success
       assert_select "table" do
         assert_select "tbody" do
+          assert_select "tr" do |rows|
+            rows.each do |row|
+              assert_no_match(/down/, row.text)
+            end
+          end
           assert_select "tr" do
             assert_select "td", text: "up"
             assert_select "td", text: "20130906111511"
@@ -98,17 +103,16 @@ module ActualDbSchema
       assert_response :not_found
     end
 
-    test "POST #rollback changes migration status to down" do
+    test "POST #rollback changes migration status to down and hide migration with down status" do
       post :rollback, params: { id: "20130906111511", database: "tmp/primary.sqlite3" }
       assert_response :redirect
       get :index
       assert_select "table" do
         assert_select "tbody" do
-          assert_select "tr" do
-            assert_select "td", text: "down"
-            assert_select "td", text: "20130906111511"
-            assert_select "td", text: "FirstPrimary"
-            assert_select "td", text: @utils.branch_for("20130906111511")
+          assert_select "tr" do |rows|
+            rows.each do |row|
+              assert_no_match(/down/, row.text)
+            end
           end
           assert_select "tr" do
             assert_select "td", text: "up"
@@ -117,11 +121,6 @@ module ActualDbSchema
             assert_select "td", text: @utils.branch_for("20130906111512")
           end
         end
-      end
-      get :show, params: { id: "20130906111511", database: "tmp/primary.sqlite3" }
-      assert_select "tr" do
-        assert_select "th", text: "Status"
-        assert_select "td", text: "down"
       end
     end
   end
