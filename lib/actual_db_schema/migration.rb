@@ -88,7 +88,7 @@ module ActualDbSchema
     end
 
     def find_migration_in_context(context, version)
-      migration = context.phantom_migrations.detect { |m| m.version.to_s == version }
+      migration = context.migrations.detect { |m| m.version.to_s == version }
       return unless migration
 
       status = context.migrations_status.detect { |_s, v| v.to_s == version }&.first || "unknown"
