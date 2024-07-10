@@ -17,7 +17,7 @@ module ActualDbSchema
     private
 
     helper_method def phantom_migrations
-      @phantom_migrations ||= ActualDbSchema::Migration.all
+      @phantom_migrations ||= ActualDbSchema::Migration.all_phantom
     end
 
     helper_method def phantom_migration

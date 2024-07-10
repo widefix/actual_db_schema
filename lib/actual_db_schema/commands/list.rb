@@ -12,7 +12,7 @@ module ActualDbSchema
       end
 
       def indexed_phantom_migrations
-        @indexed_phantom_migrations ||= context.migrations.index_by { |m| m.version.to_s }
+        @indexed_phantom_migrations ||= context.phantom_migrations.index_by { |m| m.version.to_s }
       end
 
       def preambule
