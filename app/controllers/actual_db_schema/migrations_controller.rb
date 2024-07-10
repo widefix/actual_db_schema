@@ -5,10 +5,18 @@ module ActualDbSchema
   class MigrationsController < ActionController::Base
     def index; end
 
+    def show
+      render file: "#{Rails.root}/public/404.html", layout: false, status: :not_found unless migration
+    end
+
     private
 
     helper_method def migrations
       @migrations ||= ActualDbSchema::Migration.all
+    end
+
+    helper_method def migration
+      @migration ||= ActualDbSchema::Migration.find(params[:id], params[:database])
     end
   end
 end
