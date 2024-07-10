@@ -11,13 +11,21 @@
         <table>
           <thead>
             <tr>
+              <th>Status</th>
               <th>Migration ID</th>
+              <th>Name</th>
+              <th>Branch</th>
+              <th>Database</th>
             </tr>
           </thead>
           <tbody>
             <% migrations.each do |migration| %>
               <tr>
+                <td><%= migration[:status] %></td>
                 <td><%= migration[:version] %></td>
+                <td><%= migration[:name] %></td>
+                <td><%= migration[:branch] %></td>
+                <td><%= migration[:database] %></td>
               </tr>
             <% end %>
           </tbody>

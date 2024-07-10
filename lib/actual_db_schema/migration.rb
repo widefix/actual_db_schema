@@ -11,12 +11,31 @@ module ActualDbSchema
       instance.all
     end
 
+    def self.all_phantom
+      instance.all_phantom
+    end
+
     def self.find(version, database)
       instance.find(version, database)
     end
 
     def self.rollback(version, database)
       instance.rollback(version, database)
+    end
+
+    def all_phantom
+      migrations = []
+
+      MigrationContext.instance.each do |context|
+        indexed_migrations = context.phantom_migrations.index_by { |m| m.version.to_s }
+
+        context.migrations_status.each do |status, version|
+          migration = indexed_migrations[version]
+          migrations << build_migration_struct(status, migration) if migration && status == "up"
+        end
+      end
+
+      migrations
     end
 
     def all
@@ -27,7 +46,7 @@ module ActualDbSchema
 
         context.migrations_status.each do |status, version|
           migration = indexed_migrations[version]
-          migrations << build_migration_struct(status, migration) if migration && status == "up"
+          migrations << build_migration_struct(status, migration) if migration
         end
       end
 
@@ -48,7 +67,7 @@ module ActualDbSchema
       MigrationContext.instance.each do |context|
         next unless ActualDbSchema.db_config[:database] == database
 
-        if context.migrations.detect { |m| m.version.to_s == version }
+        if context.phantom_migrations.detect { |m| m.version.to_s == version }
           context.run(:down, version.to_i)
           break
         end
@@ -69,7 +88,7 @@ module ActualDbSchema
     end
 
     def find_migration_in_context(context, version)
-      migration = context.migrations.detect { |m| m.version.to_s == version }
+      migration = context.phantom_migrations.detect { |m| m.version.to_s == version }
       return unless migration
 
       status = context.migrations_status.detect { |_s, v| v.to_s == version }&.first || "unknown"

@@ -8,22 +8,7 @@ module ActualDbSchema
     private
 
     helper_method def migrations
-      @migrations ||= all_migrations
-    end
-
-    def all_migrations
-      all_migrations = []
-
-      MigrationContext.instance.each do |context|
-        applied_migrations = context.get_all_versions
-
-        applied_migrations.each do |version|
-          migration_info = { version: version }
-          all_migrations << migration_info
-        end
-      end
-
-      all_migrations
+      @migrations ||= ActualDbSchema::Migration.all
     end
   end
 end
