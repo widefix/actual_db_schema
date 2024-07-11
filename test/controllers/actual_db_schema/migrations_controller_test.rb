@@ -19,9 +19,11 @@ module ActualDbSchema
     def routes_setup
       @routes = @app.routes
       Rails.application.routes.draw do
+        get "/rails/phantom_migrations" => "actual_db_schema/phantom_migrations#index", as: "phantom_migrations"
         get "/rails/migrations" => "actual_db_schema/migrations#index", as: "migrations"
         get "/rails/migration/:id" => "actual_db_schema/migrations#show", as: "migration"
         post "/rails/migration/:id/rollback" => "actual_db_schema/migrations#rollback", as: "rollback_migration"
+        post "/rails/migration/:id/migrate" => "actual_db_schema/migrations#migrate", as: "migrate_migration"
       end
       ActualDbSchema::MigrationsController.include(@routes.url_helpers)
     end
