@@ -41,9 +41,13 @@ module ActualDbSchema
         paths = Array(migrations_paths)
         current_branch_files = Dir[*paths.flat_map { |path| "#{path}/**/[0-9]*_*.rb" }]
         other_branches_files = Dir["#{ActualDbSchema.migrated_folder}/**/[0-9]*_*.rb"]
+        current_branch_versions = current_branch_files.map { |file| file.match(/(\d+)_/)[1] }
+        filtered_other_branches_files = other_branches_files.reject do |file|
+          version = file.match(/(\d+)_/)[1]
+          current_branch_versions.include?(version)
+        end
 
-        all_migration_files = current_branch_files + other_branches_files
-        all_migration_files.uniq
+        current_branch_files + filtered_other_branches_files
       end
 
       def status_up?(migration)

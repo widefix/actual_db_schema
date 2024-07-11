@@ -21,6 +21,7 @@ module ActualDbSchema
       Rails.application.routes.draw do
         get "/rails/migrations" => "actual_db_schema/migrations#index", as: "migrations"
         get "/rails/migration/:id" => "actual_db_schema/migrations#show", as: "migration"
+        post "/rails/migration/:id/rollback" => "actual_db_schema/migrations#rollback", as: "rollback_migration"
       end
       ActualDbSchema::MigrationsController.include(@routes.url_helpers)
     end
@@ -31,34 +32,33 @@ module ActualDbSchema
     end
 
     test "GET #index returns a successful response" do
-      @utils.run_migrations
       get :index
       assert_response :success
       assert_select "table" do
         assert_select "tbody" do
           assert_select "tr" do
-            assert_select "td", text: "down"
+            assert_select "td", text: "up"
             assert_select "td", text: "20130906111511"
             assert_select "td", text: "FirstPrimary"
             assert_select "td", text: @utils.branch_for("20130906111511")
             assert_select "td", text: "tmp/primary.sqlite3"
           end
           assert_select "tr" do
-            assert_select "td", text: "down"
+            assert_select "td", text: "up"
             assert_select "td", text: "20130906111512"
             assert_select "td", text: "SecondPrimary"
             assert_select "td", text: @utils.branch_for("20130906111512")
             assert_select "td", text: "tmp/primary.sqlite3"
           end
           assert_select "tr" do
-            assert_select "td", text: "down"
+            assert_select "td", text: "up"
             assert_select "td", text: "20130906111514"
             assert_select "td", text: "FirstSecondary"
             assert_select "td", text: @utils.branch_for("20130906111514")
             assert_select "td", text: "tmp/secondary.sqlite3"
           end
           assert_select "tr" do
-            assert_select "td", text: "down"
+            assert_select "td", text: "up"
             assert_select "td", text: "20130906111515"
             assert_select "td", text: "SecondSecondary"
             assert_select "td", text: @utils.branch_for("20130906111515")
@@ -95,6 +95,30 @@ module ActualDbSchema
     test "GET #show returns a 404 response if migration not found" do
       get :show, params: { id: "nil", database: "tmp/primary.sqlite3" }
       assert_response :not_found
+    end
+
+    test "POST #rollback changes migration status to down" do
+      post :rollback, params: { id: "20130906111511", database: "tmp/primary.sqlite3" }
+      assert_response :redirect
+      get :index
+      assert_select "table" do
+        assert_select "tbody" do
+          assert_select "tr" do
+            assert_select "td", text: "down"
+            assert_select "td", text: "20130906111511"
+            assert_select "td", text: "FirstPrimary"
+            assert_select "td", text: @utils.branch_for("20130906111511")
+          end
+        end
+      end
+      get :show, params: { id: "20130906111511", database: "tmp/primary.sqlite3" }
+      assert_select "h2", text: "Migration FirstPrimary Details"
+      assert_select "table" do
+        assert_select "tr" do
+          assert_select "th", text: "Status"
+          assert_select "td", text: "down"
+        end
+      end
     end
   end
 end
