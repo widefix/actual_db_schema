@@ -69,6 +69,16 @@ table {
   background-color: #000;
 }
 
+.button:disabled {
+  color: #666;
+  cursor: default;
+}
+
+.button:disabled:hover {
+  color: #666;
+  background: none;
+}
+
 .button-container {
   display: flex;
 }

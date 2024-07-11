@@ -32,8 +32,19 @@
                 <td><%= migration[:database] %></td>
                 <td>
                   <div class='button-container'>
-                    <%= link_to '👁 Show', migration_path(id: migration[:version], database: migration[:database]), class: 'button' %>
-                    <%= button_to '⎌ Rollback', rollback_migration_path(id: migration[:version], database: migration[:database]), method: :post, class: 'button' %>
+                    <%= link_to '👁 Show',
+                                migration_path(id: migration[:version], database: migration[:database]),
+                                class: 'button' %>
+                    <%= button_to '⎌ Rollback',
+                                  rollback_migration_path(id: migration[:version], database: migration[:database]),
+                                  method: :post,
+                                  class: 'button',
+                                  disabled: migration[:status] == "down" %>
+                    <%= button_to '⬆ Migrate',
+                                  migrate_migration_path(id: migration[:version], database: migration[:database]),
+                                  method: :post,
+                                  class: 'button',
+                                  disabled: migration[:status] == "up" %>
                   </div>
                 </td>
               </tr>
