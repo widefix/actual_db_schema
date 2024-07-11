@@ -14,6 +14,11 @@ module ActualDbSchema
       redirect_to migrations_path
     end
 
+    def migrate
+      ActualDbSchema::Migration.migrate(params[:id], params[:database])
+      redirect_to migrations_path
+    end
+
     private
 
     helper_method def migrations

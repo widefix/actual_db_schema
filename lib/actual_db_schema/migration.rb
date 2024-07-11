@@ -23,6 +23,10 @@ module ActualDbSchema
       instance.rollback(version, database)
     end
 
+    def self.migrate(version, database)
+      instance.migrate(version, database)
+    end
+
     def all_phantom
       migrations = []
 
@@ -69,6 +73,17 @@ module ActualDbSchema
 
         if context.migrations.detect { |m| m.version.to_s == version }
           context.run(:down, version.to_i)
+          break
+        end
+      end
+    end
+
+    def migrate(version, database)
+      MigrationContext.instance.each do |context|
+        next unless ActualDbSchema.db_config[:database] == database
+
+        if context.migrations.detect { |m| m.version.to_s == version }
+          context.run(:up, version.to_i)
           break
         end
       end
