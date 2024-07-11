@@ -67,7 +67,7 @@ module ActualDbSchema
       MigrationContext.instance.each do |context|
         next unless ActualDbSchema.db_config[:database] == database
 
-        if context.phantom_migrations.detect { |m| m.version.to_s == version }
+        if context.migrations.detect { |m| m.version.to_s == version }
           context.run(:down, version.to_i)
           break
         end

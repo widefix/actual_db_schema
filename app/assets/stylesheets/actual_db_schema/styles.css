@@ -14,6 +14,18 @@ h2 {
   padding-left: 10px;
 }
 
+.link {
+  margin: 14px;
+
+  a {
+    color: #000;
+  }
+  
+  a:visited {
+    color: #666;
+  }
+}
+
 table {
   margin: 0;
   border-collapse: collapse;
