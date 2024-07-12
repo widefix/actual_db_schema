@@ -9,6 +9,9 @@
       <h2>Phantom Migrations</h2>
       <div class="top-buttons">
         <%= link_to 'All Migrations', migrations_path, class: "top-button" %>
+        <% if phantom_migrations.present? %>
+          <%= button_to '⎌ Rollback all', rollback_all_phantom_migrations_path, method: :post, class: 'button' %>
+        <% end %>
       </div>
       <% if phantom_migrations.present? %>
         <table>

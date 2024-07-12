@@ -11,5 +11,8 @@ ActualDbSchema::Engine.routes.draw do
     member do
       post :rollback
     end
+    collection do
+      post :rollback_all
+    end
   end
 end

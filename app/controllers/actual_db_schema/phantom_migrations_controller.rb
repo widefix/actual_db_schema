@@ -14,6 +14,11 @@ module ActualDbSchema
       redirect_to phantom_migrations_path
     end
 
+    def rollback_all
+      ActualDbSchema::Migration.rollback_all
+      redirect_to phantom_migrations_path
+    end
+
     private
 
     helper_method def phantom_migrations

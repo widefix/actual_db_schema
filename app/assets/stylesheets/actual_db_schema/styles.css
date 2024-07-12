@@ -47,6 +47,8 @@ table {
 
 .top-buttons {
   margin: 8px;
+  display: flex;
+  align-items: center;
 
   .top-button {
     background-color: #ddd;

@@ -23,6 +23,10 @@ module ActualDbSchema
       instance.rollback(version, database)
     end
 
+    def self.rollback_all
+      instance.rollback_all
+    end
+
     def self.migrate(version, database)
       instance.migrate(version, database)
     end
@@ -75,6 +79,12 @@ module ActualDbSchema
           context.run(:down, version.to_i)
           break
         end
+      end
+    end
+
+    def rollback_all
+      MigrationContext.instance.each do |context|
+        context.rollback_branches(manual_mode: false)
       end
     end
 
