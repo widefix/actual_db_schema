@@ -25,6 +25,8 @@ module ActualDbSchema
         get "/rails/phantom_migration/:id" => "actual_db_schema/phantom_migrations#show", as: "phantom_migration"
         post "/rails/phantom_migration/:id/rollback" => "actual_db_schema/phantom_migrations#rollback",
              as: "rollback_phantom_migration"
+        post "/rails/phantom_migrations/rollback_all" => "actual_db_schema/phantom_migrations#rollback_all",
+             as: "rollback_all_phantom_migrations"
       end
       ActualDbSchema::PhantomMigrationsController.include(@routes.url_helpers)
     end
@@ -131,6 +133,13 @@ module ActualDbSchema
           end
         end
       end
+    end
+
+    test "POST #rollback_all changes all phantom migrations status to down and hide migration with down status" do
+      post :rollback_all
+      assert_response :redirect
+      get :index
+      assert_select "p", text: "No phantom migrations found."
     end
   end
 end
