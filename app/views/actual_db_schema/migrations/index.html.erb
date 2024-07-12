@@ -7,6 +7,9 @@
   <body>
     <div>
       <h2>Migrations</h2>
+      <p>
+        <span style="background-color: #ffe6e6; padding: 0 5px;">Red rows</span> represent phantom migrations.
+      </p>
       <div class="link">
         <%= link_to 'Phantom Migrations', phantom_migrations_path %>
       </div>
@@ -24,7 +27,7 @@
           </thead>
           <tbody>
             <% migrations.each do |migration| %>
-              <tr>
+              <tr class="migration-row <%= migration[:phantom] ? 'phantom' : 'normal' %>">
                 <td><%= migration[:status] %></td>
                 <td><%= migration[:version] %></td>
                 <td><%= migration[:name] %></td>
@@ -44,7 +47,7 @@
                                   migrate_migration_path(id: migration[:version], database: migration[:database]),
                                   method: :post,
                                   class: 'button',
-                                  disabled: migration[:status] == "up" %>
+                                  disabled: migration[:status] == "up" || migration[:phantom] %>
                   </div>
                 </td>
               </tr>
