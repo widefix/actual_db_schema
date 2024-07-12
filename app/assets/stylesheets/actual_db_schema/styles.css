@@ -35,12 +35,20 @@ table {
   }
 
   tbody {
-    tr {
-      border-bottom: 1px solid #ddd;
+    .migration-row.phantom {
+      background-color: #ffe6e6;
     }
-
-    tr:nth-child(odd) {
-      background: #f2f2f2;
+    
+    .migration-row.normal {
+      background-color: #ffffff;
+    }
+    
+    .migration-row:nth-child(odd).phantom {
+      background-color: #ffcccc;
+    }
+    
+    .migration-row:nth-child(odd).normal {
+      background-color: #f9f9f9;
     }
   }
 
