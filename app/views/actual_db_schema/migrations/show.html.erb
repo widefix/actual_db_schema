@@ -42,12 +42,12 @@
                       rollback_migration_path(id: migration[:version], database: migration[:database]),
                       method: :post,
                       class: 'button',
-                      disabled: migration[:status] == "down" %>
+                      style: ('display: none;' if migration[:status] == "down") %>
         <%= button_to '⬆ Migrate',
                       migrate_migration_path(id: migration[:version], database: migration[:database]),
                       method: :post,
                       class: 'button',
-                      disabled: migration[:status] == "up" %>
+                      style: ('display: none;' if migration[:status] == "up" || migration[:phantom]) %>
       </div>
     </div>
   </body>
