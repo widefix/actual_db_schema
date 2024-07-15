@@ -14,18 +14,6 @@ h2 {
   padding-left: 10px;
 }
 
-.link {
-  margin: 14px;
-
-  a {
-    color: #000;
-  }
-  
-  a:visited {
-    color: #666;
-  }
-}
-
 table {
   margin: 0;
   border-collapse: collapse;
@@ -57,7 +45,15 @@ table {
   }
 }
 
-.button {
+.top-buttons {
+  margin: 8px;
+
+  .top-button {
+    background-color: #ddd;
+  }
+}
+
+.button, .top-button {
   font-weight: bold;
   color: #000;
   border: none;
@@ -72,19 +68,9 @@ table {
   background: none;
 }
 
-.button:hover {
+.button:hover, .top-button:hover {
   color: #fff;
   background-color: #000;
-}
-
-.button:disabled {
-  color: #666;
-  cursor: default;
-}
-
-.button:disabled:hover {
-  color: #666;
-  background: none;
 }
 
 .button-container {

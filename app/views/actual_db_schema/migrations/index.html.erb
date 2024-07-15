@@ -10,8 +10,8 @@
       <p>
         <span style="background-color: #ffe6e6; padding: 0 5px;">Red rows</span> represent phantom migrations.
       </p>
-      <div class="link">
-        <%= link_to 'Phantom Migrations', phantom_migrations_path %>
+      <div class="top-buttons">
+        <%= link_to 'Phantom Migrations', phantom_migrations_path, class: "top-button" %>
       </div>
       <% if migrations.present? %>
         <table>
