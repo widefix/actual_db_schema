@@ -39,7 +39,7 @@ module ActualDbSchema
         end
       end
 
-      migrations
+      sort_migrations_desc(migrations)
     end
 
     def all
@@ -54,7 +54,7 @@ module ActualDbSchema
         end
       end
 
-      migrations
+      sort_migrations_desc(migrations)
     end
 
     def find(version, database)
@@ -103,6 +103,10 @@ module ActualDbSchema
         filename: migration.filename,
         phantom: is_phantom
       )
+    end
+
+    def sort_migrations_desc(migrations)
+      migrations.sort_by { |migration| migration[:version].to_i }.reverse if migrations.any?
     end
 
     def find_migration_in_context(context, version)
