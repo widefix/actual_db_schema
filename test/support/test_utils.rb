@@ -33,7 +33,6 @@ class TestUtils
   end
 
   def run_migrations
-    debugger
     Rake::Task["db:migrate"].invoke
     Rake::Task["db:migrate"].reenable
     Rake::Task["db:rollback_branches"].reenable
