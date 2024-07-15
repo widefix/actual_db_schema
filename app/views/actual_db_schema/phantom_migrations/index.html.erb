@@ -7,8 +7,8 @@
   <body>
     <div>
       <h2>Phantom Migrations</h2>
-      <div class="link">
-        <%= link_to 'All Migrations', migrations_path %>
+      <div class="top-buttons">
+        <%= link_to 'All Migrations', migrations_path, class: "top-button" %>
       </div>
       <% if phantom_migrations.present? %>
         <table>
