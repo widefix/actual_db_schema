@@ -96,3 +96,9 @@ pre {
   padding: 10px;
   border: 1px solid #ddd;
 }
+
+.truncate-text {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

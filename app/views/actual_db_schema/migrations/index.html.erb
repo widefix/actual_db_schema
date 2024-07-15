@@ -30,7 +30,11 @@
               <tr class="migration-row <%= migration[:phantom] ? 'phantom' : 'normal' %>">
                 <td><%= migration[:status] %></td>
                 <td><%= migration[:version] %></td>
-                <td><%= migration[:name] %></td>
+                <td>
+                  <div class="truncate-text" title="<%= migration[:name] %>">
+                    <%= migration[:name] %>
+                  </div>
+                </td>
                 <td><%= migration[:branch] %></td>
                 <td><%= migration[:database] %></td>
                 <td>
