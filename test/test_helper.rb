@@ -2,6 +2,7 @@
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "rails/all"
+require 'rake'
 require "actual_db_schema"
 require "minitest/autorun"
 require "debug"
