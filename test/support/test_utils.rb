@@ -152,6 +152,7 @@ class TestUtils
     clear_schema_call
     remove_app_dir(MIGRATED_PATHS.fetch(prefix_name&.to_sym, migrated_paths.first))
     define_migrations(prefix_name)
+    Rake::Task.clear
     Rails.application.load_tasks
   end
 
