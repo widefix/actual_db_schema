@@ -35,7 +35,7 @@ module ActualDbSchema
 
         context.migrations_status.each do |status, version|
           migration = indexed_migrations[version]
-          migrations << build_migration_struct(status, migration) if migration && status == "up"
+          migrations << build_migration_struct(status, migration) if should_include?(status, migration)
         end
       end
 
@@ -50,7 +50,7 @@ module ActualDbSchema
 
         context.migrations_status.each do |status, version|
           migration = indexed_migrations[version]
-          migrations << build_migration_struct(status, migration) if migration && status == "up"
+          migrations << build_migration_struct(status, migration) if should_include?(status, migration)
         end
       end
 
@@ -92,8 +92,6 @@ module ActualDbSchema
     private
 
     def build_migration_struct(status, migration)
-      is_phantom = migration.filename.include?("/tmp/migrated")
-
       Migration.new(
         status: status,
         version: migration.version.to_s,
@@ -101,12 +99,20 @@ module ActualDbSchema
         branch: branch_for(migration.version),
         database: ActualDbSchema.db_config[:database],
         filename: migration.filename,
-        phantom: is_phantom
+        phantom: phantom?(migration)
       )
     end
 
     def sort_migrations_desc(migrations)
       migrations.sort_by { |migration| migration[:version].to_i }.reverse if migrations.any?
+    end
+
+    def phantom?(migration)
+      migration.filename.include?("/tmp/migrated")
+    end
+
+    def should_include?(status, migration)
+      migration && (status == "up" || !phantom?(migration))
     end
 
     def find_migration_in_context(context, version)
