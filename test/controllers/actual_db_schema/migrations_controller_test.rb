@@ -12,6 +12,7 @@ module ActualDbSchema
       Rails.logger = Logger.new($stdout)
       ActionController::Base.view_paths = [File.expand_path("../../../app/views/", __dir__)]
       active_record_setup
+      @utils.reset_database_yml(TestingState.db_config)
       @utils.cleanup(TestingState.db_config)
       @utils.prepare_phantom_migrations(TestingState.db_config)
     end
