@@ -2,7 +2,8 @@
 <html>
   <head>
     <title>Migration Details</title>
-    <%= stylesheet_link_tag 'actual_db_schema/styles', media: 'all' %>
+    <%= stylesheet_link_tag 'styles', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
   </head>
   <body>
     <div>
@@ -50,5 +51,8 @@
                       style: ('display: none;' if migration[:status] == "up" || migration[:phantom]) %>
       </div>
     </div>
+    <% flash.each do |key, message| %>
+      <div class="flash <%= key %>"><%= message %></div>
+    <% end %>
   </body>
 </html>

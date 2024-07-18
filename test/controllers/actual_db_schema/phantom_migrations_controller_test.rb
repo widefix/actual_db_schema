@@ -133,6 +133,7 @@ module ActualDbSchema
           end
         end
       end
+      assert_select ".flash", text: "Migration 20130906111511 was successfully rolled back."
     end
 
     test "POST #rollback_all changes all phantom migrations status to down and hide migration with down status" do

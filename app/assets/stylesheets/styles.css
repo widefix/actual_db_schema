@@ -90,3 +90,19 @@ pre {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.flash {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.flash.notice {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.flash.alert {
+  background-color: #f8d7da;
+  color: #721c24;
+}

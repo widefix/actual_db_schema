@@ -10,16 +10,32 @@ module ActualDbSchema
     end
 
     def rollback
-      ActualDbSchema::Migration.instance.rollback(params[:id], params[:database])
+      handle_rollback(params[:id], params[:database])
       redirect_to migrations_path
     end
 
     def migrate
-      ActualDbSchema::Migration.instance.migrate(params[:id], params[:database])
+      handle_migrate(params[:id], params[:database])
       redirect_to migrations_path
     end
 
     private
+
+    def handle_rollback(id, database)
+      ActualDbSchema::Migration.instance.rollback(id, database)
+      flash[:notice] = "Migration #{id} was successfully rolled back."
+    rescue ActiveRecord::IrreversibleMigration
+      flash[:alert] = "Migration #{id} cannot be rolled back because it is irreversible."
+    rescue StandardError => e
+      flash[:alert] = "An error occurred while trying to roll back the migration #{id}: #{e.message}"
+    end
+
+    def handle_migrate(id, database)
+      ActualDbSchema::Migration.instance.migrate(id, database)
+      flash[:notice] = "Migration #{id} was successfully migrated."
+    rescue StandardError => e
+      flash[:alert] = "An error occurred while migrating #{id}: #{e.message}"
+    end
 
     helper_method def migrations
       @migrations ||= ActualDbSchema::Migration.instance.all

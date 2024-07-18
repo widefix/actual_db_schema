@@ -2,7 +2,9 @@
 <html>
   <head>
     <title>Phantom Migration Details</title>
-    <%= stylesheet_link_tag 'actual_db_schema/styles', media: 'all' %>
+    <%= stylesheet_link_tag 'styles', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
+
   </head>
   <body>
     <div>
@@ -41,5 +43,8 @@
         <%= button_to '⎌ Rollback', rollback_phantom_migration_path(id: params[:id], database: params[:database]), method: :post, class: 'button' %>
       </div>
     </div>
+    <% flash.each do |key, message| %>
+      <div class="flash <%= key %>"><%= message %></div>
+    <% end %>
   </body>
 </html>

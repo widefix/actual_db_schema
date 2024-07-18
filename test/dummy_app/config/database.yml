@@ -1,0 +1,5 @@
+---
+test:
+  adapter: sqlite3
+  database: tmp/primary.sqlite3
+  migrations_paths: "/home/vlad/projects/actual_db_schema/test/dummy_app/db/migrate"

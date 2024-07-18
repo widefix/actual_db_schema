@@ -2,7 +2,8 @@
 <html>
   <head>
     <title>Migrations</title>
-    <%= stylesheet_link_tag 'actual_db_schema/styles', media: 'all' %>
+    <%= stylesheet_link_tag 'styles', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
   </head>
   <body>
     <div>
@@ -62,5 +63,8 @@
         <p>No migrations found.</p>
       <% end %>
     </div>
+    <% flash.each do |key, message| %>
+      <div class="flash <%= key %>"><%= message %></div>
+    <% end %>
   </body>
 </html>
