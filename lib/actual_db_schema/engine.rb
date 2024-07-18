@@ -11,7 +11,7 @@ module ActualDbSchema
           mount ActualDbSchema::Engine => "/rails"
         end
 
-        app.config.assets.precompile += %w[styles.css application.js]
+        app.config.assets.precompile += %w[actual_db_schema/styles.css]
       end
     end
   end
