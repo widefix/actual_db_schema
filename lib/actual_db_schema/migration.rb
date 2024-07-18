@@ -59,9 +59,7 @@ module ActualDbSchema
     end
 
     def rollback_all
-      MigrationContext.instance.each do |context|
-        context.rollback_branches(manual_mode: false)
-      end
+      MigrationContext.instance.each(&:rollback_branches)
     end
 
     def migrate(version, database)
