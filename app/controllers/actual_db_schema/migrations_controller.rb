@@ -10,23 +10,23 @@ module ActualDbSchema
     end
 
     def rollback
-      ActualDbSchema::Migration.rollback(params[:id], params[:database])
+      ActualDbSchema::Migration.instance.rollback(params[:id], params[:database])
       redirect_to migrations_path
     end
 
     def migrate
-      ActualDbSchema::Migration.migrate(params[:id], params[:database])
+      ActualDbSchema::Migration.instance.migrate(params[:id], params[:database])
       redirect_to migrations_path
     end
 
     private
 
     helper_method def migrations
-      @migrations ||= ActualDbSchema::Migration.all
+      @migrations ||= ActualDbSchema::Migration.instance.all
     end
 
     helper_method def migration
-      @migration ||= ActualDbSchema::Migration.find(params[:id], params[:database])
+      @migration ||= ActualDbSchema::Migration.instance.find(params[:id], params[:database])
     end
   end
 end

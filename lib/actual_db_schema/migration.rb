@@ -7,30 +7,6 @@ module ActualDbSchema
 
     Migration = Struct.new(:status, :version, :name, :branch, :database, :filename, :phantom, keyword_init: true)
 
-    def self.all
-      instance.all
-    end
-
-    def self.all_phantom
-      instance.all_phantom
-    end
-
-    def self.find(version, database)
-      instance.find(version, database)
-    end
-
-    def self.rollback(version, database)
-      instance.rollback(version, database)
-    end
-
-    def self.rollback_all
-      instance.rollback_all
-    end
-
-    def self.migrate(version, database)
-      instance.migrate(version, database)
-    end
-
     def all_phantom
       migrations = []
 
