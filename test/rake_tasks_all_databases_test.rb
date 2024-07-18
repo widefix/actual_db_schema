@@ -11,6 +11,7 @@ describe "multipe db support" do
   end
 
   before do
+    utils.reset_database_yml(TestingState.db_config)
     ActiveRecord::Base.configurations = { "test" => TestingState.db_config }
     ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config }
     utils.cleanup(TestingState.db_config)

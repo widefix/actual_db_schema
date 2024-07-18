@@ -49,17 +49,6 @@ class TestUtils
     end
   end
 
-  def clear_schema(db_config = nil)
-    if db_config
-      db_config.each_value do |config|
-        ActiveRecord::Base.establish_connection(**config)
-        clear_schema_call
-      end
-    else
-      clear_schema_call
-    end
-  end
-
   def simulate_input(input)
     $stdin = StringIO.new("#{([input] * 999).join("\n")}\n")
     yield
@@ -107,6 +96,16 @@ class TestUtils
     end
   end
 
+  def reset_database_yml(db_config)
+    database_yml_path = Rails.root.join("config", "database.yml")
+    File.delete(database_yml_path) if File.exist?(database_yml_path)
+    File.open(database_yml_path, "w") do |file|
+      file.write({
+        "test" => db_config
+      }.to_yaml)
+    end
+  end
+
   def prepare_phantom_migrations(db_config = nil)
     run_migrations
     if db_config
@@ -150,9 +149,10 @@ class TestUtils
   def cleanup_call(prefix_name = nil)
     delete_migrations_files(prefix_name)
     create_schema_migration_table
-    run_sql("delete from schema_migrations")
+    clear_schema_call
     remove_app_dir(MIGRATED_PATHS.fetch(prefix_name&.to_sym, migrated_paths.first))
     define_migrations(prefix_name)
+    Rake::Task.clear
     Rails.application.load_tasks
   end
 
