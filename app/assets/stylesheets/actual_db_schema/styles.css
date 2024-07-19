@@ -24,7 +24,7 @@ table {
 
   tbody {
     .migration-row.phantom {
-      background-color: #ffe6e6;
+      background-color: #fff3f3;
     }
     
     .migration-row.normal {
@@ -32,7 +32,7 @@ table {
     }
     
     .migration-row:nth-child(odd).phantom {
-      background-color: #ffcccc;
+      background-color: #ffe6e6;
     }
     
     .migration-row:nth-child(odd).normal {

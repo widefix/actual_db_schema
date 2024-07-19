@@ -27,7 +27,7 @@
           </thead>
           <tbody>
             <% phantom_migrations.each do |migration| %>
-              <tr>
+              <tr class="migration-row phantom">
                 <td><%= migration[:status] %></td>
                 <td><%= migration[:version] %></td>
                 <td>
