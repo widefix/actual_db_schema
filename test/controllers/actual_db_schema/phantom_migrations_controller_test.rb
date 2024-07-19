@@ -136,6 +136,28 @@ module ActualDbSchema
       assert_select ".flash", text: "Migration 20130906111511 was successfully rolled back."
     end
 
+    test "POST #rollback with irreversible migration returns error message" do
+      %w[primary secondary].each do |prefix|
+        @utils.define_migration_file("20130906111513_irreversible_#{prefix}.rb", <<~RUBY, prefix: prefix)
+          class Irreversible#{prefix.camelize} < ActiveRecord::Migration[6.0]
+            def up
+              TestingState.up << :irreversible_#{prefix}
+            end
+
+            def down
+              raise ActiveRecord::IrreversibleMigration
+            end
+          end
+        RUBY
+      end
+      @utils.prepare_phantom_migrations(TestingState.db_config)
+      post :rollback, params: { id: "20130906111513", database: "tmp/primary.sqlite3" }
+      assert_response :redirect
+      get :index
+      message = "An error has occurred, this and all later migrations canceled:\n\nActiveRecord::IrreversibleMigration"
+      assert_select ".flash", text: message
+    end
+
     test "POST #rollback_all changes all phantom migrations status to down and hide migration with down status" do
       post :rollback_all
       assert_response :redirect

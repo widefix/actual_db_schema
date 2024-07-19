@@ -24,17 +24,15 @@ module ActualDbSchema
     def handle_rollback(id, database)
       ActualDbSchema::Migration.instance.rollback(id, database)
       flash[:notice] = "Migration #{id} was successfully rolled back."
-    rescue ActiveRecord::IrreversibleMigration
-      flash[:alert] = "Migration #{id} cannot be rolled back because it is irreversible."
     rescue StandardError => e
-      flash[:alert] = "An error occurred while trying to roll back the migration #{id}: #{e.message}"
+      flash[:alert] = e.message
     end
 
     def handle_rollback_all
       ActualDbSchema::Migration.instance.rollback_all
       flash[:notice] = "Migrations was successfully rolled back."
     rescue StandardError => e
-      flash[:alert] = "An error occurred while trying to roll back migrations: #{e.message}"
+      flash[:alert] = e.message
     end
 
     helper_method def phantom_migrations
