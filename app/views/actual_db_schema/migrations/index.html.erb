@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Migrations</title>
+    <%= stylesheet_link_tag 'actual_db_schema/styles', media: 'all' %>
+  </head>
+  <body>
+    <div>
+      <h2>Migrations</h2>
+      <p>
+        <span style="background-color: #ffe6e6; padding: 0 5px;">Red rows</span> represent phantom migrations.
+      </p>
+      <div class="top-buttons">
+        <%= link_to 'Phantom Migrations', phantom_migrations_path, class: "top-button" %>
+      </div>
+      <% if migrations.present? %>
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Migration ID</th>
+              <th>Name</th>
+              <th>Branch</th>
+              <th>Database</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% migrations.each do |migration| %>
+              <tr class="migration-row <%= migration[:phantom] ? 'phantom' : 'normal' %>">
+                <td><%= migration[:status] %></td>
+                <td><%= migration[:version] %></td>
+                <td>
+                  <div class="truncate-text" title="<%= migration[:name] %>">
+                    <%= migration[:name] %>
+                  </div>
+                </td>
+                <td><%= migration[:branch] %></td>
+                <td><%= migration[:database] %></td>
+                <td>
+                  <div class='button-container'>
+                    <%= link_to '👁 Show',
+                                migration_path(id: migration[:version], database: migration[:database]),
+                                class: 'button' %>
+                    <%= button_to '⎌ Rollback',
+                                  rollback_migration_path(id: migration[:version], database: migration[:database]),
+                                  method: :post,
+                                  class: 'button',
+                                  style: ('display: none;' if migration[:status] == "down") %>
+                    <%= button_to '⬆ Migrate',
+                                  migrate_migration_path(id: migration[:version], database: migration[:database]),
+                                  method: :post,
+                                  class: 'button',
+                                  style: ('display: none;' if migration[:status] == "up" || migration[:phantom]) %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p>No migrations found.</p>
+      <% end %>
+    </div>
+  </body>
+</html>

@@ -5,6 +5,7 @@ require "rails/all"
 require "actual_db_schema"
 require "minitest/autorun"
 require "debug"
+require "rake"
 require "support/test_utils"
 
 Rails.env = "test"

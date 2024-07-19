@@ -12,25 +12,16 @@ module ActualDbSchema
       end
 
       def indexed_phantom_migrations
-        @indexed_phantom_migrations ||= context.migrations.index_by { |m| m.version.to_s }
+        @indexed_phantom_migrations ||= context.phantom_migrations.index_by { |m| m.version.to_s }
       end
 
       def preambule
         puts "\nPhantom migrations\n\n"
         puts "Below is a list of irrelevant migrations executed in unmerged branches."
         puts "To bring your database schema up to date, the migrations marked as \"up\" should be rolled back."
-        database_path = db_config[:database]
-        puts "\ndatabase: #{database_path}\n\n"
+        puts "\ndatabase: #{ActualDbSchema.db_config[:database]}\n\n"
         puts header.join("  ")
         puts "-" * separator_width
-      end
-
-      def db_config
-        if ActiveRecord::Base.respond_to?(:connection_db_config)
-          ActiveRecord::Base.connection_db_config.configuration_hash
-        else
-          ActiveRecord::Base.connection_config
-        end
       end
 
       def separator_width
@@ -66,12 +57,12 @@ module ActualDbSchema
         ].join("  ")
       end
 
-      def branch_for(version)
-        metadata.fetch(version, {})[:branch] || "unknown"
-      end
-
       def metadata
         @metadata ||= ActualDbSchema::Store.instance.read
+      end
+
+      def branch_for(version)
+        metadata.fetch(version, {})[:branch] || "unknown"
       end
 
       def longest_branch_name

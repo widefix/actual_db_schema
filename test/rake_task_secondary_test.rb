@@ -8,6 +8,7 @@ describe "second db support" do
   end
 
   before do
+    utils.reset_database_yml(TestingState.db_config["secondary"])
     ActiveRecord::Base.configurations = { "test" => TestingState.db_config["secondary"] }
     ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config["secondary"] }
     ActiveRecord::Base.establish_connection(**TestingState.db_config["secondary"])

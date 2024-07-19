@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Phantom Migrations</title>
+    <%= stylesheet_link_tag 'actual_db_schema/styles', media: 'all' %>
+  </head>
+  <body>
+    <div>
+      <h2>Phantom Migrations</h2>
+      <div class="top-buttons">
+        <%= link_to 'All Migrations', migrations_path, class: "top-button" %>
+        <% if phantom_migrations.present? %>
+          <%= button_to '⎌ Rollback all', rollback_all_phantom_migrations_path, method: :post, class: 'button' %>
+        <% end %>
+      </div>
+      <% if phantom_migrations.present? %>
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Migration ID</th>
+              <th>Name</th>
+              <th>Branch</th>
+              <th>Database</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% phantom_migrations.each do |migration| %>
+              <tr class="migration-row phantom">
+                <td><%= migration[:status] %></td>
+                <td><%= migration[:version] %></td>
+                <td>
+                  <div class="truncate-text" title="<%= migration[:name] %>">
+                    <%= migration[:name] %>
+                  </div>
+                </td>
+                <td><%= migration[:branch] %></td>
+                <td><%= migration[:database] %></td>
+                <td>
+                  <div class='button-container'>
+                    <%= link_to '👁 Show', phantom_migration_path(id: migration[:version], database: migration[:database]), class: 'button' %>
+                    <%= button_to '⎌ Rollback', rollback_phantom_migration_path(id: migration[:version], database: migration[:database]), method: :post, class: 'button' %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p>No phantom migrations found.</p>
+      <% end %>
+    </div>
+  </body>
+</html>

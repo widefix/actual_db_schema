@@ -1,3 +1,8 @@
+## [0.7.6] - 2024-07-05
+- Added UI
+- Added environment variable `ACTUAL_DB_SCHEMA_UI_ENABLED` to enable/disable the UI in specific environments
+- Added configuration option `ActualDbSchema.config[:ui_enabled]` to enable/disable the UI in specific environments
+
 ## [0.7.5] - 2024-06-20
 - Added db:rollback_migrations:manual task to manually rolls back phantom migrations one by one
 

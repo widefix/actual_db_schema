@@ -62,6 +62,35 @@ The gem offers the following rake tasks that can be manually run according to yo
 - `rails db:rollback_branches:manual` - run it to manually rolls back phantom migrations one by one.
 - `rails db:phantom_migrations` - displays a list of phantom migrations.
 
+## Accessing the UI
+
+The UI for managing migrations is enabled automatically. To access the UI, simply navigate to the following URL in your web browser:
+```
+http://localhost:3000/rails/phantom_migrations
+```
+This page displays a list of phantom migrations for each database connection and provides options to view details and rollback them.
+
+## UI options
+
+By default, the UI is enabled in the development environment. If you prefer to enable the UI for another environment, you can do so in two ways:
+
+### 1. Using Environment Variable
+
+Set the environment variable `ACTUAL_DB_SCHEMA_UI_ENABLED` to `true`:
+
+```sh
+export ACTUAL_DB_SCHEMA_UI_ENABLED=true
+```
+
+### 2. Using Initializer
+Add the following line to your initializer file (`config/initializers/actual_db_schema.rb`):
+
+```ruby
+ActualDbSchema.config[:ui_enabled] = true
+```
+
+> With this option, the UI can be disabled for all environments or be enabled in specific ones.
+
 ## Disabling Automatic Rollback
 
 By default, the automatic rollback of migrations is enabled. If you prefer to perform manual rollbacks, you can disable the automatic rollback in two ways:

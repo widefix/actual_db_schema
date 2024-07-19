@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
+require "actual_db_schema/engine"
 require "active_record/migration"
 require "csv"
 require_relative "actual_db_schema/git"
 require_relative "actual_db_schema/store"
 require_relative "actual_db_schema/version"
+require_relative "actual_db_schema/migration"
+require_relative "actual_db_schema/migration_context"
 require_relative "actual_db_schema/patches/migration_proxy"
 require_relative "actual_db_schema/patches/migrator"
 require_relative "actual_db_schema/patches/migration_context"
@@ -17,8 +20,6 @@ require_relative "actual_db_schema/commands/list"
 module ActualDbSchema
   raise NotImplementedError, "ActualDbSchema is only supported in Rails" unless defined?(Rails)
 
-  require "railtie"
-
   class << self
     attr_accessor :config, :failed
   end
@@ -26,7 +27,8 @@ module ActualDbSchema
   self.failed = []
   self.config = {
     enabled: Rails.env.development?,
-    auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?
+    auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?,
+    ui_enabled: Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_UI_ENABLED"].present?
   }
 
   def self.migrated_folder
@@ -58,17 +60,16 @@ module ActualDbSchema
     end
   end
 
-  def self.migration_filename(fullpath)
-    fullpath.split("/").last
+  def self.db_config
+    if ActiveRecord::Base.respond_to?(:connection_db_config)
+      ActiveRecord::Base.connection_db_config.configuration_hash
+    else
+      ActiveRecord::Base.connection_config
+    end
   end
 
-  def self.for_each_db_connection
-    configs = ActiveRecord::Base.configurations.configs_for(env_name: ActiveRecord::Tasks::DatabaseTasks.env)
-    configs.each do |db_config|
-      config = db_config.respond_to?(:config) ? db_config.config : db_config
-      ActiveRecord::Base.establish_connection(config)
-      yield
-    end
+  def self.migration_filename(fullpath)
+    fullpath.split("/").last
   end
 end
 

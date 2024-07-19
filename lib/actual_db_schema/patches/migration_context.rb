@@ -5,13 +5,23 @@ module ActualDbSchema
     # Add new command to roll back the phantom migrations
     module MigrationContext
       def rollback_branches(manual_mode: false)
-        migrations.reverse_each do |migration|
+        phantom_migrations.reverse_each do |migration|
           next unless status_up?(migration)
 
           show_info_for(migration) if manual_mode
           migrate(migration) if !manual_mode || user_wants_rollback?
         rescue StandardError => e
           handle_migration_error(e, migration)
+        end
+      end
+
+      def phantom_migrations
+        paths = Array(migrations_paths)
+        current_branch_files = Dir[*paths.flat_map { |path| "#{path}/**/[0-9]*_*.rb" }]
+        current_branch_file_names = current_branch_files.map { |f| ActualDbSchema.migration_filename(f) }
+
+        migrations.reject do |migration|
+          current_branch_file_names.include?(ActualDbSchema.migration_filename(migration.filename))
         end
       end
 
@@ -31,9 +41,13 @@ module ActualDbSchema
         paths = Array(migrations_paths)
         current_branch_files = Dir[*paths.flat_map { |path| "#{path}/**/[0-9]*_*.rb" }]
         other_branches_files = Dir["#{ActualDbSchema.migrated_folder}/**/[0-9]*_*.rb"]
+        current_branch_versions = current_branch_files.map { |file| file.match(/(\d+)_/)[1] }
+        filtered_other_branches_files = other_branches_files.reject do |file|
+          version = file.match(/(\d+)_/)[1]
+          current_branch_versions.include?(version)
+        end
 
-        current_branch_file_names = current_branch_files.map { |f| ActualDbSchema.migration_filename(f) }
-        other_branches_files.reject { |f| ActualDbSchema.migration_filename(f).in?(current_branch_file_names) }
+        current_branch_files + filtered_other_branches_files
       end
 
       def status_up?(migration)
@@ -52,7 +66,7 @@ module ActualDbSchema
         puts "\n[ActualDbSchema] A phantom migration was found and is about to be rolled back."
         puts "Please make a decision from the options below to proceed.\n\n"
         puts "Branch: #{branch_for(migration.version.to_s)}"
-        puts "Database: #{db_config[:database]}"
+        puts "Database: #{ActualDbSchema.db_config[:database]}"
         puts "Version: #{migration.version}\n\n"
         puts File.read(migration.filename)
       end
@@ -67,14 +81,6 @@ module ActualDbSchema
         migrator = down_migrator_for(migration)
         migrator.extend(ActualDbSchema::Patches::Migrator)
         migrator.migrate
-      end
-
-      def db_config
-        @db_config ||= if ActiveRecord::Base.respond_to?(:connection_db_config)
-                         ActiveRecord::Base.connection_db_config.configuration_hash
-                       else
-                         ActiveRecord::Base.connection_config
-                       end
       end
 
       def branch_for(version)

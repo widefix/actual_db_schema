@@ -6,6 +6,7 @@ describe "single db" do
   let(:utils) { TestUtils.new }
 
   before do
+    utils.reset_database_yml(TestingState.db_config["primary"])
     ActiveRecord::Base.configurations = { "test" => TestingState.db_config["primary"] }
     ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config["primary"] }
     ActiveRecord::Base.establish_connection(**TestingState.db_config["primary"])
