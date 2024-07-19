@@ -75,6 +75,12 @@ table {
   background-color: #000;
 }
 
+.button:disabled, .button:hover:disabled {
+  background-color: transparent;
+  color: #666;
+  cursor: not-allowed;
+}
+
 .button-container {
   display: flex;
 }
