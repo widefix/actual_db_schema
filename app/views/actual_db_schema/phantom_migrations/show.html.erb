@@ -2,7 +2,9 @@
 <html>
   <head>
     <title>Phantom Migration Details</title>
-    <%= stylesheet_link_tag 'actual_db_schema/styles', media: 'all' %>
+    <%= csrf_meta_tags %>
+    <%= stylesheet_link_tag 'styles', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
   </head>
   <body>
     <div>
@@ -38,7 +40,10 @@
       </div>
       <div class='button-container'>
         <%= link_to '← Back', phantom_migrations_path, class: 'button' %>
-        <%= button_to '⎌ Rollback', rollback_phantom_migration_path(id: params[:id], database: params[:database]), method: :post, class: 'button' %>
+        <%= button_to '⎌ Rollback',
+                      rollback_phantom_migration_path(id: params[:id], database: params[:database]),
+                      method: :post,
+                      class: 'button migration-action' %>
       </div>
     </div>
     <% flash.each do |key, message| %>
