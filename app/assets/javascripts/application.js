@@ -7,15 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
       button.value = 'Loading...';
       disableButtons();
 
-      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-      fetch(event.target.form.action, { 
-        method: 'POST', 
-        headers: { 
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRF-Token': csrfToken 
-        }
-      })
+      fetch(event.target.form.action, { method: 'POST'})
       .then(response => {
         if (response.ok) {
           window.location.reload();

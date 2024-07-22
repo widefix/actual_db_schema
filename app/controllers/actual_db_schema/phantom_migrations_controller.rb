@@ -3,6 +3,8 @@
 module ActualDbSchema
   # Controller to display the list of phantom migrations for each database connection.
   class PhantomMigrationsController < ActionController::Base
+    skip_before_action :verify_authenticity_token
+
     def index; end
 
     def show
