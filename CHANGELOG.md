@@ -1,4 +1,4 @@
-## [0.7.6] - 2024-07-05
+## [0.7.6] - 2024-07-22
 - Added UI
 - Added environment variable `ACTUAL_DB_SCHEMA_UI_ENABLED` to enable/disable the UI in specific environments
 - Added configuration option `ActualDbSchema.config[:ui_enabled]` to enable/disable the UI in specific environments
