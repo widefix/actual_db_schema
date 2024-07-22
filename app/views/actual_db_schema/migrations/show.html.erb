@@ -8,6 +8,9 @@
   </head>
   <body>
     <div>
+      <% flash.each do |key, message| %>
+        <div class="flash <%= key %>"><%= message %></div>
+      <% end %>
       <h2>Migration <%= migration[:name] %> Details</h2>
       <table>
         <tbody>
@@ -52,8 +55,5 @@
                       style: ('display: none;' if migration[:status] == "up" || migration[:phantom]) %>
       </div>
     </div>
-    <% flash.each do |key, message| %>
-      <div class="flash <%= key %>"><%= message %></div>
-    <% end %>
   </body>
 </html>

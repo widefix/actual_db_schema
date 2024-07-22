@@ -8,6 +8,9 @@
   </head>
   <body>
     <div>
+      <% flash.each do |key, message| %>
+        <div class="flash <%= key %>"><%= message %></div>
+      <% end %>
       <h2>Phantom Migrations</h2>
       <div class="top-buttons">
         <%= link_to 'All Migrations', migrations_path, class: "top-button" %>
@@ -61,8 +64,5 @@
         <p>No phantom migrations found.</p>
       <% end %>
     </div>
-    <% flash.each do |key, message| %>
-      <div class="flash <%= key %>"><%= message %></div>
-    <% end %>
   </body>
 </html>

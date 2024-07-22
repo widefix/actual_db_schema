@@ -8,6 +8,9 @@
   </head>
   <body>
     <div>
+      <% flash.each do |key, message| %>
+        <div class="flash <%= key %>"><%= message %></div>
+      <% end %>
       <h2>Phantom Migration <%= phantom_migration[:name] %> Details</h2>
       <table>
         <tbody>
@@ -46,8 +49,5 @@
                       class: 'button migration-action' %>
       </div>
     </div>
-    <% flash.each do |key, message| %>
-      <div class="flash <%= key %>"><%= message %></div>
-    <% end %>
   </body>
 </html>
