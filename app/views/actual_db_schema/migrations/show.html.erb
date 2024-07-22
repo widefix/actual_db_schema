@@ -2,10 +2,14 @@
 <html>
   <head>
     <title>Migration Details</title>
-    <%= stylesheet_link_tag 'actual_db_schema/styles', media: 'all' %>
+    <%= stylesheet_link_tag 'styles', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
   </head>
   <body>
     <div>
+      <% flash.each do |key, message| %>
+        <div class="flash <%= key %>"><%= message %></div>
+      <% end %>
       <h2>Migration <%= migration[:name] %> Details</h2>
       <table>
         <tbody>
@@ -41,12 +45,12 @@
         <%= button_to '⎌ Rollback',
                       rollback_migration_path(id: migration[:version], database: migration[:database]),
                       method: :post,
-                      class: 'button',
+                      class: 'button migration-action',
                       style: ('display: none;' if migration[:status] == "down") %>
         <%= button_to '⬆ Migrate',
                       migrate_migration_path(id: migration[:version], database: migration[:database]),
                       method: :post,
-                      class: 'button',
+                      class: 'button migration-action',
                       style: ('display: none;' if migration[:status] == "up" || migration[:phantom]) %>
       </div>
     </div>

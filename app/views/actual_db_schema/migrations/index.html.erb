@@ -2,10 +2,14 @@
 <html>
   <head>
     <title>Migrations</title>
-    <%= stylesheet_link_tag 'actual_db_schema/styles', media: 'all' %>
+    <%= stylesheet_link_tag 'styles', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
   </head>
   <body>
     <div>
+      <% flash.each do |key, message| %>
+        <div class="flash <%= key %>"><%= message %></div>
+      <% end %>
       <h2>Migrations</h2>
       <p>
         <span style="background-color: #ffe6e6; padding: 0 5px;">Red rows</span> represent phantom migrations.
@@ -45,12 +49,12 @@
                     <%= button_to '⎌ Rollback',
                                   rollback_migration_path(id: migration[:version], database: migration[:database]),
                                   method: :post,
-                                  class: 'button',
+                                  class: 'button migration-action',
                                   style: ('display: none;' if migration[:status] == "down") %>
                     <%= button_to '⬆ Migrate',
                                   migrate_migration_path(id: migration[:version], database: migration[:database]),
                                   method: :post,
-                                  class: 'button',
+                                  class: 'button migration-action',
                                   style: ('display: none;' if migration[:status] == "up" || migration[:phantom]) %>
                   </div>
                 </td>

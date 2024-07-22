@@ -75,6 +75,12 @@ table {
   background-color: #000;
 }
 
+.button:disabled, .button:hover:disabled {
+  background-color: transparent;
+  color: #666;
+  cursor: not-allowed;
+}
+
 .button-container {
   display: flex;
 }
@@ -89,4 +95,20 @@ pre {
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.flash {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.flash.notice {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.flash.alert {
+  background-color: #f8d7da;
+  color: #721c24;
 }

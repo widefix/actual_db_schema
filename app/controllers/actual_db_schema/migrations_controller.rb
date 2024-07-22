@@ -3,6 +3,9 @@
 module ActualDbSchema
   # Controller to display the list of migrations for each database connection.
   class MigrationsController < ActionController::Base
+    protect_from_forgery with: :exception
+    skip_before_action :verify_authenticity_token
+
     def index; end
 
     def show
@@ -10,16 +13,30 @@ module ActualDbSchema
     end
 
     def rollback
-      ActualDbSchema::Migration.instance.rollback(params[:id], params[:database])
+      handle_rollback(params[:id], params[:database])
       redirect_to migrations_path
     end
 
     def migrate
-      ActualDbSchema::Migration.instance.migrate(params[:id], params[:database])
+      handle_migrate(params[:id], params[:database])
       redirect_to migrations_path
     end
 
     private
+
+    def handle_rollback(id, database)
+      ActualDbSchema::Migration.instance.rollback(id, database)
+      flash[:notice] = "Migration #{id} was successfully rolled back."
+    rescue StandardError => e
+      flash[:alert] = e.message
+    end
+
+    def handle_migrate(id, database)
+      ActualDbSchema::Migration.instance.migrate(id, database)
+      flash[:notice] = "Migration #{id} was successfully migrated."
+    rescue StandardError => e
+      flash[:alert] = e.message
+    end
 
     helper_method def migrations
       @migrations ||= ActualDbSchema::Migration.instance.all
