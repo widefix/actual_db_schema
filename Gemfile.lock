@@ -2,8 +2,8 @@ PATH
   remote: .
   specs:
     actual_db_schema (0.7.6)
-      activerecord (>= 6.0.0)
-      activesupport (>= 6.0.0)
+      activerecord
+      activesupport
       csv
 
 GEM

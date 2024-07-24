@@ -20,7 +20,12 @@ module ActualDbSchema
     end
 
     def configs
-      ActiveRecord::Base.configurations.configs_for(env_name: ActiveRecord::Tasks::DatabaseTasks.env)
+      # Rails < 6.0 has a Hash in configurations
+      if ActiveRecord::Base.configurations.is_a?(Hash)
+        [ActiveRecord::Base.configurations[ActiveRecord::Tasks::DatabaseTasks.env]]
+      else
+        ActiveRecord::Base.configurations.configs_for(env_name: ActiveRecord::Tasks::DatabaseTasks.env)
+      end
     end
 
     def context
