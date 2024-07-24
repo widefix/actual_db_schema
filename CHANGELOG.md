@@ -1,3 +1,6 @@
+## [0.7.7] - 2024-07-22
+- Unlock compatibility with Rails versions earlier than 6.0
+
 ## [0.7.6] - 2024-07-22
 - Added UI
 - Added environment variable `ACTUAL_DB_SCHEMA_UI_ENABLED` to enable/disable the UI in specific environments
