@@ -10,8 +10,6 @@ module ActualDbSchema
         app.routes.append do
           mount ActualDbSchema::Engine => "/rails"
         end
-
-        app.config.assets.precompile += %w[styles.css application.js]
       end
     end
   end
