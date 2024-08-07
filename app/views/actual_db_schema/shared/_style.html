@@ -1,116 +1,116 @@
 <style>
   body {
-      margin: 8px;
-      background-color: #fff;
-      color: #333;
+    margin: 8px;
+    background-color: #fff;
+    color: #333;
+  }
+
+  body, p, td {
+    font-family: helvetica, verdana, arial, sans-serif;
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  h2 {
+    padding-left: 10px;
+  }
+
+  table {
+    margin: 0;
+    border-collapse: collapse;
+
+    thead tr {
+      border-bottom: 2px solid #ddd;
     }
-    
-    body, p, td {
-      font-family: helvetica, verdana, arial, sans-serif;
-      font-size: 13px;
-      line-height: 18px;
-    }
-    
-    h2 {
-      padding-left: 10px;
-    }
-    
-    table {
-      margin: 0;
-      border-collapse: collapse;
-    
-      thead tr {
-        border-bottom: 2px solid #ddd;
+
+    tbody {
+      .migration-row.phantom {
+        background-color: #fff3f3;
       }
-    
-      tbody {
-        .migration-row.phantom {
-          background-color: #fff3f3;
-        }
-        
-        .migration-row.normal {
-          background-color: #ffffff;
-        }
-        
-        .migration-row:nth-child(odd).phantom {
-          background-color: #ffe6e6;
-        }
-        
-        .migration-row:nth-child(odd).normal {
-          background-color: #f9f9f9;
-        }
+
+      .migration-row.normal {
+        background-color: #ffffff;
       }
-    
-      td {
-        padding: 14px 30px;
+
+      .migration-row:nth-child(odd).phantom {
+        background-color: #ffe6e6;
+      }
+
+      .migration-row:nth-child(odd).normal {
+        background-color: #f9f9f9;
       }
     }
-    
-    .top-buttons {
-      margin: 8px;
-      display: flex;
-      align-items: center;
-    
-      .top-button {
-        background-color: #ddd;
-      }
+
+    td {
+      padding: 14px 30px;
     }
-    
-    .button, .top-button {
-      font-weight: bold;
-      color: #000;
-      border: none;
-      padding: 5px 10px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      margin: 0 2px;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: background-color 0.3s;
-      background: none;
+  }
+
+  .top-buttons {
+    margin: 8px;
+    display: flex;
+    align-items: center;
+
+    .top-button {
+      background-color: #ddd;
     }
-    
-    .button:hover, .top-button:hover {
-      color: #fff;
-      background-color: #000;
-    }
-    
-    .button:disabled, .button:hover:disabled {
-      background-color: transparent;
-      color: #666;
-      cursor: not-allowed;
-    }
-    
-    .button-container {
-      display: flex;
-    }
-    
-    pre {
-      background-color: #f7f7f7;
-      padding: 10px;
-      border: 1px solid #ddd;
-    }
-    
-    .truncate-text {
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    
-    .flash {
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-    }
-    
-    .flash.notice {
-      background-color: #d4edda;
-      color: #155724;
-    }
-    
-    .flash.alert {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-  </style>
+  }
+
+  .button, .top-button {
+    font-weight: bold;
+    color: #000;
+    border: none;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: 0 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    background: none;
+  }
+
+  .button:hover, .top-button:hover {
+    color: #fff;
+    background-color: #000;
+  }
+
+  .button:disabled, .button:hover:disabled {
+    background-color: transparent;
+    color: #666;
+    cursor: not-allowed;
+  }
+
+  .button-container {
+    display: flex;
+  }
+
+  pre {
+    background-color: #f7f7f7;
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+
+  .truncate-text {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .flash {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+  }
+
+  .flash.notice {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .flash.alert {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+</style>
