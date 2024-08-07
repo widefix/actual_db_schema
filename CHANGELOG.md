@@ -1,3 +1,6 @@
+## [0.7.8] - 2024-08-07
+- Make UI working without assets pipeline
+
 ## [0.7.7] - 2024-07-22
 - Unlock compatibility with Rails versions earlier than 6.0
 
