@@ -122,7 +122,8 @@ To release a new version do the following in the order:
 - update the CHANGELOG;
 - `bundle install` to update `Gemfile.lock`;
 - make the commit and push;
-- run `bundle exec rake release`. This will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+- run `bundle exec rake release`. This will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org);
+- [announce the new release on GitHub](https://github.com/widefix/actual_db_schema/releases).
 
 ### Running Tests with Specific Rails Versions
 
