@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActualDbSchema
   FailedMigration = Struct.new(:migration, :exception, keyword_init: true) do
     def filename

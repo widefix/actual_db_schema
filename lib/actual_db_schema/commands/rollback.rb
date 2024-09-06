@@ -4,6 +4,12 @@ module ActualDbSchema
   module Commands
     # Rolls back all phantom migrations
     class Rollback < Base
+      UNICODE_COLORS = {
+        red: 31,
+        green: 32,
+        yellow: 33
+      }.freeze
+
       def initialize(context, manual_mode: false)
         @manual_mode = manual_mode || manual_mode_default?
         super(context)
@@ -16,14 +22,11 @@ module ActualDbSchema
 
         return if ActualDbSchema.failed.empty?
 
-        puts ""
-        puts "\u2757\u2757\u2757 #{colorize('[ActualDbSchema]', :red)}"
-        puts ""
-        puts colorize("#{ActualDbSchema.failed.count} phantom migration(s) could not be rolled back automatically. Roll them back or fix manually:", :red)
+        puts_preamble
+        puts_into
         puts ""
         puts failed_migrations_list
-        puts "\u2757\u2757\u2757 #{colorize('[ActualDbSchema]', :red)}"
-        puts ""
+        puts_preamble
       end
 
       def failed_migrations_list
@@ -39,23 +42,24 @@ module ActualDbSchema
         end
       end
 
+      def puts_preamble
+        puts ""
+        puts %(\u2757\u2757\u2757 #{colorize("[ActualDbSchema]", :red)})
+        puts ""
+      end
+
+      def puts_into
+        msg = "#{ActualDbSchema.failed.count} phantom migration(s) could not be rolled back automatically."
+        msg += " Roll them back or fix manually:"
+        puts colorize(msg, :red)
+      end
+
       def manual_mode_default?
         ActualDbSchema.config[:auto_rollback_disabled]
       end
 
       def colorize(text, color)
-        code =
-          case color
-          when :red
-            31
-          when :green
-            32
-          when :yellow
-            33
-          else
-            37
-          end
-
+        code = UNICODE_COLORS.fetch(color, 37)
         "\e[#{code}m#{text}\e[0m"
       end
     end
