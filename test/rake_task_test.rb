@@ -61,6 +61,31 @@ describe "single db" do
         assert_equal(%w[20130906111513_irreversible.rb], ActualDbSchema.failed.map { |m| File.basename(m.filename) })
       end
     end
+
+    describe "with irreversible migration is the first" do
+      before do
+        utils.define_migration_file("20130906111510_irreversible.rb", <<~RUBY)
+          class Irreversible < ActiveRecord::Migration[6.0]
+            def up
+              TestingState.up << :irreversible
+            end
+
+            def down
+              raise ActiveRecord::IrreversibleMigration
+            end
+          end
+        RUBY
+      end
+
+      it "doesn't fail fast and has formatted output" do
+        utils.prepare_phantom_migrations
+        assert_equal %i[irreversible first second], TestingState.up
+        assert_empty ActualDbSchema.failed
+        utils.run_migrations
+        assert_equal(%w[20130906111510_irreversible.rb], ActualDbSchema.failed.map { |m| File.basename(m.filename) })
+        assert_match(/1 phantom migration\(s\) could not be rolled back automatically/, TestingState.output)
+      end
+    end
   end
 
   describe "db:rollback_branches:manual" do
