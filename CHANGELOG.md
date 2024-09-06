@@ -1,3 +1,7 @@
+## [0.7.9] - 2024-09-07
+- Don't stop if a phantom migration rollback fails
+- Improve failed rollback of phantom migrations report
+
 ## [0.7.8] - 2024-08-07
 - Make UI working without assets pipeline
 
