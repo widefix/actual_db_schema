@@ -11,7 +11,7 @@ module ActualDbSchema
           show_info_for(migration) if manual_mode
           migrate(migration) if !manual_mode || user_wants_rollback?
         rescue StandardError => e
-          handle_migration_error(e, migration)
+          ActualDbSchema.failed << FailedMigration.new(migration: migration, exception: e)
         end
       end
 
@@ -69,12 +69,6 @@ module ActualDbSchema
         puts "Database: #{ActualDbSchema.db_config[:database]}"
         puts "Version: #{migration.version}\n\n"
         puts File.read(migration.filename)
-      end
-
-      def handle_migration_error(error, migration)
-        raise unless error.message.include?("ActiveRecord::IrreversibleMigration")
-
-        ActualDbSchema.failed << migration
       end
 
       def migrate(migration)
