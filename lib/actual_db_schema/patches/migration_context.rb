@@ -74,6 +74,7 @@ module ActualDbSchema
       def migrate(migration)
         migrator = down_migrator_for(migration)
         migrator.extend(ActualDbSchema::Patches::Migrator)
+        puts "\n\e[32m[ActualDbSchema] is initiating a rollback of the migration below:\e[0m"
         migrator.migrate
       end
 
