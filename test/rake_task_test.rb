@@ -87,6 +87,9 @@ describe "single db" do
         utils.run_migrations
         assert_equal(%w[20130906111510_irreversible.rb], ActualDbSchema.failed.map { |m| File.basename(m.filename) })
         assert_match(/1 phantom migration\(s\) could not be rolled back automatically/, TestingState.output)
+        assert_match(/Try these steps to fix and move forward:/, TestingState.output)
+        assert_match(/Below are the details of the problematic migrations:/, TestingState.output)
+        assert_match(%r{File: tmp/migrated/20130906111510_irreversible.rb}, TestingState.output)
       end
     end
   end

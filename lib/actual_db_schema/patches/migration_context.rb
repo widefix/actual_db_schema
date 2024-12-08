@@ -7,14 +7,19 @@ module ActualDbSchema
       include ActualDbSchema::OutputFormatter
 
       def rollback_branches(manual_mode: false)
+        rolled_back = false
+
         phantom_migrations.reverse_each do |migration|
           next unless status_up?(migration)
 
+          rolled_back = true
           show_info_for(migration) if manual_mode
           migrate(migration) if !manual_mode || user_wants_rollback?
         rescue StandardError => e
           handle_rollback_error(migration, e)
         end
+
+        rolled_back
       end
 
       def phantom_migrations
@@ -99,7 +104,11 @@ module ActualDbSchema
         ERROR
 
         puts colorize(error_message, :red)
-        ActualDbSchema.failed << FailedMigration.new(migration: migration, exception: exception)
+        ActualDbSchema.failed << FailedMigration.new(
+          migration: migration,
+          exception: exception,
+          branch: branch_for(migration.version.to_s)
+        )
       end
     end
   end
