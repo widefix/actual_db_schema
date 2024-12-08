@@ -4,6 +4,8 @@ module ActualDbSchema
   module Patches
     # Add new command to roll back the phantom migrations
     module MigrationContext
+      include ActualDbSchema::OutputFormatter
+
       def rollback_branches(manual_mode: false)
         phantom_migrations.reverse_each do |migration|
           next unless status_up?(migration)
@@ -11,7 +13,7 @@ module ActualDbSchema
           show_info_for(migration) if manual_mode
           migrate(migration) if !manual_mode || user_wants_rollback?
         rescue StandardError => e
-          ActualDbSchema.failed << FailedMigration.new(migration: migration, exception: e)
+          handle_rollback_error(migration, e)
         end
       end
 
@@ -63,7 +65,7 @@ module ActualDbSchema
       end
 
       def show_info_for(migration)
-        puts "\n[ActualDbSchema] A phantom migration was found and is about to be rolled back."
+        puts colorize("\n[ActualDbSchema] A phantom migration was found and is about to be rolled back.", :gray)
         puts "Please make a decision from the options below to proceed.\n\n"
         puts "Branch: #{branch_for(migration.version.to_s)}"
         puts "Database: #{ActualDbSchema.db_config[:database]}"
@@ -72,6 +74,10 @@ module ActualDbSchema
       end
 
       def migrate(migration)
+        message = "[ActualDbSchema] Rolling back phantom migration #{migration.version} #{migration.name} " \
+            "(from branch: #{branch_for(migration.version.to_s)})"
+        puts colorize(message, :gray)
+
         migrator = down_migrator_for(migration)
         migrator.extend(ActualDbSchema::Patches::Migrator)
         migrator.migrate
@@ -83,6 +89,17 @@ module ActualDbSchema
 
       def metadata
         @metadata ||= ActualDbSchema::Store.instance.read
+      end
+
+      def handle_rollback_error(migration, exception)
+        error_message = <<~ERROR
+          Error encountered during rollback:
+
+          #{exception.message.gsub(/^An error has occurred, all later migrations canceled:\s*/, "").strip}
+        ERROR
+
+        puts colorize(error_message, :red)
+        ActualDbSchema.failed << FailedMigration.new(migration: migration, exception: exception)
       end
     end
   end

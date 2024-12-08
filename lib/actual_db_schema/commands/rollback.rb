@@ -4,11 +4,7 @@ module ActualDbSchema
   module Commands
     # Rolls back all phantom migrations
     class Rollback < Base
-      UNICODE_COLORS = {
-        red: 31,
-        green: 32,
-        yellow: 33
-      }.freeze
+      include ActualDbSchema::OutputFormatter
 
       def initialize(context, manual_mode: false)
         @manual_mode = manual_mode || manual_mode_default?
@@ -56,11 +52,6 @@ module ActualDbSchema
 
       def manual_mode_default?
         ActualDbSchema.config[:auto_rollback_disabled]
-      end
-
-      def colorize(text, color)
-        code = UNICODE_COLORS.fetch(color, 37)
-        "\e[#{code}m#{text}\e[0m"
       end
     end
   end
