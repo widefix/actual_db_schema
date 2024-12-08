@@ -52,6 +52,8 @@ describe "multipe db support" do
       utils.prepare_phantom_migrations(TestingState.db_config)
       assert_empty TestingState.down
       utils.run_migrations
+      assert_match(/\e\[32m\[ActualDbSchema\] is initiating a rollback of the migration below:\e\[0m/,
+                   TestingState.output)
       assert_equal %i[second_primary first_primary second_secondary first_secondary], TestingState.down
     end
 

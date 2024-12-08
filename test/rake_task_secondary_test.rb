@@ -37,6 +37,8 @@ describe "second db support" do
       utils.prepare_phantom_migrations
       assert_empty TestingState.down
       utils.run_migrations
+      assert_match(/\e\[32m\[ActualDbSchema\] is initiating a rollback of the migration below:\e\[0m/,
+                   TestingState.output)
       assert_equal %i[second first], TestingState.down
     end
 
