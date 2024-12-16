@@ -36,6 +36,7 @@ describe "single db" do
       assert_empty TestingState.down
       utils.run_migrations
       assert_equal %i[second first], TestingState.down
+      assert_match(/\[ActualDbSchema\] Rolling back phantom migration/, TestingState.output)
     end
 
     describe "with irreversible migration" do
@@ -59,6 +60,8 @@ describe "single db" do
         assert_empty ActualDbSchema.failed
         utils.run_migrations
         assert_equal(%w[20130906111513_irreversible.rb], ActualDbSchema.failed.map { |m| File.basename(m.filename) })
+        assert_match(/Error encountered during rollback:/, TestingState.output)
+        assert_match(/ActiveRecord::IrreversibleMigration/, TestingState.output)
       end
     end
 
@@ -84,6 +87,9 @@ describe "single db" do
         utils.run_migrations
         assert_equal(%w[20130906111510_irreversible.rb], ActualDbSchema.failed.map { |m| File.basename(m.filename) })
         assert_match(/1 phantom migration\(s\) could not be rolled back automatically/, TestingState.output)
+        assert_match(/Try these steps to fix and move forward:/, TestingState.output)
+        assert_match(/Below are the details of the problematic migrations:/, TestingState.output)
+        assert_match(%r{File: tmp/migrated/20130906111510_irreversible.rb}, TestingState.output)
       end
     end
   end
