@@ -37,6 +37,7 @@ describe "single db" do
       utils.run_migrations
       assert_equal %i[second first], TestingState.down
       assert_match(/\[ActualDbSchema\] Rolling back phantom migration/, TestingState.output)
+      assert_empty utils.migrated_files
     end
 
     describe "with irreversible migration" do
@@ -62,6 +63,7 @@ describe "single db" do
         assert_equal(%w[20130906111513_irreversible.rb], ActualDbSchema.failed.map { |m| File.basename(m.filename) })
         assert_match(/Error encountered during rollback:/, TestingState.output)
         assert_match(/ActiveRecord::IrreversibleMigration/, TestingState.output)
+        assert_equal %w[20130906111513_irreversible.rb], utils.migrated_files
       end
     end
 
@@ -90,6 +92,7 @@ describe "single db" do
         assert_match(/Try these steps to fix and move forward:/, TestingState.output)
         assert_match(/Below are the details of the problematic migrations:/, TestingState.output)
         assert_match(%r{File: tmp/migrated/20130906111510_irreversible.rb}, TestingState.output)
+        assert_equal %w[20130906111510_irreversible.rb], utils.migrated_files
       end
     end
   end
@@ -105,6 +108,7 @@ describe "single db" do
         Rake::Task["db:rollback_branches:manual"].reenable
       end
       assert_equal %i[second first], TestingState.down
+      assert_empty utils.migrated_files
     end
 
     it "skips migrations if the input is 'n'" do
@@ -119,6 +123,7 @@ describe "single db" do
       end
       assert_empty TestingState.down
       assert_equal %i[first second], TestingState.up
+      assert_equal %w[20130906111511_first.rb 20130906111512_second.rb], utils.migrated_files
     end
 
     describe "with irreversible migration" do
@@ -146,6 +151,7 @@ describe "single db" do
         end
         assert_equal %i[second first], TestingState.down
         assert_equal(%w[20130906111513_irreversible.rb], ActualDbSchema.failed.map { |m| File.basename(m.filename) })
+        assert_equal %w[20130906111513_irreversible.rb], utils.migrated_files
       end
     end
   end
