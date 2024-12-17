@@ -86,6 +86,7 @@ module ActualDbSchema
         migrator = down_migrator_for(migration)
         migrator.extend(ActualDbSchema::Patches::Migrator)
         migrator.migrate
+        File.delete(migration.filename)
       end
 
       def branch_for(version)

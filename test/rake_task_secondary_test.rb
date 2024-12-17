@@ -38,6 +38,7 @@ describe "second db support" do
       assert_empty TestingState.down
       utils.run_migrations
       assert_equal %i[second first], TestingState.down
+      assert_empty utils.migrated_files
     end
 
     describe "with irreversible migration" do
@@ -61,6 +62,7 @@ describe "second db support" do
         assert_empty ActualDbSchema.failed
         utils.run_migrations
         assert_equal(%w[20130906111513_irreversible.rb], ActualDbSchema.failed.map { |m| File.basename(m.filename) })
+        assert_equal %w[20130906111513_irreversible.rb], utils.migrated_files
       end
     end
   end
@@ -76,6 +78,7 @@ describe "second db support" do
         Rake::Task["db:rollback_branches:manual"].reenable
       end
       assert_equal %i[second first], TestingState.down
+      assert_empty utils.migrated_files
     end
 
     it "skips migrations if the input is 'n'" do
@@ -90,6 +93,7 @@ describe "second db support" do
       end
       assert_empty TestingState.down
       assert_equal %i[first second], TestingState.up
+      assert_equal %w[20130906111511_first.rb 20130906111512_second.rb], utils.migrated_files
     end
 
     describe "with irreversible migration" do
@@ -117,6 +121,7 @@ describe "second db support" do
         end
         assert_equal %i[second first], TestingState.down
         assert_equal(%w[20130906111513_irreversible.rb], ActualDbSchema.failed.map { |m| File.basename(m.filename) })
+        assert_equal %w[20130906111513_irreversible.rb], utils.migrated_files
       end
     end
   end

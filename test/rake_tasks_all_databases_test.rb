@@ -53,6 +53,7 @@ describe "multipe db support" do
       assert_empty TestingState.down
       utils.run_migrations
       assert_equal %i[second_primary first_primary second_secondary first_secondary], TestingState.down
+      assert_empty utils.migrated_files(TestingState.db_config)
     end
 
     describe "with irreversible migration" do
@@ -82,6 +83,10 @@ describe "multipe db support" do
         utils.run_migrations
         failed = ActualDbSchema.failed.map { |m| File.basename(m.filename) }
         assert_equal(%w[20130906111513_irreversible_primary.rb 20130906111513_irreversible_secondary.rb], failed)
+        assert_equal(
+          %w[20130906111513_irreversible_primary.rb 20130906111513_irreversible_secondary.rb],
+          utils.migrated_files(TestingState.db_config)
+        )
       end
     end
   end
@@ -99,6 +104,15 @@ describe "multipe db support" do
       end
       assert_empty TestingState.down
       assert_equal %i[first_primary second_primary first_secondary second_secondary], TestingState.up
+      assert_equal(
+        %w[
+          20130906111511_first_primary.rb
+          20130906111512_second_primary.rb
+          20130906111514_first_secondary.rb
+          20130906111515_second_secondary.rb
+        ],
+        utils.migrated_files(TestingState.db_config)
+      )
     end
 
     describe "with irreversible migration" do
@@ -131,6 +145,10 @@ describe "multipe db support" do
         end
         failed = ActualDbSchema.failed.map { |m| File.basename(m.filename) }
         assert_equal(%w[20130906111513_irreversible_primary.rb 20130906111513_irreversible_secondary.rb], failed)
+        assert_equal(
+          %w[20130906111513_irreversible_primary.rb 20130906111513_irreversible_secondary.rb],
+          utils.migrated_files(TestingState.db_config)
+        )
       end
     end
   end
