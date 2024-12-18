@@ -144,6 +144,12 @@ class TestUtils
     metadata.fetch(version.to_s, {})[:branch]
   end
 
+  def define_acronym(acronym)
+    ActiveSupport::Inflector.inflections(:en) do |inflect|
+      inflect.acronym acronym
+    end
+  end
+
   private
 
   def cleanup_call(prefix_name = nil)
