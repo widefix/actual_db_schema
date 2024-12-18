@@ -79,6 +79,8 @@ module ActualDbSchema
       end
 
       def migrate(migration)
+        migration.name = extract_class_name(migration.filename)
+
         message = "[ActualDbSchema] Rolling back phantom migration #{migration.version} #{migration.name} " \
             "(from branch: #{branch_for(migration.version.to_s)})"
         puts colorize(message, :gray)
@@ -87,6 +89,11 @@ module ActualDbSchema
         migrator.extend(ActualDbSchema::Patches::Migrator)
         migrator.migrate
         File.delete(migration.filename)
+      end
+
+      def extract_class_name(filename)
+        content = File.read(filename)
+        content.match(/^class\s+([A-Za-z0-9_]+)\s+</)[1]
       end
 
       def branch_for(version)

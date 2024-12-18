@@ -95,6 +95,33 @@ describe "single db" do
         assert_equal %w[20130906111510_irreversible.rb], utils.migrated_files
       end
     end
+
+    describe "with acronyms defined" do
+      before do
+        utils.define_migration_file("20241218064344_ts360.rb", <<~RUBY)
+          class Ts360 < ActiveRecord::Migration[6.0]
+            def up
+              TestingState.up << :ts360
+            end
+
+            def down
+              TestingState.down << :ts360
+            end
+          end
+        RUBY
+      end
+
+      it "rolls back the phantom migrations without failing" do
+        utils.prepare_phantom_migrations
+        assert_equal %i[first second ts360], TestingState.up
+        assert_empty ActualDbSchema.failed
+        utils.define_acronym("TS360")
+        utils.run_migrations
+        assert_equal %i[ts360 second first], TestingState.down
+        assert_empty ActualDbSchema.failed
+        assert_empty utils.migrated_files
+      end
+    end
   end
 
   describe "db:rollback_branches:manual" do
