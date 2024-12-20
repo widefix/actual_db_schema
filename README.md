@@ -110,6 +110,40 @@ Add the following line to your initializer file (`config/initializers/actual_db_
 ActualDbSchema.config[:auto_rollback_disabled] = true
 ```
 
+## Automatic Phantom Migration Rollback On Branch Switch
+
+By default, the automatic rollback of migrations on branch switch is disabled. If you prefer to automatically rollback phantom migrations whenever you switch branches with `git checkout`, you can enable it in two ways:
+
+### 1. Using Environment Variable
+
+Set the environment variable `ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED` to `true`:
+
+```sh
+export ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED=true
+```
+
+### 2. Using Initializer
+Add the following line to your initializer file (`config/initializers/actual_db_schema.rb`):
+
+```ruby
+ActualDbSchema.config[:git_hooks_enabled] = true
+```
+
+### Installing the Post-Checkout Hook
+After enabling Git hooks in your configuration, run the rake task to install the post-checkout hook:
+
+```sh
+rake actual_db_schema:install_git_hooks
+```
+
+This task will prompt you to choose one of the three options:
+
+1. Rollback phantom migrations with `db:rollback_branches`
+2. Migrate up to the latest schema with `db:migrate`
+3. Skip installing git hook
+
+Based on your selection, a post-checkout hook will be installed or updated in your `.git/hooks` folder.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

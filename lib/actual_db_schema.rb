@@ -13,6 +13,7 @@ require_relative "actual_db_schema/output_formatter"
 require_relative "actual_db_schema/patches/migration_proxy"
 require_relative "actual_db_schema/patches/migrator"
 require_relative "actual_db_schema/patches/migration_context"
+require_relative "actual_db_schema/git_hooks"
 
 require_relative "actual_db_schema/commands/base"
 require_relative "actual_db_schema/commands/rollback"
@@ -30,7 +31,8 @@ module ActualDbSchema
   self.config = {
     enabled: Rails.env.development?,
     auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?,
-    ui_enabled: Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_UI_ENABLED"].present?
+    ui_enabled: Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_UI_ENABLED"].present?,
+    git_hooks_enabled: ENV["ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED"].present?
   }
 
   def self.migrated_folder
