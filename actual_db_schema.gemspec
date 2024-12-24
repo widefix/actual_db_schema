@@ -44,6 +44,18 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rails"
   spec.add_development_dependency "sqlite3"
 
+  spec.post_install_message = <<~MSG
+    Thank you for installing ActualDbSchema!
+
+    To enable automatic rollback of phantom migrations when switching branches, follow these steps:
+    1. Set `export ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED=true` in your environment, OR
+       add `ActualDbSchema.config[:git_hooks_enabled] = true` to your initializer.
+    2. Run `rake actual_db_schema:install_git_hooks` to install the post-checkout Git hook.
+
+    For more information, see the README.
+
+  MSG
+
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
 end
