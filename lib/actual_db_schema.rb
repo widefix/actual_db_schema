@@ -14,6 +14,7 @@ require_relative "actual_db_schema/patches/migration_proxy"
 require_relative "actual_db_schema/patches/migrator"
 require_relative "actual_db_schema/patches/migration_context"
 require_relative "actual_db_schema/git_hooks"
+require_relative "actual_db_schema/multi_tenant"
 
 require_relative "actual_db_schema/commands/base"
 require_relative "actual_db_schema/commands/rollback"
