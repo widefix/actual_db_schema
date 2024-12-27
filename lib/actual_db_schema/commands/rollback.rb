@@ -17,7 +17,7 @@ module ActualDbSchema
       def call_impl
         rolled_back = context.rollback_branches(manual_mode: @manual_mode)
 
-        return unless rolled_back
+        return unless rolled_back || ActualDbSchema.failed.any?
 
         ActualDbSchema.failed.empty? ? print_success : print_error
       end
@@ -43,11 +43,10 @@ module ActualDbSchema
 
       def failed_migrations_list
         ActualDbSchema.failed.map.with_index(1) do |failed, index|
-          <<~MIGRATION
-            #{colorize("Migration ##{index}:", :yellow)}
-              File: #{failed.short_filename}
-              Branch: #{failed.branch}
-          MIGRATION
+          migration_details = colorize("Migration ##{index}:\n", :yellow)
+          migration_details += "  File: #{failed.short_filename}\n"
+          migration_details += "  Schema: #{failed.schema}\n" if failed.schema
+          migration_details + "  Branch: #{failed.branch}\n"
         end.join("\n")
       end
 
