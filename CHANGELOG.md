@@ -1,3 +1,9 @@
+## [0.8.0] - 2024-12-30
+- Enhanced Console Visibility: Automatically rolled-back phantom migrations now provide clearer and more visible logs in the console
+- Git Hooks for Branch Management: Introduced hooks that automatically rollback phantom migrations after checking out a branch. Additionally, the schema migration rake task can now be executed automatically upon branch checkout
+- Temporary Folder Cleanup: Rolled-back phantom migrations are now automatically deleted from the temporary folder after rollback
+- Acronym Support in Phantom Migration Names: Resolved an issue where phantom migrations with acronyms in their names, defined in other branches, couldn't be rolled back automatically. These are now handled seamlessly
+
 ## [0.7.9] - 2024-09-07
 - Don't stop if a phantom migration rollback fails
 - Improve failed rollback of phantom migrations report
