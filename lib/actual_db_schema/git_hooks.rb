@@ -15,6 +15,11 @@ module ActualDbSchema
       # ActualDbSchema post-checkout hook (ROLLBACK)
       # Runs db:rollback_branches on branch checkout.
 
+      # Check if this is a file checkout or creating a new branch
+      if [ "$3" == "0" ] || [ "$1" == "$2" ]; then
+        exit 0
+      fi
+
       if [ -f ./bin/rails ]; then
         if [ -n "$ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED" ]; then
           GIT_HOOKS_ENABLED="$ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED"
@@ -33,6 +38,11 @@ module ActualDbSchema
       #{POST_CHECKOUT_MARKER_START}
       # ActualDbSchema post-checkout hook (MIGRATE)
       # Runs db:migrate on branch checkout.
+
+      # Check if this is a file checkout or creating a new branch
+      if [ "$3" == "0" ] || [ "$1" == "$2" ]; then
+        exit 0
+      fi
 
       if [ -f ./bin/rails ]; then
         if [ -n "$ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED" ]; then
