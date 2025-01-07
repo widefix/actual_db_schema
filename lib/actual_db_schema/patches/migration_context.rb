@@ -108,7 +108,7 @@ module ActualDbSchema
         error_message = <<~ERROR
           Error encountered during rollback:
 
-          #{exception.message.gsub(/^An error has occurred, all later migrations canceled:\s*/, "").strip}
+          #{cleaned_exception_message(exception.message)}
         ERROR
 
         puts colorize(error_message, :red)
@@ -117,6 +117,15 @@ module ActualDbSchema
           exception: exception,
           branch: branch_for(migration.version.to_s)
         )
+      end
+
+      def cleaned_exception_message(message)
+        patterns_to_remove = [
+          /^An error has occurred, all later migrations canceled:\s*/,
+          /^An error has occurred, this and all later migrations canceled:\s*/
+        ]
+
+        patterns_to_remove.reduce(message.strip) { |msg, pattern| msg.gsub(pattern, "").strip }
       end
     end
   end

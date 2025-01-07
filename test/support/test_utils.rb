@@ -150,6 +150,14 @@ class TestUtils
     end
   end
 
+  def primary_database
+    TestingState.db_config["primary"]["database"]
+  end
+
+  def secondary_database
+    TestingState.db_config["secondary"]["database"]
+  end
+
   private
 
   def cleanup_call(prefix_name = nil)
@@ -192,7 +200,7 @@ class TestUtils
 
   def applied_migrations_call
     run_sql("select * from schema_migrations").map do |row|
-      row["version"]
+      row.is_a?(Hash) ? row["version"] : row[0]
     end
   end
 

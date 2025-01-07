@@ -182,6 +182,24 @@ To run tests with a specific version of Rails using Appraisal:
   bundle exec appraisal rails.6.0 rake test TEST=test/rake_task_test.rb TESTOPTS="--name=/db::db:rollback_branches#test_0003_keeps/"
   ```
 
+By default, `rake test` runs tests using `SQLite3`. To explicitly run tests with `SQLite3`, `PostgreSQL`, or `MySQL`, you can use the following tasks:
+- Run tests with `SQLite3`:
+  ```sh
+  bundle exec rake test:sqlite3
+  ```
+- Run tests with `PostgreSQL` (requires Docker):
+  ```sh
+  bundle exec rake test:postgresql
+  ```
+- Run tests with `MySQL` (requires Docker):
+  ```sh
+  bundle exec rake test:mysql2
+  ```
+- Run tests for all supported adapters:
+  ```sh
+  bundle exec rake test:all
+  ```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/widefix/actual_db_schema. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/widefix/actual_db_schema/blob/master/CODE_OF_CONDUCT.md).

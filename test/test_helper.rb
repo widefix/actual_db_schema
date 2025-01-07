@@ -32,6 +32,21 @@ class TestingState
   end
 
   def self.db_config
+    adapter = ENV.fetch("DB_ADAPTER", "sqlite3")
+
+    case adapter
+    when "sqlite3"
+      sqlite3_config
+    when "postgresql"
+      postgresql_config
+    when "mysql2"
+      mysql2_config
+    else
+      raise "Unsupported adapter: #{adapter}"
+    end
+  end
+
+  def self.sqlite3_config
     {
       "primary" => {
         "adapter" => "sqlite3",
@@ -41,6 +56,52 @@ class TestingState
       "secondary" => {
         "adapter" => "sqlite3",
         "database" => "tmp/secondary.sqlite3",
+        "migrations_paths" => Rails.root.join("db", "migrate_secondary").to_s
+      }
+    }
+  end
+
+  def self.postgresql_config
+    {
+      "primary" => {
+        "adapter" => "postgresql",
+        "database" => "actual_db_schema_test",
+        "username" => "postgres",
+        "password" => "password",
+        "host" => "localhost",
+        "port" => 5432,
+        "migrations_paths" => Rails.root.join("db", "migrate").to_s
+      },
+      "secondary" => {
+        "adapter" => "postgresql",
+        "database" => "actual_db_schema_test_secondary",
+        "username" => "postgres",
+        "password" => "password",
+        "host" => "localhost",
+        "port" => 5432,
+        "migrations_paths" => Rails.root.join("db", "migrate_secondary").to_s
+      }
+    }
+  end
+
+  def self.mysql2_config
+    {
+      "primary" => {
+        "adapter" => "mysql2",
+        "database" => "actual_db_schema_test",
+        "username" => "root",
+        "password" => "password",
+        "host" => "127.0.0.1",
+        "port" => "3306",
+        "migrations_paths" => Rails.root.join("db", "migrate").to_s
+      },
+      "secondary" => {
+        "adapter" => "mysql2",
+        "database" => "actual_db_schema_test_secondary",
+        "username" => "root",
+        "password" => "password",
+        "host" => "127.0.0.1",
+        "port" => "3306",
         "migrations_paths" => Rails.root.join("db", "migrate_secondary").to_s
       }
     }
