@@ -44,35 +44,35 @@ module ActualDbSchema
             assert_select "td", text: "20130906111511"
             assert_select "td", text: "FirstPrimary"
             assert_select "td", text: @utils.branch_for("20130906111511")
-            assert_select "td", text: "tmp/primary.sqlite3"
+            assert_select "td", text: @utils.primary_database
           end
           assert_select "tr" do
             assert_select "td", text: "up"
             assert_select "td", text: "20130906111512"
             assert_select "td", text: "SecondPrimary"
             assert_select "td", text: @utils.branch_for("20130906111512")
-            assert_select "td", text: "tmp/primary.sqlite3"
+            assert_select "td", text: @utils.primary_database
           end
           assert_select "tr" do
             assert_select "td", text: "up"
             assert_select "td", text: "20130906111514"
             assert_select "td", text: "FirstSecondary"
             assert_select "td", text: @utils.branch_for("20130906111514")
-            assert_select "td", text: "tmp/secondary.sqlite3"
+            assert_select "td", text: @utils.secondary_database
           end
           assert_select "tr" do
             assert_select "td", text: "up"
             assert_select "td", text: "20130906111515"
             assert_select "td", text: "SecondSecondary"
             assert_select "td", text: @utils.branch_for("20130906111515")
-            assert_select "td", text: "tmp/secondary.sqlite3"
+            assert_select "td", text: @utils.secondary_database
           end
         end
       end
     end
 
     test "GET #show returns a successful response" do
-      get :show, params: { id: "20130906111511", database: "tmp/primary.sqlite3" }
+      get :show, params: { id: "20130906111511", database: @utils.primary_database }
       assert_response :success
       assert_select "h2", text: "Migration FirstPrimary Details"
       assert_select "table" do
@@ -86,7 +86,7 @@ module ActualDbSchema
         end
         assert_select "tr" do
           assert_select "th", text: "Database"
-          assert_select "td", text: "tmp/primary.sqlite3"
+          assert_select "td", text: @utils.primary_database
         end
         assert_select "tr" do
           assert_select "th", text: "Branch"
@@ -96,7 +96,7 @@ module ActualDbSchema
     end
 
     test "GET #show returns a 404 response if migration not found" do
-      get :show, params: { id: "nil", database: "tmp/primary.sqlite3" }
+      get :show, params: { id: "nil", database: @utils.primary_database }
       assert_response :not_found
     end
 
@@ -115,15 +115,20 @@ module ActualDbSchema
         RUBY
       end
       @utils.prepare_phantom_migrations(TestingState.db_config)
-      post :rollback, params: { id: "20130906111513", database: "tmp/primary.sqlite3" }
+      post :rollback, params: { id: "20130906111513", database: @utils.primary_database }
       assert_response :redirect
       get :index
-      message = "An error has occurred, this and all later migrations canceled:\n\nActiveRecord::IrreversibleMigration"
+      message = if ENV["DB_ADAPTER"] == "mysql2"
+                  "An error has occurred, all later migrations canceled:\n\nActiveRecord::IrreversibleMigration"
+                else
+                  "An error has occurred, this and all later migrations canceled:\n\n" \
+                  "ActiveRecord::IrreversibleMigration"
+                end
       assert_select ".flash", text: message
     end
 
     test "POST #rollback changes migration status to down and hide migration with down status" do
-      post :rollback, params: { id: "20130906111511", database: "tmp/primary.sqlite3" }
+      post :rollback, params: { id: "20130906111511", database: @utils.primary_database }
       assert_response :redirect
       get :index
       assert_select "table" do
