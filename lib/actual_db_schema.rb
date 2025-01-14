@@ -4,6 +4,7 @@ require "actual_db_schema/engine"
 require "active_record/migration"
 require "csv"
 require_relative "actual_db_schema/git"
+require_relative "actual_db_schema/configuration"
 require_relative "actual_db_schema/store"
 require_relative "actual_db_schema/version"
 require_relative "actual_db_schema/migration"
@@ -29,12 +30,11 @@ module ActualDbSchema
   end
 
   self.failed = []
-  self.config = {
-    enabled: Rails.env.development?,
-    auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?,
-    ui_enabled: Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_UI_ENABLED"].present?,
-    git_hooks_enabled: ENV["ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED"].present?
-  }
+  self.config = Configuration.new
+
+  def self.configure
+    yield(config)
+  end
 
   def self.migrated_folder
     migrated_folders.first
