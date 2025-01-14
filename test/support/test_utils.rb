@@ -33,9 +33,12 @@ class TestUtils
   end
 
   def run_migrations
-    Rake::Task["db:migrate"].invoke
-    Rake::Task["db:migrate"].reenable
-    Rake::Task["db:rollback_branches"].reenable
+    schemas = ActualDbSchema.config[:multi_tenant_schemas]&.call
+    if schemas
+      schemas.each { |schema| ActualDbSchema::MultiTenant.with_schema(schema) { run_migration_tasks } }
+    else
+      run_migration_tasks
+    end
   end
 
   def applied_migrations(db_config = nil)
@@ -160,6 +163,16 @@ class TestUtils
 
   private
 
+  def run_migration_tasks
+    if ActualDbSchema.config[:multi_tenant_schemas].present?
+      ActiveRecord::MigrationContext.new(Rails.root.join("db/migrate"), schema_migration_class).migrate
+    end
+
+    Rake::Task["db:migrate"].invoke
+    Rake::Task["db:migrate"].reenable
+    Rake::Task["db:rollback_branches"].reenable
+  end
+
   def cleanup_call(prefix_name = nil)
     delete_migrations_files(prefix_name)
     create_schema_migration_table
@@ -171,14 +184,18 @@ class TestUtils
   end
 
   def create_schema_migration_table
+    schema_migration_class.create_table
+  end
+
+  def schema_migration_class
     if ActiveRecord::SchemaMigration.respond_to?(:create_table)
-      ActiveRecord::SchemaMigration.create_table
+      ActiveRecord::SchemaMigration
     else
       ar_version = Gem::Version.new(ActiveRecord::VERSION::STRING)
       if ar_version >= Gem::Version.new("7.2.0") || (ar_version >= Gem::Version.new("7.1.0") && ar_version.prerelease?)
-        ActiveRecord::SchemaMigration.new(ActiveRecord::Base.connection_pool).create_table
+        ActiveRecord::SchemaMigration.new(ActiveRecord::Base.connection_pool)
       else
-        ActiveRecord::SchemaMigration.new(ActiveRecord::Base.connection).create_table
+        ActiveRecord::SchemaMigration.new(ActiveRecord::Base.connection)
       end
     end
   end

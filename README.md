@@ -144,6 +144,20 @@ This task will prompt you to choose one of the three options:
 
 Based on your selection, a post-checkout hook will be installed or updated in your `.git/hooks` folder.
 
+## Multi-Tenancy Support
+
+If your application leverages multiple schemas for multi-tenancy — such as those implemented by the [apartment](https://github.com/influitive/apartment) gem or similar solutions — you can configure ActualDbSchema to handle migrations across all schemas. To do so, add the following configuration to your initializer file (`config/initializers/actual_db_schema.rb`):
+
+```ruby
+ActualDbSchema.config[:multi_tenant_schemas] = -> { # list of all active schemas }
+```
+
+### Example:
+
+```ruby
+ActualDbSchema.config[:multi_tenant_schemas] = -> { ["public", "tenant1", "tenant2"] }
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

@@ -3,23 +3,21 @@
 module ActualDbSchema
   module Patches
     # Add new command to roll back the phantom migrations
-    module MigrationContext
+    module MigrationContext # rubocop:disable Metrics/ModuleLength
       include ActualDbSchema::OutputFormatter
 
       def rollback_branches(manual_mode: false)
-        rolled_back = false
+        schemas = multi_tenant_schemas&.call || []
+        schema_count = schemas.any? ? schemas.size : 1
 
-        phantom_migrations.reverse_each do |migration|
-          next unless status_up?(migration)
+        rolled_back_migrations = if schemas.any?
+                                   rollback_multi_tenant(schemas, manual_mode: manual_mode)
+                                 else
+                                   rollback_branches_for_schema(manual_mode: manual_mode)
+                                 end
 
-          rolled_back = true
-          show_info_for(migration) if manual_mode
-          migrate(migration) if !manual_mode || user_wants_rollback?
-        rescue StandardError => e
-          handle_rollback_error(migration, e)
-        end
-
-        rolled_back
+        delete_migrations(rolled_back_migrations, schema_count)
+        rolled_back_migrations.any?
       end
 
       def phantom_migrations
@@ -33,6 +31,32 @@ module ActualDbSchema
       end
 
       private
+
+      def rollback_branches_for_schema(manual_mode: false, schema_name: nil, rolled_back_migrations: [])
+        phantom_migrations.reverse_each do |migration|
+          next unless status_up?(migration)
+
+          show_info_for(migration, schema_name) if manual_mode
+          migrate(migration, rolled_back_migrations, schema_name) if !manual_mode || user_wants_rollback?
+        rescue StandardError => e
+          handle_rollback_error(migration, e, schema_name)
+        end
+
+        rolled_back_migrations
+      end
+
+      def rollback_multi_tenant(schemas, manual_mode: false)
+        all_rolled_back_migrations = []
+
+        schemas.each do |schema_name|
+          ActualDbSchema::MultiTenant.with_schema(schema_name) do
+            rollback_branches_for_schema(manual_mode: manual_mode, schema_name: schema_name,
+                                         rolled_back_migrations: all_rolled_back_migrations)
+          end
+        end
+
+        all_rolled_back_migrations
+      end
 
       def down_migrator_for(migration)
         if ActiveRecord::Migration.current_version < 6
@@ -69,26 +93,29 @@ module ActualDbSchema
         answer[0] == "y"
       end
 
-      def show_info_for(migration)
+      def show_info_for(migration, schema_name = nil)
         puts colorize("\n[ActualDbSchema] A phantom migration was found and is about to be rolled back.", :gray)
         puts "Please make a decision from the options below to proceed.\n\n"
+        puts "Schema: #{schema_name}" if schema_name
         puts "Branch: #{branch_for(migration.version.to_s)}"
         puts "Database: #{ActualDbSchema.db_config[:database]}"
         puts "Version: #{migration.version}\n\n"
         puts File.read(migration.filename)
       end
 
-      def migrate(migration)
+      def migrate(migration, rolled_back_migrations, schema_name = nil)
         migration.name = extract_class_name(migration.filename)
 
-        message = "[ActualDbSchema] Rolling back phantom migration #{migration.version} #{migration.name} " \
-            "(from branch: #{branch_for(migration.version.to_s)})"
+        message = "[ActualDbSchema]"
+        message += " #{schema_name}:" if schema_name
+        message += " Rolling back phantom migration #{migration.version} #{migration.name} " \
+                   "(from branch: #{branch_for(migration.version.to_s)})"
         puts colorize(message, :gray)
 
         migrator = down_migrator_for(migration)
         migrator.extend(ActualDbSchema::Patches::Migrator)
         migrator.migrate
-        File.delete(migration.filename)
+        rolled_back_migrations << migration
       end
 
       def extract_class_name(filename)
@@ -104,7 +131,7 @@ module ActualDbSchema
         @metadata ||= ActualDbSchema::Store.instance.read
       end
 
-      def handle_rollback_error(migration, exception)
+      def handle_rollback_error(migration, exception, schema_name = nil)
         error_message = <<~ERROR
           Error encountered during rollback:
 
@@ -115,7 +142,8 @@ module ActualDbSchema
         ActualDbSchema.failed << FailedMigration.new(
           migration: migration,
           exception: exception,
-          branch: branch_for(migration.version.to_s)
+          branch: branch_for(migration.version.to_s),
+          schema: schema_name
         )
       end
 
@@ -126,6 +154,21 @@ module ActualDbSchema
         ]
 
         patterns_to_remove.reduce(message.strip) { |msg, pattern| msg.gsub(pattern, "").strip }
+      end
+
+      def delete_migrations(migrations, schema_count)
+        migration_counts = migrations.each_with_object(Hash.new(0)) do |migration, hash|
+          hash[migration.filename] += 1
+        end
+
+        migrations.uniq.each do |migration|
+          count = migration_counts[migration.filename]
+          File.delete(migration.filename) if count == schema_count && File.exist?(migration.filename)
+        end
+      end
+
+      def multi_tenant_schemas
+        ActualDbSchema.config[:multi_tenant_schemas]
       end
     end
   end
