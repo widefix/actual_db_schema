@@ -1,3 +1,11 @@
+## [0.8.1] - 2025-01-15
+
+- Support for multiple database schemas, ensuring compatibility with multi-tenant applications using the apartment gem or similar solutions
+- DSL for configuring the gem, simplifying setup and customization
+- Rake task added to initialize the gem
+- Improved the post-checkout git hook to run only when switching branches, reducing unnecessary executions during file checkouts
+- Fixed the changelog link in the gemspec, ensuring Rubygems points to the correct file and the link works
+
 ## [0.8.0] - 2024-12-30
 - Enhanced Console Visibility: Automatically rolled-back phantom migrations now provide clearer and more visible logs in the console
 - Git Hooks for Branch Management: Introduced hooks that automatically rollback phantom migrations after checking out a branch. Additionally, the schema migration rake task can now be executed automatically upon branch checkout
