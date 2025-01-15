@@ -50,6 +50,16 @@ And then execute:
 
 If you cannot commit changes to the repo or Gemfile, consider the local Gemfile installation described in [this post](https://blog.widefix.com/personal-gemfile-for-development/).
 
+Next, generate your ActualDbSchema initializer file by running:
+
+```sh
+rake actual_db_schema:install
+```
+
+This will create a `config/initializers/actual_db_schema.rb` file with all the available configuration options so you can adjust them as needed. It will also prompt you to install the post-checkout Git hook for automatic phantom migration rollback when switching branches.
+
+For more details on the available configuration options, see the sections below.
+
 ## Usage
 
 Just run `rails db:migrate` inside the current branch. It will roll back all phantom migrations for all configured databases in your `database.yml.`
@@ -86,7 +96,7 @@ export ACTUAL_DB_SCHEMA_UI_ENABLED=true
 Add the following line to your initializer file (`config/initializers/actual_db_schema.rb`):
 
 ```ruby
-ActualDbSchema.config[:ui_enabled] = true
+config.ui_enabled = true
 ```
 
 > With this option, the UI can be disabled for all environments or be enabled in specific ones.
@@ -107,7 +117,7 @@ export ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED=true
 Add the following line to your initializer file (`config/initializers/actual_db_schema.rb`):
 
 ```ruby
-ActualDbSchema.config[:auto_rollback_disabled] = true
+config.auto_rollback_disabled = true
 ```
 
 ## Automatic Phantom Migration Rollback On Branch Switch
@@ -126,7 +136,7 @@ export ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED=true
 Add the following line to your initializer file (`config/initializers/actual_db_schema.rb`):
 
 ```ruby
-ActualDbSchema.config[:git_hooks_enabled] = true
+config.git_hooks_enabled = true
 ```
 
 ### Installing the Post-Checkout Hook
@@ -149,13 +159,13 @@ Based on your selection, a post-checkout hook will be installed or updated in yo
 If your application leverages multiple schemas for multi-tenancy — such as those implemented by the [apartment](https://github.com/influitive/apartment) gem or similar solutions — you can configure ActualDbSchema to handle migrations across all schemas. To do so, add the following configuration to your initializer file (`config/initializers/actual_db_schema.rb`):
 
 ```ruby
-ActualDbSchema.config[:multi_tenant_schemas] = -> { # list of all active schemas }
+config.multi_tenant_schemas = -> { # list of all active schemas }
 ```
 
 ### Example:
 
 ```ruby
-ActualDbSchema.config[:multi_tenant_schemas] = -> { ["public", "tenant1", "tenant2"] }
+config.multi_tenant_schemas = -> { ["public", "tenant1", "tenant2"] }
 ```
 
 ## Development

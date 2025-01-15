@@ -47,10 +47,10 @@ Gem::Specification.new do |spec|
   spec.post_install_message = <<~MSG
     Thank you for installing ActualDbSchema!
 
-    To enable automatic rollback of phantom migrations when switching branches, follow these steps:
-    1. Set `export ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED=true` in your environment, OR
-       add `ActualDbSchema.config[:git_hooks_enabled] = true` to your initializer.
-    2. Run `rake actual_db_schema:install_git_hooks` to install the post-checkout Git hook.
+    Next steps:
+    1. Run `rake actual_db_schema:install` to generate the initializer file and install
+       the post-checkout Git hook for automatic phantom migration rollback when switching branches.
+    2. Or, if you prefer environment variables, skip this step.
 
     For more information, see the README.
 
