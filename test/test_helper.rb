@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+require "logger"
 require "rails/all"
 require "actual_db_schema"
 require "minitest/autorun"
