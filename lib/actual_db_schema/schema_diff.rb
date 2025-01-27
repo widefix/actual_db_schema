@@ -1,0 +1,204 @@
+# frozen_string_literal: true
+
+require "tempfile"
+
+module ActualDbSchema
+  # Generates a diff of schema changes between the current schema file and the
+  # last committed version, annotated with the migrations responsible for each change.
+  class SchemaDiff # rubocop:disable Metrics/ClassLength
+    include OutputFormatter
+
+    SIGN_COLORS = {
+      "+" => :green,
+      "-" => :red
+    }.freeze
+
+    CHANGE_PATTERNS = {
+      /t\.(\w+)\s+["']([^"']+)["']/ => :column,
+      /t\.index\s+.*name:\s*["']([^"']+)["']/ => :index,
+      /create_table\s+["']([^"']+)["']/ => :table
+    }.freeze
+
+    def initialize(schema_path, migrations_path)
+      @schema_path = schema_path
+      @migrations_path = migrations_path
+    end
+
+    def render
+      if old_schema_content.nil? || old_schema_content.strip.empty?
+        puts colorize("Could not retrieve old schema from git.", :red)
+        return
+      end
+
+      diff_output = generate_diff(old_schema_content, new_schema_content)
+      process_diff_output(diff_output)
+    end
+
+    private
+
+    def old_schema_content
+      @old_schema_content ||= begin
+        output = `git show HEAD:#{@schema_path} 2>&1`
+        $CHILD_STATUS.success? ? output : nil
+      end
+    end
+
+    def new_schema_content
+      @new_schema_content ||= File.read(@schema_path)
+    end
+
+    def parsed_old_schema
+      @parsed_old_schema ||= SchemaParser.parse_string(old_schema_content.to_s)
+    end
+
+    def parsed_new_schema
+      @parsed_new_schema ||= SchemaParser.parse_string(new_schema_content.to_s)
+    end
+
+    def migration_changes
+      @migration_changes ||= MigrationParser.parse_all_migrations(@migrations_path)
+    end
+
+    def generate_diff(old_content, new_content)
+      Tempfile.create("old_schema") do |old_file|
+        Tempfile.create("new_schema") do |new_file|
+          old_file.write(old_content)
+          new_file.write(new_content)
+          old_file.rewind
+          new_file.rewind
+
+          return `diff -u #{old_file.path} #{new_file.path}`
+        end
+      end
+    end
+
+    def process_diff_output(diff_str) # rubocop:disable Metrics/MethodLength
+      lines = diff_str.lines
+      current_table = nil
+      result_lines  = []
+
+      lines.each do |line|
+        if (hunk_match = line.match(/^@@\s+-(\d+),(\d+)\s+\+(\d+),(\d+)\s+@@/))
+          current_table = find_table_in_new_schema(hunk_match[3].to_i)
+        elsif (ct = line.match(/create_table\s+["']([^"']+)["']/))
+          current_table = ct[1]
+        end
+
+        result_lines << (%w[+ -].include?(line[0]) ? handle_diff_line(line, current_table) : line)
+      end
+
+      result_lines.join
+    end
+
+    def handle_diff_line(line, current_table)
+      sign = line[0]
+      line_content = line[1..]
+      color = SIGN_COLORS[sign]
+
+      action, name = detect_action_and_name(line_content, sign, current_table)
+      annotation = action ? find_migrations(action, current_table, name) : []
+      annotated_line = annotation.any? ? annotate_line(line, annotation) : line
+
+      colorize(annotated_line, color)
+    end
+
+    def detect_action_and_name(line_content, sign, current_table) # rubocop:disable Metrics/MethodLength
+      action_map = {
+        column: ->(md) { [guess_action(sign, current_table, md[2]), md[2]] },
+        index: ->(md) { [sign == "+" ? :add_index : :remove_index, md[1]] },
+        table: ->(_) { [sign == "+" ? :create_table : :drop_table, nil] }
+      }
+
+      CHANGE_PATTERNS.each do |regex, kind|
+        next unless (md = line_content.match(regex))
+
+        action_proc = action_map[kind]
+        return action_proc.call(md) if action_proc
+      end
+
+      [nil, nil]
+    end
+
+    def guess_action(sign, table, col_name)
+      case sign
+      when "+"
+        old_table = parsed_old_schema[table] || {}
+        old_table[col_name].nil? ? :add_column : :change_column
+      when "-"
+        new_table = parsed_new_schema[table] || {}
+        new_table[col_name].nil? ? :remove_column : :change_column
+      end
+    end
+
+    def find_table_in_new_schema(new_line_number)
+      current_table = nil
+
+      new_schema_content.lines[0...new_line_number].each do |line|
+        if (match = line.match(/create_table\s+["']([^"']+)["']/))
+          current_table = match[1]
+        end
+      end
+      current_table
+    end
+
+    def find_migrations(action, table_name, col_or_index_name)
+      matches = []
+
+      migration_changes.each do |version, changes|
+        changes.each do |chg|
+          next unless chg[:table].to_s == table_name.to_s
+
+          matches << version if migration_matches?(chg, action, col_or_index_name)
+        end
+      end
+
+      matches
+    end
+
+    def migration_matches?(chg, action, col_or_index_name)
+      return (chg[:action] == action) if col_or_index_name.nil?
+
+      matchers = {
+        rename_column: -> { rename_column_matches?(chg, action, col_or_index_name) },
+        rename_index: -> { rename_index_matches?(chg, action, col_or_index_name) },
+        add_index: -> { index_matches?(chg, action, col_or_index_name) },
+        remove_index: -> { index_matches?(chg, action, col_or_index_name) }
+      }
+
+      matchers.fetch(chg[:action], -> { column_matches?(chg, action, col_or_index_name) }).call
+    end
+
+    def rename_column_matches?(chg, action, col)
+      (action == :remove_column && chg[:old_column].to_s == col.to_s) ||
+        (action == :add_column && chg[:new_column].to_s == col.to_s)
+    end
+
+    def rename_index_matches?(chg, action, name)
+      (action == :remove_index && chg[:old_name] == name) ||
+        (action == :add_index && chg[:new_name] == name)
+    end
+
+    def index_matches?(chg, action, col_or_index_name)
+      return false unless chg[:action] == action
+
+      extract_migration_index_name(chg, chg[:table]) == col_or_index_name.to_s
+    end
+
+    def column_matches?(chg, action, col_name)
+      chg[:column] && chg[:column].to_s == col_name.to_s && chg[:action] == action
+    end
+
+    def extract_migration_index_name(chg, table_name)
+      return chg[:options][:name].to_s if chg[:options].is_a?(Hash) && chg[:options][:name]
+
+      return "" unless (columns = chg[:columns])
+
+      cols = columns.is_a?(Array) ? columns : [columns]
+      "index_#{table_name}_on_#{cols.join("_and_")}"
+    end
+
+    def annotate_line(line, migration_versions)
+      "#{line.chomp}#{colorize(" // #{migration_versions.join(", ")} //", :gray)}\n"
+    end
+  end
+end

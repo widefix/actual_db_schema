@@ -53,4 +53,13 @@ namespace :actual_db_schema do # rubocop:disable Metrics/BlockLength
       ActualDbSchema::GitHooks.new(strategy: strategy).install_post_checkout_hook
     end
   end
+
+  desc "Show schema.rb diff annotated by which migration introduced the changes"
+  task :diff_schema_with_migrations, [:schema_path, :migrations_path] do |_, args|
+    schema_path = args[:schema_path] || "db/schema.rb"
+    migrations_path = args[:migrations_path] || "db/migrate"
+
+    schema_diff = ActualDbSchema::SchemaDiff.new(schema_path, migrations_path)
+    puts schema_diff.render
+  end
 end
