@@ -169,7 +169,8 @@ config.multi_tenant_schemas = -> { ["public", "tenant1", "tenant2"] }
 ```
 
 ## Schema Diff with Migration Annotations
-The `diff_schema_with_migrations` Rake task generates a diff of the `schema.rb` file annotated with the migrations responsible for each change. This allows you to easily track which migration introduced a specific schema modification.
+
+If `schema.rb` generates a diff, it can be helpful to find out which migrations caused the changes. This helps you decide whether to resolve the diff on your own or discuss it with your teammates to determine the next steps. The `diff_schema_with_migrations` Rake task generates a diff of the `schema.rb` file, annotated with the migrations responsible for each change. This makes it easier to trace which migration introduced a specific schema modification, enabling faster and more informed decision-making regarding how to handle the diff.
 
 By default, the task uses `db/schema.rb` and `db/migrate` as the schema and migrations paths. You can also provide custom paths as arguments.
 

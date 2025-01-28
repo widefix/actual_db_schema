@@ -144,11 +144,11 @@ module ActualDbSchema
     def find_migrations(action, table_name, col_or_index_name)
       matches = []
 
-      migration_changes.each do |version, changes|
+      migration_changes.each do |file_path, changes|
         changes.each do |chg|
           next unless chg[:table].to_s == table_name.to_s
 
-          matches << version if migration_matches?(chg, action, col_or_index_name)
+          matches << file_path if migration_matches?(chg, action, col_or_index_name)
         end
       end
 
@@ -197,8 +197,8 @@ module ActualDbSchema
       "index_#{table_name}_on_#{cols.join("_and_")}"
     end
 
-    def annotate_line(line, migration_versions)
-      "#{line.chomp}#{colorize(" // #{migration_versions.join(", ")} //", :gray)}\n"
+    def annotate_line(line, migration_file_paths)
+      "#{line.chomp}#{colorize(" // #{migration_file_paths.join(", ")} //", :gray)}\n"
     end
   end
 end

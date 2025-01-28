@@ -85,9 +85,13 @@ describe "actual_db_schema:diff_schema_with_migrations" do
     Rake::Task["actual_db_schema:diff_schema_with_migrations"].reenable
   end
 
+  def migration_path(file_name)
+    File.join("test/dummy_app/db/migrate", file_name)
+  end
+
   it "annotates adding a column" do
-    version = "20250124084325"
-    utils.define_migration_file("#{version}_add_surname_to_users.rb", <<~RUBY)
+    file_name = "20250124084325_add_surname_to_users.rb"
+    utils.define_migration_file(file_name, <<~RUBY)
       class AddSurnameToUsers < ActiveRecord::Migration[6.0]
         def change
           add_column :users, :surname, :string
@@ -97,12 +101,15 @@ describe "actual_db_schema:diff_schema_with_migrations" do
 
     utils.run_migrations
     invoke_rake_task
-    assert_match(%r{\+    t\.string "surname" // #{version} //}, TestingState.output.gsub(/\e\[\d+m/, ""))
+    assert_match(
+      %r{\+    t\.string "surname" // #{migration_path(file_name)} //},
+      TestingState.output.gsub(/\e\[\d+m/, "")
+    )
   end
 
   it "annotates removing a column" do
-    version = "20250124084326"
-    utils.define_migration_file("#{version}_remove_middle_name_from_users.rb", <<~RUBY)
+    file_name = "20250124084326_remove_middle_name_from_users.rb"
+    utils.define_migration_file(file_name, <<~RUBY)
       class RemoveMiddleNameFromUsers < ActiveRecord::Migration[6.0]
         def change
           remove_column :users, :middle_name
@@ -112,12 +119,15 @@ describe "actual_db_schema:diff_schema_with_migrations" do
 
     utils.run_migrations
     invoke_rake_task
-    assert_match(%r{-    t\.string "middle_name" // #{version} //}, TestingState.output.gsub(/\e\[\d+m/, ""))
+    assert_match(
+      %r{-    t\.string "middle_name" // #{migration_path(file_name)} //},
+      TestingState.output.gsub(/\e\[\d+m/, "")
+    )
   end
 
   it "annotates changing a column" do
-    version = "20250124084327"
-    utils.define_migration_file("#{version}_change_price_precision_in_products.rb", <<~RUBY)
+    file_name = "20250124084327_change_price_precision_in_products.rb"
+    utils.define_migration_file(file_name, <<~RUBY)
       class ChangePricePrecisionInProducts < ActiveRecord::Migration[6.0]
         def change
           change_column :products, :price, :decimal, precision: 15, scale: 2
@@ -128,16 +138,18 @@ describe "actual_db_schema:diff_schema_with_migrations" do
     utils.run_migrations
     invoke_rake_task
     assert_match(
-      %r{-    t\.decimal "price", precision: 10, scale: 2 // #{version} //}, TestingState.output.gsub(/\e\[\d+m/, "")
+      %r{-    t\.decimal "price", precision: 10, scale: 2 // #{migration_path(file_name)} //},
+      TestingState.output.gsub(/\e\[\d+m/, "")
     )
     assert_match(
-      %r{\+    t\.decimal "price", precision: 15, scale: 2 // #{version} //}, TestingState.output.gsub(/\e\[\d+m/, "")
+      %r{\+    t\.decimal "price", precision: 15, scale: 2 // #{migration_path(file_name)} //},
+      TestingState.output.gsub(/\e\[\d+m/, "")
     )
   end
 
   it "annotates renaming a column" do
-    version = "20250124084328"
-    utils.define_migration_file("#{version}_rename_name_to_full_name_in_users.rb", <<~RUBY)
+    file_name = "20250124084328_rename_name_to_full_name_in_users.rb"
+    utils.define_migration_file(file_name, <<~RUBY)
       class RenameNameToFullNameInUsers < ActiveRecord::Migration[6.0]
         def change
           rename_column :users, :name, :full_name
@@ -147,13 +159,19 @@ describe "actual_db_schema:diff_schema_with_migrations" do
 
     utils.run_migrations
     invoke_rake_task
-    assert_match(%r{-    t\.string "name" // #{version} //}, TestingState.output.gsub(/\e\[\d+m/, ""))
-    assert_match(%r{\+    t\.string "full_name" // #{version} //}, TestingState.output.gsub(/\e\[\d+m/, ""))
+    assert_match(
+      %r{-    t\.string "name" // #{migration_path(file_name)} //},
+      TestingState.output.gsub(/\e\[\d+m/, "")
+    )
+    assert_match(
+      %r{\+    t\.string "full_name" // #{migration_path(file_name)} //},
+      TestingState.output.gsub(/\e\[\d+m/, "")
+    )
   end
 
   it "annotates adding an index" do
-    version = "20250124084329"
-    utils.define_migration_file("#{version}_add_index_on_users_middle_name.rb", <<~RUBY)
+    file_name = "20250124084329_add_index_on_users_middle_name.rb"
+    utils.define_migration_file(file_name, <<~RUBY)
       class AddIndexOnUsersMiddleName < ActiveRecord::Migration[6.0]
         def change
           add_index :users, :middle_name, name: "index_users_on_middle_name", unique: true
@@ -164,14 +182,14 @@ describe "actual_db_schema:diff_schema_with_migrations" do
     utils.run_migrations
     invoke_rake_task
     assert_match(
-      %r{\+    t\.index \["middle_name"\], name: "index_users_on_middle_name", unique: true // #{version} //},
+      %r{\+    t\.index \["middle_name"\], name: "index_users_on_middle_name", unique: true // #{migration_path(file_name)} //}, # rubocop:disable Layout/LineLength
       TestingState.output.gsub(/\e\[\d+m/, "")
     )
   end
 
   it "annotates removing an index" do
-    version = "20250124084330"
-    utils.define_migration_file("#{version}_remove_index_on_users_name.rb", <<~RUBY)
+    file_name = "20250124084330_remove_index_on_users_name.rb"
+    utils.define_migration_file(file_name, <<~RUBY)
       class RemoveIndexOnUsersName < ActiveRecord::Migration[6.0]
         def change
           remove_index :users, name: "index_users_on_name"
@@ -181,14 +199,14 @@ describe "actual_db_schema:diff_schema_with_migrations" do
     utils.run_migrations
     invoke_rake_task
     assert_match(
-      %r{-    t\.index \["name"\], name: "index_users_on_name", unique: true // #{version} //},
+      %r{-    t\.index \["name"\], name: "index_users_on_name", unique: true // #{migration_path(file_name)} //},
       TestingState.output.gsub(/\e\[\d+m/, "")
     )
   end
 
   it "annotates renaming an index" do
-    version = "20250124084331"
-    utils.define_migration_file("#{version}_rename_index_on_users_name.rb", <<~RUBY)
+    file_name = "20250124084331_rename_index_on_users_name.rb"
+    utils.define_migration_file(file_name, <<~RUBY)
       class RenameIndexOnUsersName < ActiveRecord::Migration[6.0]
         def change
           rename_index :users, "index_users_on_name", "index_users_on_user_name"
@@ -198,18 +216,18 @@ describe "actual_db_schema:diff_schema_with_migrations" do
     utils.run_migrations
     invoke_rake_task
     assert_match(
-      %r{-    t\.index \["name"\], name: "index_users_on_name", unique: true // #{version} //},
+      %r{-    t\.index \["name"\], name: "index_users_on_name", unique: true // #{migration_path(file_name)} //},
       TestingState.output.gsub(/\e\[\d+m/, "")
     )
     assert_match(
-      %r{\+    t\.index \["name"\], name: "index_users_on_user_name", unique: true // #{version} //},
+      %r{\+    t\.index \["name"\], name: "index_users_on_user_name", unique: true // #{migration_path(file_name)} //},
       TestingState.output.gsub(/\e\[\d+m/, "")
     )
   end
 
   it "annotates creating a new table" do
-    version = "20250124084332"
-    utils.define_migration_file("#{version}_create_categories.rb", <<~RUBY)
+    file_name = "20250124084332_create_categories.rb"
+    utils.define_migration_file(file_name, <<~RUBY)
       class CreateCategories < ActiveRecord::Migration[6.0]
         def change
           create_table :categories do |t|
@@ -223,7 +241,7 @@ describe "actual_db_schema:diff_schema_with_migrations" do
     utils.run_migrations
     invoke_rake_task
     assert_match(
-      %r{\+    create_table "categories", force: :cascade do |t| // #{version} //},
+      %r{\+    create_table "categories", force: :cascade do |t| // #{migration_path(file_name)} //},
       TestingState.output.gsub(/\e\[\d+m/, "")
     )
 
@@ -238,8 +256,8 @@ describe "actual_db_schema:diff_schema_with_migrations" do
   end
 
   it "annotates dropping a table" do
-    version = "20250124084334"
-    utils.define_migration_file("#{version}_drop_products_table.rb", <<~RUBY)
+    file_name = "20250124084334_drop_products_table.rb"
+    utils.define_migration_file(file_name, <<~RUBY)
       class DropProductsTable < ActiveRecord::Migration[6.0]
         def change
           drop_table :products
@@ -250,7 +268,7 @@ describe "actual_db_schema:diff_schema_with_migrations" do
     utils.run_migrations
     invoke_rake_task
     assert_match(
-      %r{-    create_table "products", force: :cascade do |t| // #{version} //},
+      %r{-    create_table "products", force: :cascade do |t| // #{migration_path(file_name)} //},
       TestingState.output.gsub(/\e\[\d+m/, "")
     )
   end

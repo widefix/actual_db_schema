@@ -21,15 +21,14 @@ module ActualDbSchema
     }.freeze
 
     def parse_all_migrations(dir)
-      changes_by_version = {}
+      changes_by_path = {}
 
       Dir["#{dir}/*.rb"].sort.each do |file|
-        version = File.basename(file).split("_").first
         changes = parse_file(file).yield_self { |ast| find_migration_changes(ast) }
-        changes_by_version[version] = changes
+        changes_by_path[file] = changes unless changes.empty?
       end
 
-      changes_by_version
+      changes_by_path
     end
 
     private
