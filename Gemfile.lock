@@ -4,7 +4,9 @@ PATH
     actual_db_schema (0.8.1)
       activerecord
       activesupport
+      ast
       csv
+      parser
 
 GEM
   remote: https://rubygems.org/
