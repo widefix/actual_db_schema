@@ -3,7 +3,7 @@
 module ActualDbSchema
   module Patches
     # Add new command to roll back the phantom migrations
-    module MigrationContext # rubocop:disable Metrics/ModuleLength
+    module MigrationContext
       include ActualDbSchema::OutputFormatter
 
       def rollback_branches(manual_mode: false)

@@ -4,7 +4,7 @@ require "fileutils"
 
 module ActualDbSchema
   # Handles the installation of a git post-checkout hook that rolls back phantom migrations when switching branches
-  class GitHooks # rubocop:disable Metrics/ClassLength
+  class GitHooks
     include ActualDbSchema::OutputFormatter
 
     POST_CHECKOUT_MARKER_START = "# >>> BEGIN ACTUAL_DB_SCHEMA"

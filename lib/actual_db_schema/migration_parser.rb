@@ -5,7 +5,7 @@ require "ast"
 
 module ActualDbSchema
   # Parses migration files in a Rails application into a structured hash representation.
-  module MigrationParser # rubocop:disable Metrics/ModuleLength
+  module MigrationParser
     extend self
 
     PARSER_MAPPING = {

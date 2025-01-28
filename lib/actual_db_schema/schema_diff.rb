@@ -5,7 +5,7 @@ require "tempfile"
 module ActualDbSchema
   # Generates a diff of schema changes between the current schema file and the
   # last committed version, annotated with the migrations responsible for each change.
-  class SchemaDiff # rubocop:disable Metrics/ClassLength
+  class SchemaDiff
     include OutputFormatter
 
     SIGN_COLORS = {
