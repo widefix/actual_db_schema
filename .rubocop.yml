@@ -26,5 +26,7 @@ Metrics/MethodLength:
     -  test/**/*
 
 Metrics/ClassLength:
-  Exclude:
-    -  test/**/*
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
