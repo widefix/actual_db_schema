@@ -20,12 +20,19 @@ module ActualDbSchema
       drop_table: ->(args) { parse_drop_table(args) }
     }.freeze
 
-    def parse_all_migrations(dir)
+    def parse_all_migrations(dirs)
       changes_by_path = {}
+      handled_files = Set.new
 
-      Dir["#{dir}/*.rb"].sort.each do |file|
-        changes = parse_file(file).yield_self { |ast| find_migration_changes(ast) }
-        changes_by_path[file] = changes unless changes.empty?
+      dirs.each do |dir|
+        Dir["#{dir}/*.rb"].sort.each do |file|
+          base_name = File.basename(file)
+          next if handled_files.include?(base_name)
+
+          changes = parse_file(file).yield_self { |ast| find_migration_changes(ast) }
+          changes_by_path[file] = changes unless changes.empty?
+          handled_files.add(base_name)
+        end
       end
 
       changes_by_path

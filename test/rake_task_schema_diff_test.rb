@@ -272,4 +272,31 @@ describe "actual_db_schema:diff_schema_with_migrations" do
       TestingState.output.gsub(/\e\[\d+m/, "")
     )
   end
+
+  it "processes phantom migrations from tmp/migrated folders" do
+    file_name = "20250124084335_phantom.rb"
+    utils.define_migration_file(file_name, <<~RUBY)
+      class Phantom < ActiveRecord::Migration[6.0]
+        disable_ddl_transaction!
+
+        def up
+          TestingState.up << :phantom
+        end
+
+        def down
+          add_column :users, :email, :string
+          raise ActiveRecord::IrreversibleMigration
+        end
+      end
+    RUBY
+
+    utils.run_migrations
+    utils.remove_app_dir(Rails.root.join("db", "migrate", file_name))
+    utils.run_migrations
+    invoke_rake_task
+    assert_match(
+      %r{\+    t\.string "email" // #{File.join("test/dummy_app/tmp/migrated", file_name)} //},
+      TestingState.output.gsub(/\e\[\d+m/, "")
+    )
+  end
 end

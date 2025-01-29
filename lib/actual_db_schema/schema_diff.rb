@@ -56,7 +56,24 @@ module ActualDbSchema
     end
 
     def migration_changes
-      @migration_changes ||= MigrationParser.parse_all_migrations(@migrations_path)
+      @migration_changes ||= begin
+        migration_dirs = [@migrations_path] + migrated_folders
+        MigrationParser.parse_all_migrations(migration_dirs)
+      end
+    end
+
+    def migrated_folders
+      path_parts = Pathname.new(@migrations_path).each_filename.to_a
+      db_index = path_parts.index("db")
+
+      return [] unless db_index
+
+      base_path = db_index.zero? ? "." : File.join(*path_parts[0...db_index])
+      dirs = Dir[File.join(base_path, "tmp", "migrated*")].select do |path|
+        File.directory?(path) && File.basename(path).match?(/^migrated(_[a-zA-Z0-9_-]+)?$/)
+      end
+
+      dirs.map { |dir| dir.sub(%r{\A\./}, "") }
     end
 
     def generate_diff(old_content, new_content)
@@ -72,7 +89,7 @@ module ActualDbSchema
       end
     end
 
-    def process_diff_output(diff_str) # rubocop:disable Metrics/MethodLength
+    def process_diff_output(diff_str)
       lines = diff_str.lines
       current_table = nil
       result_lines  = []
@@ -102,7 +119,7 @@ module ActualDbSchema
       colorize(annotated_line, color)
     end
 
-    def detect_action_and_name(line_content, sign, current_table) # rubocop:disable Metrics/MethodLength
+    def detect_action_and_name(line_content, sign, current_table)
       action_map = {
         column: ->(md) { [guess_action(sign, current_table, md[2]), md[2]] },
         index: ->(md) { [sign == "+" ? :add_index : :remove_index, md[1]] },
