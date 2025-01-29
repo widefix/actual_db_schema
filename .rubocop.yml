@@ -22,6 +22,7 @@ Metrics/BlockLength:
     - actual_db_schema.gemspec
 
 Metrics/MethodLength:
+  Max: 15
   Exclude:
     -  test/**/*
 
