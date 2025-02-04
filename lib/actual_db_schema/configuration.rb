@@ -3,7 +3,8 @@
 module ActualDbSchema
   # Manages the configuration settings for the gem.
   class Configuration
-    attr_accessor :enabled, :auto_rollback_disabled, :ui_enabled, :git_hooks_enabled, :multi_tenant_schemas
+    attr_accessor :enabled, :auto_rollback_disabled, :ui_enabled, :git_hooks_enabled, :multi_tenant_schemas,
+                  :console_migrations_enabled
 
     def initialize
       @enabled = Rails.env.development?
@@ -11,6 +12,7 @@ module ActualDbSchema
       @ui_enabled = Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_UI_ENABLED"].present?
       @git_hooks_enabled = ENV["ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED"].present?
       @multi_tenant_schemas = nil
+      @console_migrations_enabled = ENV["ACTUAL_DB_SCHEMA_CONSOLE_MIGRATIONS_ENABLED"].present?
     end
 
     def [](key)

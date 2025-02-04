@@ -20,4 +20,8 @@ ActualDbSchema.configure do |config|
 
   # If your application leverages multiple schemas for multi-tenancy, define the active schemas.
   # config.multi_tenant_schemas = -> { ["public", "tenant1", "tenant2"] }
+
+  # Enable console migrations
+  # config.console_migrations_enabled = true
+  config.console_migrations_enabled = ENV["ACTUAL_DB_SCHEMA_CONSOLE_MIGRATIONS_ENABLED"].present?
 end

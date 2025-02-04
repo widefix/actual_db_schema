@@ -186,6 +186,48 @@ Run the task with custom paths:
 rake actual_db_schema:diff_schema_with_migrations[path/to/custom_schema.rb, path/to/custom_migrations]
 ```
 
+## Console Migrations
+
+Sometimes, it's necessary to modify the database without creating migration files. This can be useful for fixing a corrupted schema, conducting experiments (such as adding and removing indexes), or quickly adjusting the schema in development. This gem allows you to run the same commands used in migrations directly in the Rails console.
+
+By default, Console Migrations is disabled. You can enable it in two ways:
+
+### 1. Using Environment Variable
+
+Set the environment variable `ACTUAL_DB_SCHEMA_CONSOLE_MIGRATIONS_ENABLED` to `true`:
+
+```sh
+export ACTUAL_DB_SCHEMA_CONSOLE_MIGRATIONS_ENABLED=true
+```
+
+### 2. Using Initializer
+
+Add the following line to your initializer file (`config/initializers/actual_db_schema.rb`):
+
+```ruby
+config.console_migrations_enabled = true
+```
+
+### Usage
+
+Once enabled, you can run migration commands directly in the Rails console:
+
+```ruby
+# Create a new table
+create_table :posts do |t|
+  t.string :title
+end
+
+# Add a column
+add_column :users, :age, :integer
+
+# Remove an index
+remove_index :users, :email
+
+# Rename a column
+rename_column :users, :username, :handle
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
