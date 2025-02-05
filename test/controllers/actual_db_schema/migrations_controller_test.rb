@@ -71,6 +71,32 @@ module ActualDbSchema
       end
     end
 
+    test "GET #index with search query returns filtered results" do
+      get :index, params: { query: "primary" }
+      assert_response :success
+      assert_select "table" do
+        assert_select "tbody" do
+          assert_select "tr" do
+            assert_select "td", text: "up"
+            assert_select "td", text: "20130906111511"
+            assert_select "td", text: "FirstPrimary"
+            assert_select "td", text: @utils.branch_for("20130906111511")
+            assert_select "td", text: @utils.primary_database
+          end
+          assert_select "tr" do
+            assert_select "td", text: "up"
+            assert_select "td", text: "20130906111512"
+            assert_select "td", text: "SecondPrimary"
+            assert_select "td", text: @utils.branch_for("20130906111512")
+            assert_select "td", text: @utils.primary_database
+          end
+        end
+      end
+
+      assert_no_match "20130906111514", @response.body
+      assert_no_match "20130906111515", @response.body
+    end
+
     test "GET #show returns a successful response" do
       get :show, params: { id: "20130906111511", database: @utils.primary_database }
       assert_response :success

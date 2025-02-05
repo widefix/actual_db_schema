@@ -40,6 +40,20 @@ module ActualDbSchema
 
     helper_method def migrations
       @migrations ||= ActualDbSchema::Migration.instance.all
+      query = params[:query].to_s.strip.downcase
+
+      return @migrations if query.blank?
+
+      @migrations.select do |migration|
+        file_name_matches = migration[:filename].include?(query)
+        content_matches = begin
+          File.read(migration[:filename]).downcase.include?(query)
+        rescue StandardError
+          false
+        end
+
+        file_name_matches || content_matches
+      end
     end
 
     helper_method def migration
