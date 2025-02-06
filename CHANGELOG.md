@@ -1,3 +1,8 @@
+## [0.8.2] - 2025-02-06
+
+- Show migration name in the schema.rb diff that caused the change
+- Easy way to run DDL migration methods in Rails console
+
 ## [0.8.1] - 2025-01-15
 
 - Support for multiple database schemas, ensuring compatibility with multi-tenant applications using the apartment gem or similar solutions
