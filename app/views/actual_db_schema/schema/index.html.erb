@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Database Schema</title>
+    <%= render partial: 'actual_db_schema/shared/js' %>
+    <%= render partial: 'actual_db_schema/shared/style' %>
+  </head>
+  <body>
+    <div>
+      <% flash.each do |key, message| %>
+        <div class="flash <%= key %>"><%= message %></div>
+      <% end %>
+      <h2>Database Schema</h2>
+      <div class="top-controls">
+        <div class="top-buttons">
+          <%= link_to 'All Migrations', migrations_path, class: "top-button" %>
+        </div>
+        <div class="top-search">
+          <%= form_tag schema_path, method: :get, class: "search-form" do %>
+            <span class="search-icon">🔍</span>
+            <%= text_field_tag :table, params[:table], placeholder: "Filter by table name", class: "search-input" %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="schema-diff">
+        <pre><%= raw schema_diff_html %></pre>
+      </div>
+    </div>
+  </body>
+</html>

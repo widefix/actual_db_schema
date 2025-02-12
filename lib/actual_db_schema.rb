@@ -19,6 +19,7 @@ require_relative "actual_db_schema/git_hooks"
 require_relative "actual_db_schema/multi_tenant"
 require_relative "actual_db_schema/railtie"
 require_relative "actual_db_schema/schema_diff"
+require_relative "actual_db_schema/schema_diff_html"
 require_relative "actual_db_schema/schema_parser"
 
 require_relative "actual_db_schema/commands/base"

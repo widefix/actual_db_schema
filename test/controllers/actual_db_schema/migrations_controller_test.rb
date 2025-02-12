@@ -21,6 +21,7 @@ module ActualDbSchema
       @routes = @app.routes
       Rails.application.routes.draw do
         get "/rails/phantom_migrations" => "actual_db_schema/phantom_migrations#index", as: "phantom_migrations"
+        get "/rails/schema" => "actual_db_schema/schema#index", as: "schema"
         get "/rails/migrations" => "actual_db_schema/migrations#index", as: "migrations"
         get "/rails/migration/:id" => "actual_db_schema/migrations#show", as: "migration"
         post "/rails/migration/:id/rollback" => "actual_db_schema/migrations#rollback", as: "rollback_migration"
