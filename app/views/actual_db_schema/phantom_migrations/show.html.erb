@@ -46,6 +46,11 @@
                       rollback_phantom_migration_path(id: params[:id], database: params[:database]),
                       method: :post,
                       class: 'button migration-action' %>
+        <%= button_to '✖ Delete',
+                      delete_phantom_migration_path(id: params[:id], database: params[:database]),
+                      method: :post,
+                      data: { confirm: 'Are you sure you want to delete this migration?' },
+                      class: 'button migration-action' %>
       </div>
     </div>
   </body>
