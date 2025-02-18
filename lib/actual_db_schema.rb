@@ -59,7 +59,7 @@ module ActualDbSchema
   end
 
   def self.default_migrated_folder
-    Rails.root.join("tmp", "migrated")
+    config[:migrated_folder] || Rails.root.join("tmp", "migrated")
   end
 
   def self.migrations_paths

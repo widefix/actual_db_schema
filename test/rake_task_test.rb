@@ -122,6 +122,37 @@ describe "single db" do
         assert_empty utils.migrated_files
       end
     end
+
+    describe "with custom migrated folder" do
+      before do
+        ActualDbSchema.configure { |config| config.migrated_folder = Rails.root.join("custom", "migrated") }
+      end
+
+      after do
+        utils.remove_app_dir("custom/migrated")
+        ActualDbSchema.configure { |config| config.migrated_folder = nil }
+      end
+
+      it "creates the custom migrated folder" do
+        refute File.exist?(utils.app_file("custom/migrated"))
+        utils.run_migrations
+        assert File.exist?(utils.app_file("custom/migrated"))
+      end
+
+      it "keeps migrated migrations in the custom migrated folder" do
+        utils.run_migrations
+        assert_equal %w[20130906111511_first.rb 20130906111512_second.rb], utils.migrated_files
+      end
+
+      it "rolls back the migrations in the reversed order" do
+        utils.prepare_phantom_migrations
+        assert_empty TestingState.down
+        utils.run_migrations
+        assert_equal %i[second first], TestingState.down
+        assert_match(/\[ActualDbSchema\] Rolling back phantom migration/, TestingState.output)
+        assert_empty utils.migrated_files
+      end
+    end
   end
 
   describe "db:rollback_branches:manual" do

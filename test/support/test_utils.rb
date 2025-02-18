@@ -207,7 +207,8 @@ class TestUtils
   end
 
   def migrated_files_call(prefix_name = nil)
-    path = MIGRATED_PATHS.fetch(prefix_name&.to_sym, migrated_paths.first)
+    migrated_path = ActualDbSchema.config[:migrated_folder].presence || migrated_paths.first
+    path = MIGRATED_PATHS.fetch(prefix_name&.to_sym, migrated_path.to_s)
     Dir.glob(app_file("#{path}/*.rb")).map { |f| File.basename(f) }.sort
   end
 
