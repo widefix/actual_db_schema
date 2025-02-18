@@ -72,6 +72,25 @@ The gem offers the following rake tasks that can be manually run according to yo
 - `rails db:rollback_branches:manual` - run it to manually rolls back phantom migrations one by one.
 - `rails db:phantom_migrations` - displays a list of phantom migrations.
 
+## Migrated Folder Configuration
+
+By default, `actual_db_schema` stores all run migrations in the `tmp/migrated` folder. However, if you want to change this location, you can configure it in two ways:
+
+### 1. Using Environment Variable
+
+Set the environment variable `ACTUAL_DB_SCHEMA_MIGRATED_FOLDER` to your desired folder path:
+
+```sh
+export ACTUAL_DB_SCHEMA_MIGRATED_FOLDER="custom/migrated"
+```
+
+### 2. Using Initializer
+Add the following line to your initializer file (`config/initializers/actual_db_schema.rb`):
+
+```ruby
+config.migrated_folder = Rails.root.join("custom", "migrated")
+```
+
 ## Accessing the UI
 
 The UI for managing migrations is enabled automatically. To access the UI, simply navigate to the following URL in your web browser:

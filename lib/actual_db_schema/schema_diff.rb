@@ -63,17 +63,25 @@ module ActualDbSchema
     end
 
     def migrated_folders
+      dirs = find_migrated_folders
+
+      if (configured_migrated_folder = ActualDbSchema.config[:migrated_folder].presence)
+        relative_migrated_folder = configured_migrated_folder.to_s.sub(%r{\A#{Regexp.escape(Rails.root.to_s)}/?}, "")
+        dirs << relative_migrated_folder unless dirs.include?(relative_migrated_folder)
+      end
+
+      dirs.map { |dir| dir.sub(%r{\A\./}, "") }.uniq
+    end
+
+    def find_migrated_folders
       path_parts = Pathname.new(@migrations_path).each_filename.to_a
       db_index = path_parts.index("db")
-
       return [] unless db_index
 
       base_path = db_index.zero? ? "." : File.join(*path_parts[0...db_index])
-      dirs = Dir[File.join(base_path, "tmp", "migrated*")].select do |path|
+      Dir[File.join(base_path, "tmp", "migrated*")].select do |path|
         File.directory?(path) && File.basename(path).match?(/^migrated(_[a-zA-Z0-9_-]+)?$/)
       end
-
-      dirs.map { |dir| dir.sub(%r{\A\./}, "") }
     end
 
     def generate_diff(old_content, new_content)

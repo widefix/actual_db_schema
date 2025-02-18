@@ -101,7 +101,8 @@ module ActualDbSchema
     end
 
     def phantom?(migration)
-      migration.filename.include?("/tmp/migrated")
+      migrated_folder = ActualDbSchema.config[:migrated_folder].presence || "/tmp/migrated"
+      migration.filename.include?(migrated_folder.to_s)
     end
 
     def should_include?(status, migration)
