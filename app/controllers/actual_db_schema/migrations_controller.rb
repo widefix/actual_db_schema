@@ -22,11 +22,6 @@ module ActualDbSchema
       redirect_to migrations_path
     end
 
-    def delete
-      handle_delete(params[:id], params[:database])
-      redirect_to migrations_path
-    end
-
     private
 
     def handle_rollback(id, database)
@@ -39,13 +34,6 @@ module ActualDbSchema
     def handle_migrate(id, database)
       ActualDbSchema::Migration.instance.migrate(id, database)
       flash[:notice] = "Migration #{id} was successfully migrated."
-    rescue StandardError => e
-      flash[:alert] = e.message
-    end
-
-    def handle_delete(id, database)
-      ActualDbSchema::Migration.instance.delete(id, database)
-      flash[:notice] = "Migration #{id} was successfully deleted."
     rescue StandardError => e
       flash[:alert] = e.message
     end
