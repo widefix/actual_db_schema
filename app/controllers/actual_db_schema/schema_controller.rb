@@ -11,7 +11,7 @@ module ActualDbSchema
     private
 
     helper_method def schema_diff_html
-      schema_diff = ActualDbSchema::SchemaDiffHtml.new("db/schema.rb", "db/migrate")
+      schema_diff = ActualDbSchema::SchemaDiffHtml.new("./db/schema.rb", "db/migrate")
       schema_diff.render_html(params[:table])
     end
   end

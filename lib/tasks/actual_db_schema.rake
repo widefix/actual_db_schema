@@ -56,7 +56,7 @@ namespace :actual_db_schema do # rubocop:disable Metrics/BlockLength
 
   desc "Show the schema.rb diff annotated with the migrations that made the changes"
   task :diff_schema_with_migrations, %i[schema_path migrations_path] => :environment do |_, args|
-    schema_path = args[:schema_path] || "db/schema.rb"
+    schema_path = args[:schema_path] || "./db/schema.rb"
     migrations_path = args[:migrations_path] || "db/migrate"
 
     schema_diff = ActualDbSchema::SchemaDiff.new(schema_path, migrations_path)
