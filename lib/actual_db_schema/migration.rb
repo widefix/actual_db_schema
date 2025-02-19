@@ -73,15 +73,6 @@ module ActualDbSchema
       end
     end
 
-    def delete(version, database)
-      MigrationContext.instance.each do
-        next unless ActualDbSchema.db_config[:database] == database
-
-        ActiveRecord::Base.connection.execute("DELETE FROM schema_migrations WHERE version = '#{version}'")
-        break
-      end
-    end
-
     private
 
     def build_migration_struct(status, migration)

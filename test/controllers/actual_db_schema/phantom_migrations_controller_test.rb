@@ -27,8 +27,6 @@ module ActualDbSchema
              as: "rollback_phantom_migration"
         post "/rails/phantom_migrations/rollback_all" => "actual_db_schema/phantom_migrations#rollback_all",
              as: "rollback_all_phantom_migrations"
-        post "/rails/phantom_migrations/delete" => "actual_db_schema/phantom_migrations#delete",
-             as: "delete_phantom_migration"
       end
       ActualDbSchema::PhantomMigrationsController.include(@routes.url_helpers)
     end
@@ -170,22 +168,6 @@ module ActualDbSchema
       assert_response :redirect
       get :index
       assert_select "p", text: "No phantom migrations found."
-    end
-
-    test "POST #delete removes migration record" do
-      version = "20130906111511"
-      sql = "SELECT version FROM schema_migrations WHERE version = '#{version}'"
-      ActiveRecord::Base.establish_connection(TestingState.db_config["primary"])
-
-      assert_not_nil ActiveRecord::Base.connection.select_value(sql)
-      post :delete, params: { id: version, database: @utils.primary_database }
-      assert_response :redirect
-      get :index
-      assert_select "table" do |table|
-        assert_no_match "20130906111511", table.text
-      end
-      assert_select ".flash", text: "Migration 20130906111511 was successfully deleted."
-      assert_nil ActiveRecord::Base.connection.select_value(sql)
     end
   end
 end

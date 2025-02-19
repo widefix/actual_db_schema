@@ -26,7 +26,6 @@ module ActualDbSchema
         get "/rails/migration/:id" => "actual_db_schema/migrations#show", as: "migration"
         post "/rails/migration/:id/rollback" => "actual_db_schema/migrations#rollback", as: "rollback_migration"
         post "/rails/migration/:id/migrate" => "actual_db_schema/migrations#migrate", as: "migrate_migration"
-        post "/rails/migration/:id/delete" => "actual_db_schema/migrations#delete", as: "delete_migration"
       end
       ActualDbSchema::MigrationsController.include(@routes.url_helpers)
     end
@@ -169,22 +168,6 @@ module ActualDbSchema
         end
       end
       assert_select ".flash", text: "Migration 20130906111511 was successfully rolled back."
-    end
-
-    test "POST #delete removes migration record" do
-      version = "20130906111511"
-      sql = "SELECT version FROM schema_migrations WHERE version = '#{version}'"
-      ActiveRecord::Base.establish_connection(TestingState.db_config["primary"])
-
-      assert_not_nil ActiveRecord::Base.connection.select_value(sql)
-      post :delete, params: { id: version, database: @utils.primary_database }
-      assert_response :redirect
-      get :index
-      assert_select "table" do |table|
-        assert_no_match "20130906111511", table.text
-      end
-      assert_select ".flash", text: "Migration 20130906111511 was successfully deleted."
-      assert_nil ActiveRecord::Base.connection.select_value(sql)
     end
   end
 end
