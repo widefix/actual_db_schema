@@ -56,7 +56,7 @@
                     <%= button_to '✖ Delete',
                                   delete_phantom_migration_path(id: migration[:version], database: migration[:database]),
                                   method: :post,
-                                  data: { confirm: 'Are you sure you want to delete this migration?' },
+                                  data: { confirm: 'This migration does not have a corresponding migration file. Proceeding will remove its entry from the `schema_migrations` table. Are you sure you want to continue?' },
                                   class: 'button migration-action' %>
                   </div>
                 </td>
