@@ -73,6 +73,40 @@ module ActualDbSchema
       end
     end
 
+    def broken_versions
+      broken = []
+      MigrationContext.instance.each do |context|
+        context.migrations_status.each do |status, version, name|
+          next unless name == "********** NO FILE **********"
+
+          broken << Migration.new(
+            status: status,
+            version: version.to_s,
+            name: name,
+            branch: branch_for(version),
+            database: ActualDbSchema.db_config[:database]
+          )
+        end
+      end
+
+      broken
+    end
+
+    def delete(version, database)
+      MigrationContext.instance.each do
+        next unless ActualDbSchema.db_config[:database] == database
+
+        ActiveRecord::Base.connection.execute("DELETE FROM schema_migrations WHERE version = '#{version}'")
+        break
+      end
+    end
+
+    def delete_all
+      broken_versions.each do |version|
+        delete(version.version, version.database)
+      end
+    end
+
     private
 
     def build_migration_struct(status, migration)

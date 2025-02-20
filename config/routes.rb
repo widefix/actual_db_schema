@@ -15,6 +15,14 @@ ActualDbSchema::Engine.routes.draw do
       post :rollback_all
     end
   end
+  resources :broken_versions, only: %i[index] do
+    member do
+      post :delete
+    end
+    collection do
+      post :delete_all
+    end
+  end
 
   get "schema", to: "schema#index", as: :schema
 end
