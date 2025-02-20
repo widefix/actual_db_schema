@@ -4,6 +4,12 @@
 
     migrationActions.forEach(button => {
       button.addEventListener('click', function(event) {
+        const confirmMessage = button.dataset.confirm;
+          if (confirmMessage && !confirm(confirmMessage)) {
+            event.preventDefault();
+            return;
+        }
+
         const originalText = button.value;
         button.value = 'Loading...';
         disableButtons();

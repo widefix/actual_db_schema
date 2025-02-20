@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Broken Versions</title>
+    <%= render partial: 'actual_db_schema/shared/js' %>
+    <%= render partial: 'actual_db_schema/shared/style' %>
+  </head>
+  <body>
+    <div>
+      <% flash.each do |key, message| %>
+        <div class="flash <%= key %>"><%= message %></div>
+      <% end %>
+      <h2>Broken Versions</h2>
+      <p>
+        These are versions that were migrated in the database, but the corresponding migration file is missing.  
+        You can safely delete them from the database to clean up.
+      </p>
+      <div class="top-buttons">
+        <%= link_to 'All Migrations', migrations_path, class: "top-button" %>
+        <% if broken_versions.present? %>
+          <%= button_to '✖ Delete all',
+                        delete_all_broken_versions_path,
+                        method: :post,
+                        data: { confirm: 'These migrations do not have corresponding migration files. Proceeding will remove these entries from the `schema_migrations` table. Are you sure you want to continue?' },
+                        class: 'button migration-action' %>
+        <% end %>
+      </div>
+      <% if broken_versions.present? %>
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Migration ID</th>
+              <th>Branch</th>
+              <th>Database</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% broken_versions.each do |version| %>
+              <tr class="migration-row phantom">
+                <td><%= version[:status] %></td>
+                <td><%= version[:version] %></td>
+                <td><%= version[:branch] %></td>
+                <td><%= version[:database] %></td>
+                <td>
+                  <div class='button-container'>
+                    <%= button_to '✖ Delete',
+                                  delete_broken_version_path(id: version[:version], database: version[:database]),
+                                  method: :post,
+                                  data: { confirm: 'This migration does not have a corresponding migration file. Proceeding will remove its entry from the `schema_migrations` table. Are you sure you want to continue?' },
+                                  class: 'button migration-action' %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p>No broken versions found.</p>
+      <% end %>
+    </div>
+  </body>
+</html>

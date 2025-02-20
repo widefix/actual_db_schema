@@ -62,6 +62,12 @@ class TestUtils
     delete_migrations_files_for(path)
   end
 
+  def delete_migrations_files_for(path)
+    Dir.glob(app_file("#{path}/**/*.rb")).each do |file|
+      remove_app_dir(file)
+    end
+  end
+
   def define_migration_file(filename, content, prefix: nil)
     path =
       case prefix
@@ -197,12 +203,6 @@ class TestUtils
       else
         ActiveRecord::SchemaMigration.new(ActiveRecord::Base.connection)
       end
-    end
-  end
-
-  def delete_migrations_files_for(path)
-    Dir.glob(app_file("#{path}/**/*.rb")).each do |file|
-      remove_app_dir(file)
     end
   end
 
