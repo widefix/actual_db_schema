@@ -62,4 +62,28 @@ namespace :actual_db_schema do # rubocop:disable Metrics/BlockLength
     schema_diff = ActualDbSchema::SchemaDiff.new(schema_path, migrations_path)
     puts schema_diff.render
   end
+
+  desc "Delete broken migration versions from the database"
+  task :delete_broken_versions, %i[versions database] => :environment do |_, args|
+    extend ActualDbSchema::OutputFormatter
+
+    if args[:versions]
+      versions = args[:versions].split(" ").map(&:strip)
+      versions.each do |version|
+        ActualDbSchema::Migration.instance.delete(version, args[:database])
+        puts colorize("[ActualDbSchema] Migration #{version} was successfully deleted.", :green)
+      rescue StandardError => e
+        puts colorize("[ActualDbSchema] Error deleting version #{version}: #{e.message}", :red)
+      end
+    elsif ActualDbSchema::Migration.instance.broken_versions.empty?
+      puts colorize("[ActualDbSchema] No broken versions found.", :gray)
+    else
+      begin
+        ActualDbSchema::Migration.instance.delete_all
+        puts colorize("[ActualDbSchema] All broken versions were successfully deleted.", :green)
+      rescue StandardError => e
+        puts colorize("[ActualDbSchema] Error deleting all broken versions: #{e.message}", :red)
+      end
+    end
+  end
 end
