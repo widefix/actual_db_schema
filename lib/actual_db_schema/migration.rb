@@ -93,8 +93,11 @@ module ActualDbSchema
     end
 
     def delete(version, database)
+      validate_broken_migration(version, database)
+
       MigrationContext.instance.each do
-        next unless ActualDbSchema.db_config[:database] == database
+        next if database && ActualDbSchema.db_config[:database] != database
+        next if ActiveRecord::Base.connection.select_values("SELECT version FROM schema_migrations").exclude?(version)
 
         ActiveRecord::Base.connection.execute("DELETE FROM schema_migrations WHERE version = '#{version}'")
         break
@@ -149,6 +152,16 @@ module ActualDbSchema
     def metadata
       @metadata ||= {}
       @metadata[ActualDbSchema.db_config[:database]] ||= ActualDbSchema::Store.instance.read
+    end
+
+    def validate_broken_migration(version, database)
+      if database
+        unless broken_versions.any? { |v| v.version == version && v.database == database }
+          raise StandardError, "Migration is not broken for database #{database}."
+        end
+      else
+        raise StandardError, "Migration is not broken." unless broken_versions.any? { |v| v.version == version }
+      end
     end
   end
 end

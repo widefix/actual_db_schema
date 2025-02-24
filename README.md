@@ -247,6 +247,49 @@ remove_index :users, :email
 rename_column :users, :username, :handle
 ```
 
+## Delete Broken Migrations
+
+A migration is considered broken if it has been migrated in the database but the corresponding migration file is missing. This functionality allows you to safely delete these broken versions from the database to keep it clean.
+
+You can delete broken migrations using either of the following methods:
+
+### 1. Using the UI
+
+Navigate to the following URL in your web browser:
+```
+http://localhost:3000/rails/broken_versions
+```
+
+This page lists all broken versions and provides an option to delete them.
+
+### 2. Using a Rake Task
+
+To delete all broken migrations, run:
+```sh
+rake actual_db_schema:delete_broken_versions
+```
+
+To delete specific migrations, pass the migration version(s) and optionally a database:
+```sh
+rake actual_db_schema:delete_broken_versions[<version>, <version>]
+```
+
+- `<version>` – The migration version(s) to delete (space-separated if multiple).
+- `<database>` (optional) – Specify a database if using multiple databases.
+
+#### Examples:
+
+```sh
+# Delete all broken migrations
+rake actual_db_schema:delete_broken_versions
+
+# Delete specific migrations
+rake actual_db_schema:delete_broken_versions["20250224103352 20250224103358"]
+
+# Delete specific migrations from a specific database
+rake actual_db_schema:delete_broken_versions["20250224103352 20250224103358", "primary"]
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
