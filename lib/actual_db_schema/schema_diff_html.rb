@@ -17,7 +17,7 @@ module ActualDbSchema
 
     def generate_diff_html
       diff_output = generate_full_diff(old_schema_content, new_schema_content)
-      return "<pre>#{ERB::Util.html_escape(new_schema_content)}</pre>" if diff_output.strip.empty?
+      diff_output = new_schema_content if diff_output.strip.empty?
 
       process_diff_output_for_html(diff_output)
     end
@@ -43,7 +43,7 @@ module ActualDbSchema
       block_depth = 1
 
       diff_str.lines.each do |line|
-        next if line.start_with?("---") || line.start_with?("+++") || line.match(/^@@/)
+        next if skip_line?(line)
 
         current_table, table_start, block_depth =
           process_table(line, current_table, table_start, result_lines.size, block_depth)
@@ -53,15 +53,21 @@ module ActualDbSchema
       result_lines.join
     end
 
+    def skip_line?(line)
+      line != "---\n" && !line.match(/^--- Name/) &&
+        (line.start_with?("---") || line.start_with?("+++") || line.match(/^@@/))
+    end
+
     def process_table(line, current_table, table_start, table_end, block_depth)
-      if (ct = line.match(/create_table\s+["']([^"']+)["']/))
-        return [ct[1], table_end, block_depth]
+      if (ct = line.match(/create_table\s+["']([^"']+)["']/) || line.match(/CREATE TABLE\s+"?([^"\s]+)"?/i))
+        return [normalize_table_name(ct[1]), table_end, block_depth]
       end
 
       return [current_table, table_start, block_depth] unless current_table
 
       block_depth += line.scan(/\bdo\b/).size unless line.match(/create_table\s+["']([^"']+)["']/)
       block_depth -= line.scan(/\bend\b/).size
+      block_depth -= line.scan(/\);\s*$/).size
 
       if block_depth.zero?
         @tables[current_table] = { start: table_start, end: table_end }
@@ -101,7 +107,7 @@ module ActualDbSchema
     end
 
     def link_to_migration(migration_file_path)
-      migration = migrations.detect { |m| m.filename == migration_file_path }
+      migration = migrations.detect { |m| File.expand_path(m.filename) == File.expand_path(migration_file_path) }
       return ERB::Util.html_escape(migration_file_path) unless migration
 
       url = "migrations/#{migration.version}?database=#{migration.database}"

@@ -19,6 +19,14 @@ module ActualDbSchema
       /create_table\s+["']([^"']+)["']/ => :table
     }.freeze
 
+    SQL_CHANGE_PATTERNS = {
+      /CREATE (?:UNIQUE\s+)?INDEX\s+["']?([^"'\s]+)["']?\s+ON\s+([\w.]+)/i => :index,
+      /CREATE TABLE\s+(\S+)\s+\(/i => :table,
+      /CREATE SEQUENCE\s+(\S+)/i => :table,
+      /ALTER SEQUENCE\s+(\S+)\s+OWNED BY\s+([\w.]+)/i => :table,
+      /ALTER TABLE\s+ONLY\s+(\S+)\s+/i => :table
+    }.freeze
+
     def initialize(schema_path, migrations_path)
       @schema_path = schema_path
       @migrations_path = migrations_path
@@ -48,11 +56,19 @@ module ActualDbSchema
     end
 
     def parsed_old_schema
-      @parsed_old_schema ||= SchemaParser.parse_string(old_schema_content.to_s)
+      @parsed_old_schema ||= parser_class.parse_string(old_schema_content.to_s)
     end
 
     def parsed_new_schema
-      @parsed_new_schema ||= SchemaParser.parse_string(new_schema_content.to_s)
+      @parsed_new_schema ||= parser_class.parse_string(new_schema_content.to_s)
+    end
+
+    def parser_class
+      structure_sql? ? StructureSqlParser : SchemaParser
+    end
+
+    def structure_sql?
+      File.extname(@schema_path) == ".sql"
     end
 
     def migration_changes
@@ -105,8 +121,9 @@ module ActualDbSchema
       lines.each do |line|
         if (hunk_match = line.match(/^@@\s+-(\d+),(\d+)\s+\+(\d+),(\d+)\s+@@/))
           current_table = find_table_in_new_schema(hunk_match[3].to_i)
-        elsif (ct = line.match(/create_table\s+["']([^"']+)["']/))
-          current_table = ct[1]
+        elsif (ct = line.match(/create_table\s+["']([^"']+)["']/) ||
+          line.match(/CREATE TABLE\s+"?([^"\s]+)"?/i) || line.match(/ALTER TABLE\s+ONLY\s+(\S+)/i))
+          current_table = normalize_table_name(ct[1])
         end
 
         result_lines << (%w[+ -].include?(line[0]) ? handle_diff_line(line, current_table) : line)
@@ -128,17 +145,22 @@ module ActualDbSchema
     end
 
     def detect_action_and_name(line_content, sign, current_table)
+      patterns = structure_sql? ? SQL_CHANGE_PATTERNS : CHANGE_PATTERNS
       action_map = {
         column: ->(md) { [guess_action(sign, current_table, md[2]), md[2]] },
         index: ->(md) { [sign == "+" ? :add_index : :remove_index, md[1]] },
         table: ->(_) { [sign == "+" ? :create_table : :drop_table, nil] }
       }
 
-      CHANGE_PATTERNS.each do |regex, kind|
+      patterns.each do |regex, kind|
         next unless (md = line_content.match(regex))
 
         action_proc = action_map[kind]
         return action_proc.call(md) if action_proc
+      end
+
+      if structure_sql? && current_table && (md = line_content.match(/^\s*"?(\w+)"?\s+(.+?)(?:,|\s*$)/i))
+        return [guess_action(sign, current_table, md[1]), md[1]]
       end
 
       [nil, nil]
@@ -159,8 +181,8 @@ module ActualDbSchema
       current_table = nil
 
       new_schema_content.lines[0...new_line_number].each do |line|
-        if (match = line.match(/create_table\s+["']([^"']+)["']/))
-          current_table = match[1]
+        if (match = line.match(/create_table\s+["']([^"']+)["']/) || line.match(/CREATE TABLE\s+"?([^"\s]+)"?/i))
+          current_table = normalize_table_name(match[1])
         end
       end
       current_table
@@ -171,13 +193,17 @@ module ActualDbSchema
 
       migration_changes.each do |file_path, changes|
         changes.each do |chg|
-          next unless chg[:table].to_s == table_name.to_s
+          next unless (structure_sql? && index_action?(action)) || chg[:table].to_s == table_name.to_s
 
           matches << file_path if migration_matches?(chg, action, col_or_index_name)
         end
       end
 
       matches
+    end
+
+    def index_action?(action)
+      %i[add_index remove_index rename_index].include?(action)
     end
 
     def migration_matches?(chg, action, col_or_index_name)
@@ -224,6 +250,12 @@ module ActualDbSchema
 
     def annotate_line(line, migration_file_paths)
       "#{line.chomp}#{colorize(" // #{migration_file_paths.join(", ")} //", :gray)}\n"
+    end
+
+    def normalize_table_name(table_name)
+      return table_name unless structure_sql? && table_name.include?(".")
+
+      table_name.split(".").last
     end
   end
 end

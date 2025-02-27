@@ -31,3 +31,12 @@ Metrics/ClassLength:
 
 Metrics/ModuleLength:
   Enabled: false
+
+Metrics/AbcSize:
+  Max: 25
+
+Metrics/CyclomaticComplexity:
+  Max: 10
+
+Metrics/PerceivedComplexity:
+  Max: 10
