@@ -95,7 +95,7 @@ config.migrated_folder = Rails.root.join("custom", "migrated")
 
 The UI for managing migrations is enabled automatically. To access the UI, simply navigate to the following URL in your web browser:
 ```
-http://localhost:3000/rails/phantom_migrations
+http://localhost:3000/rails/migrations/phantom_migrations
 ```
 This page displays a list of phantom migrations for each database connection and provides options to view details and rollback them.
 
@@ -119,6 +119,30 @@ config.ui_enabled = true
 ```
 
 > With this option, the UI can be disabled for all environments or be enabled in specific ones.
+
+## UI Namespace Configuration
+
+By default, the UI for managing migrations is accessible under the `/rails/migrations` namespace. If you prefer to use a different namespace, you can configure it in two ways:
+
+### 1. Using Environment Variable
+
+Set the environment variable `ACTUAL_DB_SCHEMA_UI_NAMESPACE` to your desired namespace:
+
+```sh
+export ACTUAL_DB_SCHEMA_UI_NAMESPACE="custom_namespace"
+```
+
+### 2. Using Initializer
+Add the following line to your initializer file (`config/initializers/actual_db_schema.rb`):
+
+```ruby
+config.ui_namespace = "custom_namespace"
+```
+
+With this setting, the UI will now be available at:
+```
+http://localhost:3000/rails/custom_namespace/phantom_migrations
+```
 
 ## Disabling Automatic Rollback
 
@@ -257,7 +281,7 @@ You can delete broken migrations using either of the following methods:
 
 Navigate to the following URL in your web browser:
 ```
-http://localhost:3000/rails/broken_versions
+http://localhost:3000/rails/migrations/broken_versions
 ```
 
 This page lists all broken versions and provides an option to delete them.

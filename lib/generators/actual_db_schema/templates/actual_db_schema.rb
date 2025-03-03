@@ -28,4 +28,8 @@ ActualDbSchema.configure do |config|
   # Define the migrated folder location.
   # config.migrated_folder = Rails.root.join("custom", "migrated")
   config.migrated_folder = Rails.root.join("tmp", "migrated")
+
+  # Define the namespace for all web routes.
+  # config.ui_namespace = "custom_namespace"
+  config.ui_namespace = "migrations"
 end
