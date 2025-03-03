@@ -31,3 +31,6 @@ Metrics/ClassLength:
 
 Metrics/ModuleLength:
   Enabled: false
+
+Metrics/AbcSize:
+  Max: 20

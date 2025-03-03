@@ -19,10 +19,13 @@ module ActualDbSchema
 
     def routes_setup
       @routes = @app.routes
+      ui_namespace = ActualDbSchema.config[:ui_namespace]
+
       Rails.application.routes.draw do
-        get "/rails/phantom_migrations" => "actual_db_schema/phantom_migrations#index", as: "phantom_migrations"
-        get "/rails/broken_versions" => "actual_db_schema/broken_versions#index", as: "broken_versions"
-        get "/rails/schema" => "actual_db_schema/schema#index", as: "schema"
+        get "/rails/#{ui_namespace}/phantom_migrations" => "actual_db_schema/phantom_migrations#index",
+            as: "phantom_migrations"
+        get "/rails/#{ui_namespace}/broken_versions" => "actual_db_schema/broken_versions#index", as: "broken_versions"
+        get "/rails/#{ui_namespace}/schema" => "actual_db_schema/schema#index", as: "schema"
         get "/rails/migrations" => "actual_db_schema/migrations#index", as: "migrations"
         get "/rails/migration/:id" => "actual_db_schema/migrations#show", as: "migration"
         post "/rails/migration/:id/rollback" => "actual_db_schema/migrations#rollback", as: "rollback_migration"
@@ -97,6 +100,20 @@ module ActualDbSchema
 
       assert_no_match "20130906111514", @response.body
       assert_no_match "20130906111515", @response.body
+    end
+
+    test "GET #index works with custom namespace" do
+      original_namespace = ActualDbSchema.config[:ui_namespace]
+      ActualDbSchema.configure { |config| config.ui_namespace = "custom_namespace" }
+      routes_setup
+      Rails.application.reload_routes!
+      get :index
+      assert_response :success
+      assert_select "a[href=?]", "/rails/custom_namespace/phantom_migrations"
+      assert_select "a[href=?]", "/rails/custom_namespace/broken_versions"
+      assert_select "a[href=?]", "/rails/custom_namespace/schema"
+      ActualDbSchema.configure { |config| config.ui_namespace = original_namespace }
+      routes_setup
     end
 
     test "GET #show returns a successful response" do
