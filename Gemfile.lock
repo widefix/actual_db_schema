@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    actual_db_schema (0.8.2)
+    actual_db_schema (0.8.3)
       activerecord
       activesupport
       ast

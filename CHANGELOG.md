@@ -1,3 +1,10 @@
+## [0.8.3] - 2025-03-03
+
+- View Schema with Migration Annotations in the UI
+- Clean Up Broken Migrations
+- Filter Migrations in the UI
+- Customize Your Migrated Folder Location
+
 ## [0.8.2] - 2025-02-06
 
 - Show migration name in the schema.rb diff that caused the change
