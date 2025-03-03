@@ -1,6 +1,17 @@
 # frozen_string_literal: true
 
 namespace :actual_db_schema do # rubocop:disable Metrics/BlockLength
+  desc "Rollback migrations that were run inside not a merged branch."
+  task rollback_branches: "db:rollback_branches"
+
+  namespace :rollback_branches do
+    desc "Manually rollback phantom migrations one by one"
+    task manual: "db:rollback_branches:manual"
+  end
+
+  desc "List all phantom migrations - non-relevant migrations that were run inside not a merged branch."
+  task phantom_migrations: "db:phantom_migrations"
+
   desc "Install ActualDbSchema initializer and post-checkout git hook."
   task :install do
     extend ActualDbSchema::OutputFormatter
