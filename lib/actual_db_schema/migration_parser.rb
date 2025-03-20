@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "parser/current"
 require "ast"
+require "prism"
 
 module ActualDbSchema
   # Parses migration files in a Rails application into a structured hash representation.
@@ -41,9 +41,7 @@ module ActualDbSchema
     private
 
     def parse_file(file_path)
-      buffer = Parser::Source::Buffer.new(file_path)
-      buffer.source = File.read(file_path, encoding: "UTF-8")
-      Parser::CurrentRuby.parse(buffer.source)
+      Prism::Translation::Parser.parse_file(file_path)
     end
 
     def find_migration_changes(node)
