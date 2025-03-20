@@ -1,3 +1,8 @@
+## [0.8.4] - 2025-03-20
+
+- Fix initializer file that can break other bundle groups that development
+- Use prism gem instead of parser for Ruby 3.4 compatibility
+
 ## [0.8.3] - 2025-03-03
 
 - View Schema with Migration Annotations in the UI
