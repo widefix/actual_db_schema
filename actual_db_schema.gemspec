@@ -40,6 +40,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "ast"
   spec.add_runtime_dependency "csv"
   spec.add_runtime_dependency "parser"
+  spec.add_runtime_dependency "prism"
 
   spec.add_development_dependency "appraisal"
   spec.add_development_dependency "debug"
