@@ -153,6 +153,21 @@ describe "single db" do
         assert_empty utils.migrated_files
       end
     end
+
+    describe "when app is not a git repository" do
+      it "doesn't show an error message" do
+        Dir.mktmpdir do |dir|
+          Dir.chdir(dir) do
+            _out, err = capture_subprocess_io do
+              utils.prepare_phantom_migrations
+            end
+
+            refute_match("fatal: not a git repository", err)
+            assert_equal "unknown", ActualDbSchema::Git.current_branch
+          end
+        end
+      end
+    end
   end
 
   describe "db:rollback_branches:manual" do
