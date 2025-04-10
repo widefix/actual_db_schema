@@ -1,3 +1,7 @@
+## 0.8.5 - 2025-04-10
+
+- Fix the gem working on projects without git
+
 ## [0.8.4] - 2025-03-20
 
 - Fix initializer file that can break other bundle groups that development
