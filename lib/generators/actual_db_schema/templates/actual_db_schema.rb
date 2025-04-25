@@ -15,7 +15,7 @@ if defined?(ActualDbSchema)
     # Enable the UI for managing migrations.
     config.ui_enabled = Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_UI_ENABLED"].present?
 
-    # Enable automatic phantom migration rollback on branch switch,
+    # Enable automatic phantom migration rollback on branch switch.
     # config.git_hooks_enabled = true
     config.git_hooks_enabled = ENV["ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED"].present?
 
