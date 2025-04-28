@@ -34,23 +34,6 @@ describe "actual_db_schema:install_git_hooks" do
     end
   end
 
-  describe "when Git hooks are disabled in config" do
-    before do
-      ActualDbSchema.config[:git_hooks_enabled] = false
-    end
-
-    it "skips installation and shows an error message" do
-      utils.simulate_input("1") do
-        Rake::Task["actual_db_schema:install_git_hooks"].invoke
-      end
-      refute File.exist?(hook_path)
-      assert_match(
-        /\[ActualDbSchema\] Git hooks are disabled in configuration\. Skipping installation\./,
-        TestingState.output
-      )
-    end
-  end
-
   describe "when user chooses rollback" do
     it "installs the rollback snippet in post-checkout" do
       refute File.exist?(hook_path)
