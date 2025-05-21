@@ -63,7 +63,6 @@ module ActualDbSchema
     end
 
     def install_post_checkout_hook
-      return unless git_hooks_enabled?
       return unless hooks_directory_present?
 
       if File.exist?(hook_path)
@@ -85,12 +84,6 @@ module ActualDbSchema
 
     def hook_path
       @hook_path ||= hooks_dir.join("post-checkout")
-    end
-
-    def git_hooks_enabled?
-      return true if ActualDbSchema.config[:git_hooks_enabled]
-
-      puts colorize("[ActualDbSchema] Git hooks are disabled in configuration. Skipping installation.", :gray)
     end
 
     def hooks_directory_present?
