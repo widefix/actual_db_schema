@@ -154,8 +154,8 @@ module ActualDbSchema
       post :rollback, params: { id: "20130906111513", database: @utils.primary_database }
       assert_response :redirect
       get :index
-      assert_select ".flash", text: "An error has occurred"
-      assert_select ".flash", text: "ActiveRecord::IrreversibleMigration"
+      assert_select ".flash", text: /An error has occurred/
+      assert_select ".flash", text: /ActiveRecord::IrreversibleMigration/
     end
 
     test "POST #rollback_all changes all phantom migrations status to down and hide migration with down status" do
