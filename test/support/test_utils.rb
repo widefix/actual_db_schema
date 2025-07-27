@@ -107,11 +107,20 @@ class TestUtils
 
   def reset_database_yml(db_config)
     database_yml_path = Rails.root.join("config", "database.yml")
-    File.delete(database_yml_path) if File.exist?(database_yml_path)
+    cleanup_config_files(db_config)
     File.open(database_yml_path, "w") do |file|
       file.write({
         "test" => db_config
       }.to_yaml)
+    end
+  end
+
+  def cleanup_config_files(db_config)
+    is_multi_db = db_config.is_a?(Hash) && db_config.key?("primary")
+    configs = is_multi_db ? db_config.values : [db_config]
+    configs.each do |config|
+      database_path = Rails.root.join(config["database"])
+      File.delete(database_path) if File.exist?(database_path)
     end
   end
 
