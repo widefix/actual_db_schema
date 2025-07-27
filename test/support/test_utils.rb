@@ -112,26 +112,21 @@ class TestUtils
     # Ensure we have a clean database state
     if db_config.is_a?(Hash) && db_config.key?("primary")
       # Multi-database configuration
-      db_config.each do |name, config|
+      db_config.each do |_name, config|
         database_path = Rails.root.join(config["database"])
         File.delete(database_path) if File.exist?(database_path)
       end
 
-      File.open(database_yml_path, "w") do |file|
-        file.write({
-          "test" => db_config
-        }.to_yaml)
-      end
     else
       # Single database configuration
       database_path = Rails.root.join(db_config["database"])
       File.delete(database_path) if File.exist?(database_path)
 
-      File.open(database_yml_path, "w") do |file|
-        file.write({
-          "test" => db_config
-        }.to_yaml)
-      end
+    end
+    File.open(database_yml_path, "w") do |file|
+      file.write({
+        "test" => db_config
+      }.to_yaml)
     end
   end
 
