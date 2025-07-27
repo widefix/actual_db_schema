@@ -117,13 +117,9 @@ class TestUtils
 
   def cleanup_config_files(db_config)
     is_multi_db = db_config.is_a?(Hash) && db_config.key?("primary")
-    if is_multi_db
-      db_config.each_value do |config|
-        database_path = Rails.root.join(config["database"])
-        File.delete(database_path) if File.exist?(database_path)
-      end
-    else
-      database_path = Rails.root.join(db_config["database"])
+    configs = is_multi_db ? db_config.values : [db_config]
+    configs.each do |config|
+      database_path = Rails.root.join(config["database"])
       File.delete(database_path) if File.exist?(database_path)
     end
   end
