@@ -13,8 +13,8 @@ Keep your database schema perfectly synchronized across Git branches, eliminate 
 - **Error Prevention**: Eliminates `ActiveRecord::NotNullViolation` and similar errors when switching branches
 - **Time Savings**: Stop hunting down which branch has the problematic migration
 - **Team Productivity**: Everyone stays focused on coding, not database maintenance
+- **Staging/Sandbox Sync**: Keep staging and sandbox databases aligned with your current branch code
 - **Visual Management**: Web UI to view and manage migrations across all databases
-- **Current DB state on Staging/Sandbox environments**: Got staging or sandbox environments? Install the gem there too so their databases stay in sync with your current code
 
 <img width="3024" height="1886" alt="Visual management of Rails DB migrations with ActualDbSchema" src="https://github.com/user-attachments/assets/87cfb7b4-6380-4dad-ab18-6a0633f561b5" />
 
