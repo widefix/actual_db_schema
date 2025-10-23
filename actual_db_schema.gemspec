@@ -8,10 +8,11 @@ Gem::Specification.new do |spec|
   spec.authors = ["Andrei Kaleshka"]
   spec.email = ["ka8725@gmail.com"]
 
-  spec.summary = "Keep your DB and schema.rb consistent in dev branches."
+  spec.summary = "Keep DB schema in sync across branches effortlessly."
   spec.description = <<~DESC
-    Wipe out inconsistent DB and schema.rb when switching branches.
-    Just install this gem and use the standard rake db:migrate command.
+    Keep your DB schema in sync across all branches effortlessly.
+    Install once, then use `rails db:migrate` normally — the gem handles phantom migration rollback automatically, eliminating schema conflicts and inconsistent database states.
+    Stop wasting hours on DB maintenance locally, CI, staging/sandbox, or even production.
   DESC
   spec.homepage = "https://blog.widefix.com/actual-db-schema/"
   spec.license = "MIT"
