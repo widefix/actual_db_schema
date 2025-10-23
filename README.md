@@ -2,31 +2,53 @@
 
 # ActualDbSchema
 
-Does switching between branches in your Rails app mess up the DB schema?
+**Stop database headaches when switching Git branches in Rails**
 
-Keep the DB schema current across branches in your Rails project. Just install `actual_db_schema` gem and run `db:migrate` in branches as usual. It automatically rolls back the *phantom migrations* (non-relevant to the current branch). No additional steps are needed. It works with both `schema.rb` and `structure.sql`.
+Keep your database schema perfectly synchronized across Git branches, eliminate broken tests and schema conflicts, and save wasted hours on phantom migrations. You achieve all that with 0 changes in your workflow!
 
-## Why ActualDbSchema
+## 🚀 What You Get
 
-Still not clear why it's needed? To grasp the purpose of this gem and the issue it addresses, review the problem definition outlined below.
+- **Zero Manual Work**: Switch branches freely - phantom migrations roll back automatically
+- **No More Schema Conflicts**: Clean `schema.rb` diffs every time, no irrelevant changes
+- **Error Prevention**: Eliminates `ActiveRecord::NotNullViolation` and similar errors when switching branches
+- **Time Savings**: Stop hunting down which branch has the problematic migration
+- **Team Productivity**: Everyone stays focused on coding, not database maintenance
+- **Visual Management**: Web UI to view and manage migrations across all databases
 
-### The problem definition
+## 🎯 The Problem This Solves
 
-Imagine you're working on **branch A**. You add a not-null column to a database table with a migration. You run the migration. Then you switch to **branch B**. The code in **branch B** isn't aware of this newly added field. When it tries to write data to the table, it fails with an error `null value provided for non-null field`. Why? The existing code is writing a null value into the column with a not-null constraint.
+**Before ActualDbSchema:**
+1. Work on Branch A → Add migration → Run migration
+2. Switch to Branch B → Code breaks with database errors
+3. Manually find and rollback the "phantom" migration
+4. Deal with irrelevant `schema.rb` diffs
+5. Repeat this tedious process constantly
 
-Here's an example of this error:
+**After ActualDbSchema:**
+1. Work on any branch → Add migrations as usual
+2. Switch branches freely → Everything just works
+3. Focus on building features, not fixing database issues
 
-    ActiveRecord::NotNullViolation:
-      PG::NotNullViolation: ERROR:  null value in column "log" of relation "check_results" violates not-null constraint
-      DETAIL:  Failing row contains (8, 46, success, 2022-10-16 21:47:21.07212, 2022-10-16 21:47:21.07212, null).
+## ⚡ Quick Start
 
-Furthermore, the `db:migrate` task on **branch B** generates an irrelevant diff on the `schema.rb` file, reflecting the new column added in **branch A**.
+Add to your Gemfile:
 
-To fix this, you need to switch back to **branch A**, find the migration that added the problematic field, and roll it back. We'll call it a *phantom migration*. It's a pain, especially if you have a lot of branches in your project because you have to remember which branch the *phantom migration* is in and then manually roll it back.
+```ruby
+group :development do
+  gem "actual_db_schema"
+end
+```
 
-With `actual_db_schema` gem you don't need to care about that anymore. It saves you time by handling all this dirty work behind the scenes automatically.
+Install and configure:
 
-### How it solves the issue
+```sh
+bundle install
+rails actual_db_schema:install
+```
+
+That's it! Now just run `rails db:migrate` as usual - phantom migrations roll back automatically.
+
+## 🔧 How It Works
 
 This gem stores all run migrations with their code in the `tmp/migrated` folder. Whenever you perform a schema dump, it rolls back the *phantom migrations*.
 
@@ -53,10 +75,10 @@ If you cannot commit changes to the repo or Gemfile, consider the local Gemfile 
 Next, generate your ActualDbSchema initializer file by running:
 
 ```sh
-rake actual_db_schema:install
+rails actual_db_schema:install
 ```
 
-This will create a `config/initializers/actual_db_schema.rb` file with all the available configuration options so you can adjust them as needed. It will also prompt you to install the post-checkout Git hook for automatic phantom migration rollback when switching branches.
+This will create a `config/initializers/actual_db_schema.rb` file that lists all available configuration options, allowing you to customize them as needed. The installation process will also prompt you to install the post-checkout Git hook, which automatically rolls back phantom migrations when switching branches. If enabled, this hook will run the schema actualization rake task every time you switch branches, which can slow down branch changes. Therefore, you might not always want this automatic actualization on every switch; in that case, running `rails db:migrate` manually provides a faster, more controlled alternative.
 
 For more details on the available configuration options, see the sections below.
 
@@ -72,7 +94,7 @@ The gem offers the following rake tasks that can be manually run according to yo
 - `rails db:rollback_branches:manual` - run it to manually rolls back phantom migrations one by one.
 - `rails db:phantom_migrations` - displays a list of phantom migrations.
 
-## Migrated Folder Configuration
+## 🎛️ Configuration Options
 
 By default, `actual_db_schema` stores all run migrations in the `tmp/migrated` folder. However, if you want to change this location, you can configure it in two ways:
 
@@ -91,13 +113,17 @@ Add the following line to your initializer file (`config/initializers/actual_db_
 config.migrated_folder = Rails.root.join("custom", "migrated")
 ```
 
-## Accessing the UI
+## 🌐 Web Interface
 
-The UI for managing migrations is enabled automatically. To access the UI, simply navigate to the following URL in your web browser:
+Access the migration management UI at:
 ```
 http://localhost:3000/rails/phantom_migrations
 ```
-This page displays a list of phantom migrations for each database connection and provides options to view details and rollback them.
+
+View and manage:
+- Phantom migrations across all databases
+- Broken migration versions
+- Database schema diffs with migration annotations
 
 ## UI options
 
@@ -290,7 +316,7 @@ rake actual_db_schema:delete_broken_versions["20250224103352 20250224103358"]
 rake actual_db_schema:delete_broken_versions["20250224103352 20250224103358", "primary"]
 ```
 
-## Development
+## 🏗️ Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
