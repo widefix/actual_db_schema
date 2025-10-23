@@ -166,9 +166,12 @@ http://localhost:3000/rails/phantom_migrations
 ```
 
 View and manage:
-- Phantom migrations across all databases
-- Broken migration versions
-- Database schema diffs with migration annotations
+- **Migration Overview**: See all executed migrations with their status, branch, and database
+- **Phantom Migrations**: Identify migrations from other branches that need rollback
+- **Migration Source Code**: Browse the source code of every migration ever run (including the phantom ones)
+- **One-Click Actions**: Rollback or migrate individual migrations directly from the UI
+- **Broken Versions**: Detect and clean up orphaned migration records safely
+- **Schema Diffs**: Visual diff of schema changes annotated with their source migrations
 
 ## UI options
 
