@@ -33,6 +33,46 @@ And you get all of that with **zero** changes to your workflow!
 2. Switch branches freely → Everything just works
 3. Focus on building features, not fixing database issues
 
+## 🌟 Complete Feature Set
+
+### Core Migration Management
+- **Phantom Migration Detection**: Automatically identifies migrations from other branches
+- **Smart Rollback**: Rolls back phantom migrations in correct dependency order
+- **Irreversible Migration Handling**: Safely handles and reports irreversible migrations
+- **Multi-Database Support**: Works seamlessly with multiple database configurations
+- **Schema Format Agnostic**: Supports both `schema.rb` and `structure.sql`
+
+### Automation & Git Integration
+- **Automatic Rollback on Migration**: Phantom migrations roll back when running `db:migrate`
+- **Git Hook Integration**: Optional automatic rollback when switching branches
+- **Zero Configuration**: Works out of the box with sensible defaults
+- **Custom Migration Storage**: Configurable location for storing executed migrations
+
+### Web Interface & Management
+- **Migration Dashboard**: Visual overview of all migrations across databases
+- **Phantom Migration Browser**: Easy-to-use interface for viewing phantom migrations
+- **One-Click Rollback**: Rollback individual or all phantom migrations via web UI
+- **Broken Version Cleanup**: Identify and remove orphaned migration records
+- **Schema Diff Viewer**: Visual diff of schema changes with migration annotations
+
+### Developer Tools
+- **Console Migrations**: Run migration commands directly in Rails console
+- **Schema Diff Analysis**: Annotated diffs showing which migrations caused changes
+- **Migration Search & Filter**: Find specific migrations across all databases
+- **Detailed Migration Info**: View migration status, branch, and database information
+
+### Team & Environment Support
+- **Multi-Tenant Compatible**: Works with apartment gem and similar multi-tenant setups
+- **Environment Flexibility**: Enable/disable features per environment
+- **Team Synchronization**: Keeps all team members' databases in sync
+- **CI/CD Friendly**: No interference with deployment pipelines
+
+### Manual Control Options
+- **Manual Rollback Mode**: Disable automatic rollback for full manual control
+- **Selective Rollback**: Choose which phantom migrations to rollback
+- **Interactive Mode**: Step-by-step confirmation for each rollback operation
+- **Rake Task Integration**: Full set of rake tasks for command-line management
+
 ## ⚡ Quick Start
 
 Add to your Gemfile:
@@ -222,6 +262,8 @@ config.multi_tenant_schemas = -> { ["public", "tenant1", "tenant2"] }
 If `schema.rb` generates a diff, it can be helpful to find out which migrations caused the changes. This helps you decide whether to resolve the diff on your own or discuss it with your teammates to determine the next steps. The `diff_schema_with_migrations` Rake task generates a diff of the `schema.rb` file, annotated with the migrations responsible for each change. This makes it easier to trace which migration introduced a specific schema modification, enabling faster and more informed decision-making regarding how to handle the diff.
 
 By default, the task uses `db/schema.rb` and `db/migrate` as the schema and migrations paths. You can also provide custom paths as arguments.
+
+Alternatively, if you use Web UI, you can see this diff at `http://localhost:3000/rails/schema`. This way is often more convenient than running the Rake task manually.
 
 ### Usage
 
