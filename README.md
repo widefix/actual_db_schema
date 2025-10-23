@@ -15,6 +15,8 @@ Keep your database schema perfectly synchronized across Git branches, eliminate 
 - **Team Productivity**: Everyone stays focused on coding, not database maintenance
 - **Visual Management**: Web UI to view and manage migrations across all databases
 
+<img width="3024" height="1886" alt="Visual management of Rails DB migrations with ActualDbSchema" src="https://github.com/user-attachments/assets/87cfb7b4-6380-4dad-ab18-6a0633f561b5" />
+
 And you get all of that with **zero** changes to your workflow!
 
 ## 🎯 The Problem This Solves
