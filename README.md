@@ -4,16 +4,18 @@
 
 **Stop database headaches when switching Git branches in Rails**
 
-Keep your database schema perfectly synchronized across Git branches, eliminate broken tests and schema conflicts, and save wasted hours on phantom migrations. You achieve all that with 0 changes in your workflow!
+Keep your database schema perfectly synchronized across Git branches, eliminate broken tests and schema conflicts, and save wasted hours on phantom migrations.
 
 ## 🚀 What You Get
 
 - **Zero Manual Work**: Switch branches freely - phantom migrations roll back automatically
-- **No More Schema Conflicts**: Clean `schema.rb` diffs every time, no irrelevant changes
+- **No More Schema Conflicts**: Clean `schema.rb`/`structure.sql` diffs every time, no irrelevant changes
 - **Error Prevention**: Eliminates `ActiveRecord::NotNullViolation` and similar errors when switching branches
 - **Time Savings**: Stop hunting down which branch has the problematic migration
 - **Team Productivity**: Everyone stays focused on coding, not database maintenance
 - **Visual Management**: Web UI to view and manage migrations across all databases
+
+And you get all of that with **zero** changes to your workflow!
 
 ## 🎯 The Problem This Solves
 
