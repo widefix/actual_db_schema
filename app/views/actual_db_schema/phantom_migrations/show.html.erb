@@ -31,7 +31,12 @@
           </tr>
           <tr>
             <th>Path</th>
-            <td><%= phantom_migration[:filename] %></td>
+            <td>
+              <%= phantom_migration[:filename] %>
+              <% if ActualDbSchema.config[:migrations_storage].to_s == "db" %>
+                <span class="source-badge">DB</span>
+              <% end %>
+            </td>
           </tr>
         </tbody>
       </table>

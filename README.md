@@ -158,6 +158,23 @@ Add the following line to your initializer file (`config/initializers/actual_db_
 config.migrated_folder = Rails.root.join("custom", "migrated")
 ```
 
+### 3. Store migrations in the database
+
+If you want to share executed migrations across environments (e.g., staging or sandboxes),
+store them in the main database instead of the local filesystem:
+
+```ruby
+config.migrations_storage = :db
+```
+
+Or via environment variable:
+
+```sh
+export ACTUAL_DB_SCHEMA_MIGRATIONS_STORAGE="db"
+```
+
+If both are set, the initializer setting (`config.migrations_storage`) takes precedence.
+
 ## 🌐 Web Interface
 
 Access the migration management UI at:

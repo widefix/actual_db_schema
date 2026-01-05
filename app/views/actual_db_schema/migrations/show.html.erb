@@ -31,7 +31,12 @@
           </tr>
           <tr>
             <th>Path</th>
-            <td><%= migration[:filename] %></td>
+            <td>
+              <%= migration[:filename] %>
+              <% if ActualDbSchema.config[:migrations_storage].to_s == "db" %>
+                <span class="source-badge">DB</span>
+              <% end %>
+            </td>
           </tr>
         </tbody>
       </table>

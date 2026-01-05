@@ -147,6 +147,24 @@ class TestUtils
     TestingState.reset
   end
 
+  def clear_db_storage_table(db_config = nil)
+    if db_config
+      db_config.each do |(_, config)|
+        ActiveRecord::Base.establish_connection(**config)
+        drop_db_storage_table
+      end
+    else
+      drop_db_storage_table
+    end
+  end
+
+  def drop_db_storage_table
+    return unless ActiveRecord::Base.connected?
+
+    conn = ActiveRecord::Base.connection
+    conn.drop_table("actual_db_schema_migrations") if conn.table_exists?("actual_db_schema_migrations")
+  end
+
   def migrated_files(db_config = nil)
     if db_config
       db_config.each_with_object([]) do |(prefix_name, config), acc|
