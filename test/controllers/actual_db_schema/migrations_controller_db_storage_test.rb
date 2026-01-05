@@ -130,6 +130,7 @@ module ActualDbSchema
           assert_select "td", text: @utils.branch_for("20130906111511")
         end
       end
+      assert_select "span.source-badge", text: "DB"
     end
 
     test "GET #show returns a 404 response if migration not found" do

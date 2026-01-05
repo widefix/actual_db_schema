@@ -8,6 +8,7 @@ module ActualDbSchema
 
     def write(filename)
       adapter.write(filename)
+      reset_source_cache
     end
 
     def read
@@ -20,10 +21,20 @@ module ActualDbSchema
 
     def delete(filename)
       adapter.delete(filename)
+      reset_source_cache
     end
 
     def stored_migration?(filename)
       adapter.stored_migration?(filename)
+    end
+
+    def source_for(version)
+      version = version.to_s
+
+      return :db if db_versions.key?(version)
+      return :file if file_versions.key?(version)
+
+      :unknown
     end
 
     def materialize_all
@@ -32,6 +43,7 @@ module ActualDbSchema
 
     def reset_adapter
       @adapter = nil
+      reset_source_cache
     end
 
     private
@@ -41,6 +53,31 @@ module ActualDbSchema
         storage = ActualDbSchema.config[:migrations_storage].to_s
         storage == "db" ? DbAdapter.new : FileAdapter.new
       end
+    end
+
+    def reset_source_cache
+      @db_versions = nil
+      @file_versions = nil
+    end
+
+    def db_versions
+      @db_versions ||= begin
+        connection = ActiveRecord::Base.connection
+        return {} unless connection.table_exists?(DbAdapter::TABLE_NAME)
+
+        table = connection.quote_table_name(DbAdapter::TABLE_NAME)
+        connection.select_values("SELECT version FROM #{table}").each_with_object({}) do |version, acc|
+          acc[version.to_s] = true
+        end
+      rescue StandardError
+        {}
+      end
+    end
+
+    def file_versions
+      @file_versions ||= FileAdapter.new.read
+    rescue StandardError
+      {}
     end
 
     # Stores migrated files on the filesystem with metadata in CSV.
