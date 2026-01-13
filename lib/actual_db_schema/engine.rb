@@ -12,5 +12,35 @@ module ActualDbSchema
         end
       end
     end
+
+    initializer "actual_db_schema.schema_dump_exclusions" do
+      ActiveSupport.on_load(:active_record) do
+        table_name = ActualDbSchema::Store::DbAdapter::TABLE_NAME
+
+        if defined?(ActiveRecord::SchemaDumper) && ActiveRecord::SchemaDumper.respond_to?(:ignore_tables)
+          ActiveRecord::SchemaDumper.ignore_tables |= [table_name]
+        end
+
+        next unless defined?(ActiveRecord::Tasks::DatabaseTasks)
+        next unless ActiveRecord::Tasks::DatabaseTasks.respond_to?(:structure_dump_flags)
+
+        flags = Array(ActiveRecord::Tasks::DatabaseTasks.structure_dump_flags)
+        adapter = ActualDbSchema.db_config[:adapter].to_s
+        database = ActualDbSchema.db_config[:database]
+        if database.nil? && ActiveRecord::Base.respond_to?(:connection_db_config)
+          database = ActiveRecord::Base.connection_db_config&.database
+        end
+
+        if adapter.match?(/postgres/i)
+          flag = "--exclude-table=#{table_name}*"
+          flags << flag unless flags.include?(flag)
+        elsif adapter.match?(/mysql/i) && database
+          flag = "--ignore-table=#{database}.#{table_name}"
+          flags << flag unless flags.include?(flag)
+        end
+
+        ActiveRecord::Tasks::DatabaseTasks.structure_dump_flags = flags
+      end
+    end
   end
 end
