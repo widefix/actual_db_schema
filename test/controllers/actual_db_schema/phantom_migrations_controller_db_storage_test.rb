@@ -4,17 +4,26 @@ require_relative "../../test_helper"
 require_relative "../../../app/controllers/actual_db_schema/phantom_migrations_controller"
 
 module ActualDbSchema
-  class PhantomMigrationsControllerTest < ActionController::TestCase
+  class PhantomMigrationsControllerDbStorageTest < ActionController::TestCase
+    tests ActualDbSchema::PhantomMigrationsController
+
     def setup
       @utils = TestUtils.new
+      ActualDbSchema.config[:migrations_storage] = :db
       @app = Rails.application
       routes_setup
       Rails.logger = Logger.new($stdout)
       ActionController::Base.view_paths = [File.expand_path("../../../app/views/", __dir__)]
       active_record_setup
       @utils.reset_database_yml(TestingState.db_config)
+      @utils.clear_db_storage_table(TestingState.db_config)
       @utils.cleanup(TestingState.db_config)
       @utils.prepare_phantom_migrations(TestingState.db_config)
+    end
+
+    def teardown
+      @utils.clear_db_storage_table(TestingState.db_config)
+      ActualDbSchema.config[:migrations_storage] = :file
     end
 
     def routes_setup
@@ -107,7 +116,7 @@ module ActualDbSchema
           assert_select "td", text: @utils.branch_for("20130906111511")
         end
       end
-      assert_select "span.source-badge", text: "FILE"
+      assert_select "span.source-badge", text: "DB"
     end
 
     test "GET #show returns a 404 response if migration not found" do

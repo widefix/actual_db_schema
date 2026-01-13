@@ -4,7 +4,7 @@ module ActualDbSchema
   # Manages the configuration settings for the gem.
   class Configuration
     attr_accessor :enabled, :auto_rollback_disabled, :ui_enabled, :git_hooks_enabled, :multi_tenant_schemas,
-                  :console_migrations_enabled, :migrated_folder
+                  :console_migrations_enabled, :migrated_folder, :migrations_storage
 
     def initialize
       @enabled = Rails.env.development?
@@ -14,6 +14,7 @@ module ActualDbSchema
       @multi_tenant_schemas = nil
       @console_migrations_enabled = ENV["ACTUAL_DB_SCHEMA_CONSOLE_MIGRATIONS_ENABLED"].present?
       @migrated_folder = ENV["ACTUAL_DB_SCHEMA_MIGRATED_FOLDER"].present?
+      @migrations_storage = ENV.fetch("ACTUAL_DB_SCHEMA_MIGRATIONS_STORAGE", "file").to_sym
     end
 
     def [](key)
@@ -22,6 +23,7 @@ module ActualDbSchema
 
     def []=(key, value)
       public_send("#{key}=", value)
+      ActualDbSchema::Store.instance.reset_adapter if key.to_sym == :migrations_storage && defined?(ActualDbSchema::Store)
     end
 
     def fetch(key, default = nil)

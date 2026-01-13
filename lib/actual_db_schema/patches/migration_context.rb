@@ -71,7 +71,7 @@ module ActualDbSchema
       def migration_files
         paths = Array(migrations_paths)
         current_branch_files = Dir[*paths.flat_map { |path| "#{path}/**/[0-9]*_*.rb" }]
-        other_branches_files = Dir["#{ActualDbSchema.migrated_folder}/**/[0-9]*_*.rb"]
+        other_branches_files = ActualDbSchema::Store.instance.migration_files
         current_branch_versions = current_branch_files.map { |file| file.match(/(\d+)_/)[1] }
         filtered_other_branches_files = other_branches_files.reject do |file|
           version = file.match(/(\d+)_/)[1]
@@ -163,7 +163,7 @@ module ActualDbSchema
 
         migrations.uniq.each do |migration|
           count = migration_counts[migration.filename]
-          File.delete(migration.filename) if count == schema_count && File.exist?(migration.filename)
+          ActualDbSchema::Store.instance.delete(migration.filename) if count == schema_count
         end
       end
 

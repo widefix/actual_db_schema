@@ -30,5 +30,9 @@ if defined?(ActualDbSchema)
     # Define the migrated folder location.
     # config.migrated_folder = Rails.root.join("custom", "migrated")
     config.migrated_folder = Rails.root.join("tmp", "migrated")
+
+    # Choose where to store migrated files: :file or :db.
+    # config.migrations_storage = :db
+    config.migrations_storage = :file
   end
 end

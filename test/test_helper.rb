@@ -113,6 +113,16 @@ end
 
 ActualDbSchema.config[:enabled] = true
 
+class Minitest::Test
+  def before_setup
+    super
+    ActualDbSchema.config[:migrations_storage] = :file if defined?(ActualDbSchema)
+    if defined?(ActualDbSchema::Migration)
+      ActualDbSchema::Migration.instance.instance_variable_set(:@metadata, {})
+    end
+  end
+end
+
 module Kernel
   alias original_puts puts
 
