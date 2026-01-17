@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ActualDbSchema
+  # Stores migration sources and metadata.
   class Store
     include Singleton
 
@@ -133,8 +134,10 @@ module ActualDbSchema
       end
     end
 
+    # Stores migrated files in the database.
     class DbAdapter
       TABLE_NAME = "actual_db_schema_migrations"
+      RECORD_COLUMNS = %w[version filename content branch migrated_at].freeze
 
       def write(filename)
         ensure_table!
@@ -200,25 +203,42 @@ module ActualDbSchema
       private
 
       def upsert_record(version, basename, content, branch, migrated_at)
-        if record_exists?(version)
-          connection.execute(<<~SQL)
-            UPDATE #{quoted_table}
-            SET #{quoted_column("filename")} = #{connection.quote(basename)},
-                #{quoted_column("content")} = #{connection.quote(content)},
-                #{quoted_column("branch")} = #{connection.quote(branch)},
-                #{quoted_column("migrated_at")} = #{connection.quote(migrated_at)}
-            WHERE #{quoted_column("version")} = #{connection.quote(version)}
-          SQL
-        else
-          connection.execute(<<~SQL)
-            INSERT INTO #{quoted_table}
-              (#{quoted_column("version")}, #{quoted_column("filename")}, #{quoted_column("content")},
-               #{quoted_column("branch")}, #{quoted_column("migrated_at")})
-            VALUES
-              (#{connection.quote(version)}, #{connection.quote(basename)}, #{connection.quote(content)},
-               #{connection.quote(branch)}, #{connection.quote(migrated_at)})
-          SQL
+        attributes = record_attributes(version, basename, content, branch, migrated_at)
+        record_exists?(version) ? update_record(attributes) : insert_record(attributes)
+      end
+
+      def record_attributes(version, basename, content, branch, migrated_at)
+        {
+          version: version,
+          filename: basename,
+          content: content,
+          branch: branch,
+          migrated_at: migrated_at
+        }
+      end
+
+      def update_record(attributes)
+        assignments = record_columns.reject { |column| column == "version" }.map do |column|
+          "#{quoted_column(column)} = #{connection.quote(attributes[column.to_sym])}"
         end
+
+        connection.execute(<<~SQL)
+          UPDATE #{quoted_table}
+          SET #{assignments.join(", ")}
+          WHERE #{quoted_column("version")} = #{connection.quote(attributes[:version])}
+        SQL
+      end
+
+      def insert_record(attributes)
+        columns = record_columns
+        values = columns.map { |column| connection.quote(attributes[column.to_sym]) }
+
+        connection.execute(<<~SQL)
+          INSERT INTO #{quoted_table}
+            (#{columns.map { |column| quoted_column(column) }.join(", ")})
+          VALUES
+            (#{values.join(", ")})
+        SQL
       end
 
       def record_exists?(version)
@@ -250,6 +270,10 @@ module ActualDbSchema
 
       def connection
         ActiveRecord::Base.connection
+      end
+
+      def record_columns
+        RECORD_COLUMNS
       end
 
       def quoted_table

@@ -186,6 +186,16 @@ class TestUtils
     end
   end
 
+  def reset_acronyms
+    inflections = ActiveSupport::Inflector.inflections(:en)
+    return unless inflections.respond_to?(:acronyms)
+
+    inflections.acronyms.clear
+    inflections.send(:define_acronym_regex_patterns)
+  rescue NoMethodError
+    nil
+  end
+
   def primary_database
     TestingState.db_config["primary"]["database"]
   end
@@ -244,7 +254,7 @@ class TestUtils
   end
 
   def applied_migrations_call
-    run_sql("select * from schema_migrations").map do |row|
+    run_sql("select version from schema_migrations order by version").map do |row|
       row.is_a?(Hash) ? row["version"] : row[0]
     end
   end

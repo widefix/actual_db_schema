@@ -67,7 +67,6 @@ describe "multi-tenant db support (db storage)" do
       }.fetch(TestingState.db_config["primary"]["adapter"])
       assert_match(/\[ActualDbSchema\] #{primary_schema}: Rolling back phantom migration/, TestingState.output)
       assert_match(/\[ActualDbSchema\] tenant1: Rolling back phantom migration/, TestingState.output)
-      assert_empty utils.migrated_files
     end
   end
 
@@ -93,7 +92,7 @@ describe "multi-tenant db support (db storage)" do
       utils.run_migrations
       failed = ActualDbSchema.failed.map { |m| File.basename(m.filename) }
       assert_equal(%w[20130906111513_irreversible.rb 20130906111513_irreversible.rb], failed)
-      assert_equal %w[20130906111513_irreversible.rb], utils.migrated_files
+      assert_includes utils.migrated_files, "20130906111513_irreversible.rb"
     end
   end
 

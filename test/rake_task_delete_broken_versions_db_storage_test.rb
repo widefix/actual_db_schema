@@ -21,14 +21,31 @@ describe "actual_db_schema:delete_broken_versions (db storage)" do
   end
 
   def delete_migration_files
+    remove_primary_migration_files
+    remove_secondary_migration_files
+    delete_primary_storage_entries
+    delete_secondary_storage_entries
+  end
+
+  def remove_primary_migration_files
     utils.remove_app_dir(Rails.root.join("db", "migrate", "20130906111511_first_primary.rb"))
-    utils.remove_app_dir(Rails.root.join("db", "migrate_secondary", "20130906111514_first_secondary.rb"))
     utils.remove_app_dir(Rails.root.join("tmp", "migrated", "20130906111511_first_primary.rb"))
+  end
+
+  def remove_secondary_migration_files
+    utils.remove_app_dir(Rails.root.join("db", "migrate_secondary", "20130906111514_first_secondary.rb"))
     utils.remove_app_dir(Rails.root.join("tmp", "migrated_migrate_secondary", "20130906111514_first_secondary.rb"))
+  end
+
+  def delete_primary_storage_entries
     ActiveRecord::Base.establish_connection(TestingState.db_config["primary"])
     ActualDbSchema::Store.instance.delete(utils.app_file("tmp/migrated/20130906111511_first_primary.rb"))
+  end
+
+  def delete_secondary_storage_entries
     ActiveRecord::Base.establish_connection(TestingState.db_config["secondary"])
-    ActualDbSchema::Store.instance.delete(utils.app_file("tmp/migrated_migrate_secondary/20130906111514_first_secondary.rb"))
+    secondary_path = "tmp/migrated_migrate_secondary/20130906111514_first_secondary.rb"
+    ActualDbSchema::Store.instance.delete(utils.app_file(secondary_path))
   end
 
   describe "when versions are provided" do

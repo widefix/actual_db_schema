@@ -110,6 +110,7 @@ describe "single db (db storage)" do
               TestingState.down << :ts360
             end
           end
+          TS360 = Ts360 unless defined?(TS360)
         RUBY
       end
 
@@ -155,17 +156,17 @@ describe "single db (db storage)" do
         assert_empty utils.migrated_files
       end
     end
+    describe "when app is not a git repository" do
+      it "doesn't show an error message" do
+        Dir.mktmpdir do |dir|
+          Dir.chdir(dir) do
+            _out, err = capture_subprocess_io do
+              utils.prepare_phantom_migrations
+            end
 
-  describe "when app is not a git repository" do
-    it "doesn't show an error message" do
-      Dir.mktmpdir do |dir|
-        Dir.chdir(dir) do
-          _out, err = capture_subprocess_io do
-            utils.prepare_phantom_migrations
+            refute_match("fatal: not a git repository", err)
+            assert_equal "unknown", ActualDbSchema::Git.current_branch
           end
-
-          refute_match("fatal: not a git repository", err)
-          assert_equal "unknown", ActualDbSchema::Git.current_branch
         end
       end
     end
@@ -174,9 +175,8 @@ describe "single db (db storage)" do
   after do
     utils.clear_db_storage_table
     ActualDbSchema.config[:migrations_storage] = :file
-    ActiveSupport::Inflector.inflections(:en) { |inflect| inflect.clear :acronyms }
+    utils.reset_acronyms
   end
-end
 
   describe "db:rollback_branches:manual" do
     it "rolls back the migrations in the reversed order" do

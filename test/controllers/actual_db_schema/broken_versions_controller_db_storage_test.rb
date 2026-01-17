@@ -8,17 +8,13 @@ module ActualDbSchema
     tests ActualDbSchema::BrokenVersionsController
 
     def setup
-      @utils = TestUtils.new
-      ActualDbSchema.config[:migrations_storage] = :db
-      @app = Rails.application
+      setup_utils
+      configure_storage
+      configure_app
       routes_setup
-      Rails.logger = Logger.new($stdout)
-      ActionController::Base.view_paths = [File.expand_path("../../../app/views/", __dir__)]
+      configure_views
       active_record_setup
-      @utils.reset_database_yml(TestingState.db_config)
-      @utils.clear_db_storage_table(TestingState.db_config)
-      @utils.cleanup(TestingState.db_config)
-      @utils.prepare_phantom_migrations(TestingState.db_config)
+      prepare_database
     end
 
     def teardown
@@ -44,15 +40,55 @@ module ActualDbSchema
       ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config }
     end
 
+    def setup_utils
+      @utils = TestUtils.new
+    end
+
+    def configure_storage
+      ActualDbSchema.config[:migrations_storage] = :db
+    end
+
+    def configure_app
+      @app = Rails.application
+      Rails.logger = Logger.new($stdout)
+    end
+
+    def configure_views
+      ActionController::Base.view_paths = [File.expand_path("../../../app/views/", __dir__)]
+    end
+
+    def prepare_database
+      @utils.reset_database_yml(TestingState.db_config)
+      @utils.clear_db_storage_table(TestingState.db_config)
+      @utils.cleanup(TestingState.db_config)
+      @utils.prepare_phantom_migrations(TestingState.db_config)
+    end
+
     def delete_migrations_files
+      delete_primary_migrations
+      delete_secondary_migrations
+    end
+
+    def delete_primary_migrations
       @utils.delete_migrations_files_for("tmp/migrated")
-      @utils.delete_migrations_files_for("tmp/migrated_migrate_secondary")
       ActiveRecord::Base.establish_connection(TestingState.db_config["primary"])
-      ActualDbSchema::Store.instance.delete(@utils.app_file("tmp/migrated/20130906111511_first_primary.rb"))
-      ActualDbSchema::Store.instance.delete(@utils.app_file("tmp/migrated/20130906111512_second_primary.rb"))
+      [
+        "tmp/migrated/20130906111511_first_primary.rb",
+        "tmp/migrated/20130906111512_second_primary.rb"
+      ].each do |path|
+        ActualDbSchema::Store.instance.delete(@utils.app_file(path))
+      end
+    end
+
+    def delete_secondary_migrations
+      @utils.delete_migrations_files_for("tmp/migrated_migrate_secondary")
       ActiveRecord::Base.establish_connection(TestingState.db_config["secondary"])
-      ActualDbSchema::Store.instance.delete(@utils.app_file("tmp/migrated_migrate_secondary/20130906111514_first_secondary.rb"))
-      ActualDbSchema::Store.instance.delete(@utils.app_file("tmp/migrated_migrate_secondary/20130906111515_second_secondary.rb"))
+      [
+        "tmp/migrated_migrate_secondary/20130906111514_first_secondary.rb",
+        "tmp/migrated_migrate_secondary/20130906111515_second_secondary.rb"
+      ].each do |path|
+        ActualDbSchema::Store.instance.delete(@utils.app_file(path))
+      end
     end
 
     test "GET #index returns a successful response" do
