@@ -8,36 +8,28 @@ module ActualDbSchema
     tests ActualDbSchema::SchemaController
 
     def setup
-      @utils = TestUtils.new
-      ActualDbSchema.config[:migrations_storage] = :db
-      @app = Rails.application
+      setup_utils
+      configure_storage
+      configure_app
       routes_setup
-      Rails.logger = Logger.new($stdout)
-      ActionController::Base.view_paths = [File.expand_path("../../../app/views/", __dir__)]
+      configure_views
       active_record_setup
-      @utils.reset_database_yml(TestingState.db_config)
-      @utils.clear_db_storage_table(TestingState.db_config)
-      @utils.cleanup(TestingState.db_config)
-      define_migrations
-
-      ActualDbSchema::SchemaDiffHtml.define_method(:initialize) do |_schema_path, _migrations_path|
-        @schema_path = "test/dummy_app/db/schema.rb"
-        @migrations_path = "test/dummy_app/db/migrate"
-      end
+      prepare_database
+      stub_schema_diff
     end
 
     def teardown
       @utils.define_migration_file("20250212084323_drop_users.rb", <<~RUBY)
         class DropUsers < ActiveRecord::Migration[6.0]
           def change
-            drop_table :users
+            drop_table :users, if_exists: true
           end
         end
       RUBY
       @utils.define_migration_file("20250212084324_drop_products.rb", <<~RUBY)
         class DropProducts < ActiveRecord::Migration[6.0]
           def change
-            drop_table :products
+            drop_table :products, if_exists: true
           end
         end
       RUBY
@@ -58,6 +50,37 @@ module ActualDbSchema
     def active_record_setup
       ActiveRecord::Base.configurations = { "test" => TestingState.db_config }
       ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config }
+    end
+
+    def setup_utils
+      @utils = TestUtils.new
+    end
+
+    def configure_storage
+      ActualDbSchema.config[:migrations_storage] = :db
+    end
+
+    def configure_app
+      @app = Rails.application
+      Rails.logger = Logger.new($stdout)
+    end
+
+    def configure_views
+      ActionController::Base.view_paths = [File.expand_path("../../../app/views/", __dir__)]
+    end
+
+    def prepare_database
+      @utils.reset_database_yml(TestingState.db_config)
+      @utils.clear_db_storage_table(TestingState.db_config)
+      @utils.cleanup(TestingState.db_config)
+      define_migrations
+    end
+
+    def stub_schema_diff
+      ActualDbSchema::SchemaDiffHtml.define_method(:initialize) do |_schema_path, _migrations_path|
+        @schema_path = "test/dummy_app/db/schema.rb"
+        @migrations_path = "test/dummy_app/db/migrate"
+      end
     end
 
     def define_migrations

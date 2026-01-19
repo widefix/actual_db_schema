@@ -7,14 +7,7 @@ module ActualDbSchema
                   :console_migrations_enabled, :migrated_folder, :migrations_storage
 
     def initialize
-      @enabled = Rails.env.development?
-      @auto_rollback_disabled = ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?
-      @ui_enabled = Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_UI_ENABLED"].present?
-      @git_hooks_enabled = ENV["ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED"].present?
-      @multi_tenant_schemas = nil
-      @console_migrations_enabled = ENV["ACTUAL_DB_SCHEMA_CONSOLE_MIGRATIONS_ENABLED"].present?
-      @migrated_folder = ENV["ACTUAL_DB_SCHEMA_MIGRATED_FOLDER"].present?
-      @migrations_storage = ENV.fetch("ACTUAL_DB_SCHEMA_MIGRATIONS_STORAGE", "file").to_sym
+      apply_defaults(default_settings)
     end
 
     def [](key)
@@ -23,7 +16,9 @@ module ActualDbSchema
 
     def []=(key, value)
       public_send("#{key}=", value)
-      ActualDbSchema::Store.instance.reset_adapter if key.to_sym == :migrations_storage && defined?(ActualDbSchema::Store)
+      return unless key.to_sym == :migrations_storage && defined?(ActualDbSchema::Store)
+
+      ActualDbSchema::Store.instance.reset_adapter
     end
 
     def fetch(key, default = nil)
@@ -31,6 +26,27 @@ module ActualDbSchema
         public_send(key)
       else
         default
+      end
+    end
+
+    private
+
+    def default_settings
+      {
+        enabled: Rails.env.development?,
+        auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?,
+        ui_enabled: Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_UI_ENABLED"].present?,
+        git_hooks_enabled: ENV["ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED"].present?,
+        multi_tenant_schemas: nil,
+        console_migrations_enabled: ENV["ACTUAL_DB_SCHEMA_CONSOLE_MIGRATIONS_ENABLED"].present?,
+        migrated_folder: ENV["ACTUAL_DB_SCHEMA_MIGRATED_FOLDER"].present?,
+        migrations_storage: ENV.fetch("ACTUAL_DB_SCHEMA_MIGRATIONS_STORAGE", "file").to_sym
+      }
+    end
+
+    def apply_defaults(settings)
+      settings.each do |key, value|
+        instance_variable_set("@#{key}", value)
       end
     end
   end

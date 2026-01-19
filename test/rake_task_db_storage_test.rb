@@ -49,5 +49,4 @@ describe "db storage" do
     ActualDbSchema::Store.instance.materialize_all
     assert_equal %w[20130906111511_first.rb 20130906111512_second.rb], utils.migrated_files
   end
-
 end

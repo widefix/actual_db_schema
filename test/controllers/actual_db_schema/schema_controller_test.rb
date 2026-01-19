@@ -26,14 +26,14 @@ module ActualDbSchema
       @utils.define_migration_file("20250212084323_drop_users.rb", <<~RUBY)
         class DropUsers < ActiveRecord::Migration[6.0]
           def change
-            drop_table :users
+            drop_table :users, if_exists: true
           end
         end
       RUBY
       @utils.define_migration_file("20250212084324_drop_products.rb", <<~RUBY)
         class DropProducts < ActiveRecord::Migration[6.0]
           def change
-            drop_table :products
+            drop_table :products, if_exists: true
           end
         end
       RUBY
