@@ -1,8 +1,11 @@
-## 0.8.6 - 2025-05-21
+## [0.9.0] - 2026-01-27
+- Store migration files in the DB to avoid reliance on the filesystem, enabling CI/CD usage on platforms with ephemeral storage (e.g., Heroku, Docker).
+
+## [0.8.6] - 2025-05-21
 - Fix gem installtion with git hooks
 - Update README
 
-## 0.8.5 - 2025-04-10
+## [0.8.5] - 2025-04-10
 
 - Fix the gem working on projects without git
 
