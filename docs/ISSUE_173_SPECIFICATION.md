@@ -39,17 +39,17 @@ Implement ActiveSupport Instrumentation events at key points in the rollback pro
 
 Following Rails best practices, events should be namespaced under `actual_db_schema`:
 
-1. **`actual_db_schema.rollback_migration.start`** - Fired when a single migration rollback begins
-2. **`actual_db_schema.rollback_migration.finish`** - Fired when a single migration rollback completes
-3. **`actual_db_schema.rollback_migration.failed`** - Fired when a migration rollback fails
-4. **`actual_db_schema.rollback_branches.start`** - Fired when the batch rollback process begins
-5. **`actual_db_schema.rollback_branches.finish`** - Fired when the batch rollback process completes
+1. **`actual_db_schema.rollback_migration`** - Fired when a single migration rollback occurs (ActiveSupport automatically handles start/finish events when using `instrument` with a block)
+2. **`actual_db_schema.rollback_migration.failed`** - Fired when a migration rollback fails
+3. **`actual_db_schema.rollback_branches`** - Fired when the batch rollback process occurs (ActiveSupport automatically handles start/finish events when using `instrument` with a block)
+
+Note: When using `ActiveSupport::Notifications.instrument` with a block, the framework automatically tracks start time, finish time, and calculates duration.
 
 ### Event Payloads
 
 #### Individual Migration Events
 
-**`actual_db_schema.rollback_migration.start`**
+**`actual_db_schema.rollback_migration`**
 ```ruby
 {
   migration_version: "20240115123456",
@@ -59,19 +59,7 @@ Following Rails best practices, events should be namespaced under `actual_db_sch
   database: "primary",
   schema: "public" # or nil if not using multi-tenancy
 }
-```
-
-**`actual_db_schema.rollback_migration.finish`**
-```ruby
-{
-  migration_version: "20240115123456",
-  migration_name: "AddEmailToUsers",
-  migration_filename: "/path/to/db/migrate/20240115123456_add_email_to_users.rb",
-  branch: "feature/user-emails",
-  database: "primary",
-  schema: "public", # or nil
-  duration: 0.234 # seconds (automatically provided by ActiveSupport)
-}
+# Note: duration is automatically calculated by ActiveSupport (finish - start time) and provided to subscribers
 ```
 
 **`actual_db_schema.rollback_migration.failed`**
@@ -90,26 +78,17 @@ Following Rails best practices, events should be namespaced under `actual_db_sch
 
 #### Batch Rollback Events
 
-**`actual_db_schema.rollback_branches.start`**
+**`actual_db_schema.rollback_branches`**
 ```ruby
 {
   phantom_migrations_count: 3,
-  databases: ["primary"],
-  schemas: ["public", "tenant1", "tenant2"], # or nil
-  manual_mode: false
-}
-```
-
-**`actual_db_schema.rollback_branches.finish`**
-```ruby
-{
   rolled_back_count: 2,
   failed_count: 1,
   databases: ["primary"],
   schemas: ["public", "tenant1", "tenant2"], # or nil
-  manual_mode: false,
-  duration: 1.456 # seconds (automatically provided by ActiveSupport)
+  manual_mode: false
 }
+# Note: duration is automatically calculated by ActiveSupport (finish - start time) and provided to subscribers
 ```
 
 ## Implementation Points
@@ -163,6 +142,7 @@ In the `rollback_branches` method (lines 9-21), wrap the entire process:
 ```ruby
 def rollback_branches(manual_mode: false)
   schemas = multi_tenant_schemas&.call || []
+  schema_count = schemas.any? ? schemas.size : 1
   
   payload = {
     phantom_migrations_count: phantom_migrations.count,
@@ -171,7 +151,7 @@ def rollback_branches(manual_mode: false)
     manual_mode: manual_mode
   }
 
-  result = nil
+  result = false
   ActiveSupport::Notifications.instrument("actual_db_schema.rollback_branches", payload) do
     # existing rollback logic
     rolled_back_migrations = if schemas.any?
@@ -182,7 +162,7 @@ def rollback_branches(manual_mode: false)
 
     delete_migrations(rolled_back_migrations, schema_count)
     
-    # Update payload with results
+    # Add result counts to payload before block completes
     payload[:rolled_back_count] = rolled_back_migrations.count
     payload[:failed_count] = ActualDbSchema.failed.count
     
@@ -193,20 +173,24 @@ def rollback_branches(manual_mode: false)
 end
 ```
 
+Note: Payload values can be updated within the instrument block and will be visible to subscribers.
+
 ## Usage Examples
 
 ### Example 1: Statistics Collection
 
 ```ruby
 # config/initializers/actual_db_schema_stats.rb
-ActiveSupport::Notifications.subscribe("actual_db_schema.rollback_migration") do |event|
+ActiveSupport::Notifications.subscribe("actual_db_schema.rollback_migration") do |name, start, finish, id, payload|
   # Send to your metrics service
   StatsD.increment("actual_db_schema.rollbacks", tags: [
-    "branch:#{event.payload[:branch]}",
-    "database:#{event.payload[:database]}"
+    "branch:#{payload[:branch]}",
+    "database:#{payload[:database]}"
   ])
   
-  StatsD.timing("actual_db_schema.rollback_duration", event.duration)
+  # Duration in milliseconds (finish and start are Time objects)
+  duration_ms = (finish - start) * 1000
+  StatsD.timing("actual_db_schema.rollback_duration", duration_ms)
 end
 ```
 
@@ -214,16 +198,18 @@ end
 
 ```ruby
 # config/initializers/actual_db_schema_audit.rb
-ActiveSupport::Notifications.subscribe(/actual_db_schema\.rollback_migration/) do |event|
+ActiveSupport::Notifications.subscribe(/actual_db_schema\.rollback_migration/) do |name, start, finish, id, payload|
+  duration_ms = (finish - start) * 1000
+  
   AuditLog.create(
-    event_type: event.name,
-    migration_version: event.payload[:migration_version],
-    migration_name: event.payload[:migration_name],
-    branch: event.payload[:branch],
-    database: event.payload[:database],
-    success: !event.name.ends_with?("failed"),
-    duration: event.duration,
-    error_message: event.payload[:error_message],
+    event_type: name,
+    migration_version: payload[:migration_version],
+    migration_name: payload[:migration_name],
+    branch: payload[:branch],
+    database: payload[:database],
+    success: !name.ends_with?("failed"),
+    duration: duration_ms,
+    error_message: payload[:error_message],
     occurred_at: Time.current
   )
 end
@@ -233,15 +219,15 @@ end
 
 ```ruby
 # config/initializers/actual_db_schema_notifications.rb
-ActiveSupport::Notifications.subscribe("actual_db_schema.rollback_migration.failed") do |event|
+ActiveSupport::Notifications.subscribe("actual_db_schema.rollback_migration.failed") do |name, start, finish, id, payload|
   SlackNotifier.notify(
     channel: "#engineering",
     message: "Migration rollback failed!",
     fields: {
-      "Migration": event.payload[:migration_name],
-      "Branch": event.payload[:branch],
-      "Database": event.payload[:database],
-      "Error": event.payload[:error_message]
+      "Migration": payload[:migration_name],
+      "Branch": payload[:branch],
+      "Database": payload[:database],
+      "Error": payload[:error_message]
     }
   )
 end
@@ -275,7 +261,7 @@ class ActualDbSchemaSubscriber
   def handle_rollback(event)
     Rails.logger.info(
       "Rolled back migration #{event.payload[:migration_version]} " \
-      "from branch #{event.payload[:branch]} in #{event.duration.round(2)}s"
+      "from branch #{event.payload[:branch]} in #{(event.duration / 1000.0).round(2)}s"
     )
   end
 
@@ -289,7 +275,7 @@ class ActualDbSchemaSubscriber
   def handle_batch_rollback(event)
     Rails.logger.info(
       "Batch rollback complete: #{event.payload[:rolled_back_count]} succeeded, " \
-      "#{event.payload[:failed_count]} failed in #{event.duration.round(2)}s"
+      "#{event.payload[:failed_count]} failed in #{(event.duration / 1000.0).round(2)}s"
     )
   end
 end
@@ -297,6 +283,8 @@ end
 # In config/initializers/actual_db_schema_subscriber.rb
 ActualDbSchemaSubscriber.subscribe
 ```
+
+Note: When wrapping arguments in `ActiveSupport::Notifications::Event.new(*args)`, the event object provides `event.name`, `event.payload`, and `event.duration` (in milliseconds). If you don't need the event wrapper, access the arguments directly as shown in previous examples.
 
 ## Testing Strategy
 

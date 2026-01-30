@@ -40,17 +40,18 @@ Applications can subscribe to these events in an initializer:
 
 ```ruby
 # config/initializers/actual_db_schema_stats.rb
-ActiveSupport::Notifications.subscribe("actual_db_schema.rollback_migration") do |event|
+ActiveSupport::Notifications.subscribe("actual_db_schema.rollback_migration") do |name, start, finish, id, payload|
   # Send to monitoring service
-  StatsD.increment("db.rollbacks", tags: ["branch:#{event.payload[:branch]}"])
-  StatsD.timing("db.rollback_duration", event.duration)
+  StatsD.increment("db.rollbacks", tags: ["branch:#{payload[:branch]}"])
+  duration_ms = (finish - start) * 1000
+  StatsD.timing("db.rollback_duration", duration_ms)
 end
 
-ActiveSupport::Notifications.subscribe("actual_db_schema.rollback_migration.failed") do |event|
+ActiveSupport::Notifications.subscribe("actual_db_schema.rollback_migration.failed") do |name, start, finish, id, payload|
   # Alert on failures
   Bugsnag.notify("Migration rollback failed", {
-    migration: event.payload[:migration_name],
-    error: event.payload[:error_message]
+    migration: payload[:migration_name],
+    error: payload[:error_message]
   })
 end
 ```
