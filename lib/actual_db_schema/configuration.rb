@@ -48,7 +48,11 @@ module ActualDbSchema
     def parse_excluded_databases_env
       return [] unless ENV["ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES"].present?
 
-      ENV["ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES"].split(",").map(&:strip).map(&:to_sym)
+      ENV["ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES"]
+        .split(",")
+        .map(&:strip)
+        .reject(&:empty?)
+        .map(&:to_sym)
     end
 
     def apply_defaults(settings)

@@ -313,6 +313,8 @@ Set the environment variable `ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES` with a comma-
 export ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES="queue,cable,cache"
 ```
 
+**Note:** If both the environment variable and the configuration setting in the initializer are provided, the configuration setting takes precedence as it's applied after the default settings are loaded.
+
 ### Combined Approach
 
 Both `database_tasks: false` and `excluded_databases` work together. A database will be skipped if it matches either criterion:

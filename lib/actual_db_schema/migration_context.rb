@@ -34,12 +34,12 @@ module ActualDbSchema
       all_configs.select do |db_config|
         # Skip if database is in the excluded list
         db_name = db_config.respond_to?(:name) ? db_config.name.to_sym : :primary
-        next false if ActualDbSchema.config.excluded_databases&.include?(db_name)
+        next false if ActualDbSchema.config.excluded_databases.include?(db_name)
 
         # Skip if database_tasks is explicitly set to false
         config_hash = db_config.respond_to?(:configuration_hash) ? db_config.configuration_hash : db_config
-        next false if config_hash.is_a?(Hash) && config_hash["database_tasks"] == false
-        next false if config_hash.is_a?(Hash) && config_hash[:database_tasks] == false
+        database_tasks = config_hash.is_a?(Hash) ? (config_hash["database_tasks"] || config_hash[:database_tasks]) : nil
+        next false if database_tasks == false
 
         true
       end
