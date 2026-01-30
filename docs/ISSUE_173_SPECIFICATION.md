@@ -261,7 +261,7 @@ class ActualDbSchemaSubscriber
   def handle_rollback(event)
     Rails.logger.info(
       "Rolled back migration #{event.payload[:migration_version]} " \
-      "from branch #{event.payload[:branch]} in #{(event.duration / 1000.0).round(2)}s"
+      "from branch #{event.payload[:branch]} in #{event.duration.round(2)}ms"
     )
   end
 
@@ -275,7 +275,7 @@ class ActualDbSchemaSubscriber
   def handle_batch_rollback(event)
     Rails.logger.info(
       "Batch rollback complete: #{event.payload[:rolled_back_count]} succeeded, " \
-      "#{event.payload[:failed_count]} failed in #{(event.duration / 1000.0).round(2)}s"
+      "#{event.payload[:failed_count]} failed in #{event.duration.round(2)}ms"
     )
   end
 end
@@ -323,7 +323,7 @@ end
 ## Documentation Requirements
 
 1. **README Update**: Add a section about instrumentation and observability
-2. **Instrumentation Guide**: Create a detailed guide in `/docs/INSTRUMENTATION.md`
+2. **Instrumentation Guide**: Create a detailed guide in `docs/INSTRUMENTATION.md`
 3. **Example Configurations**: Provide ready-to-use examples for common monitoring tools
 4. **Changelog Entry**: Document the new feature in CHANGELOG.md
 
