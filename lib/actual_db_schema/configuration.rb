@@ -4,7 +4,7 @@ module ActualDbSchema
   # Manages the configuration settings for the gem.
   class Configuration
     attr_accessor :enabled, :auto_rollback_disabled, :ui_enabled, :git_hooks_enabled, :multi_tenant_schemas,
-                  :console_migrations_enabled, :migrated_folder, :migrations_storage
+                  :console_migrations_enabled, :migrated_folder, :migrations_storage, :excluded_databases
 
     def initialize
       apply_defaults(default_settings)
@@ -40,8 +40,15 @@ module ActualDbSchema
         multi_tenant_schemas: nil,
         console_migrations_enabled: ENV["ACTUAL_DB_SCHEMA_CONSOLE_MIGRATIONS_ENABLED"].present?,
         migrated_folder: ENV["ACTUAL_DB_SCHEMA_MIGRATED_FOLDER"].present?,
-        migrations_storage: ENV.fetch("ACTUAL_DB_SCHEMA_MIGRATIONS_STORAGE", "file").to_sym
+        migrations_storage: ENV.fetch("ACTUAL_DB_SCHEMA_MIGRATIONS_STORAGE", "file").to_sym,
+        excluded_databases: parse_excluded_databases_env
       }
+    end
+
+    def parse_excluded_databases_env
+      return [] unless ENV["ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES"].present?
+
+      ENV["ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES"].split(",").map(&:strip).map(&:to_sym)
     end
 
     def apply_defaults(settings)

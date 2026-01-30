@@ -264,6 +264,79 @@ This task will prompt you to choose one of the three options:
 
 Based on your selection, a post-checkout hook will be installed or updated in your `.git/hooks` folder.
 
+## Excluding Databases from Processing
+
+**For Rails 6.1+ applications using multiple databases** (especially with infrastructure databases like Solid Queue, Solid Cable, or Solid Cache), you can exclude specific databases from ActualDbSchema's processing to prevent connection conflicts.
+
+### Why You Might Need This
+
+Modern Rails applications often use the `connects_to` pattern for infrastructure databases. These databases maintain their own isolated connection pools, and ActualDbSchema's global connection switching can interfere with active queries. This is particularly common with:
+
+- **Solid Queue** (Rails 8 default job backend)
+- **Solid Cable** (WebSocket connections)
+- **Solid Cache** (caching infrastructure)
+- Any database marked with `database_tasks: false`
+
+### Method 1: Using `database_tasks: false` in `database.yml`
+
+ActualDbSchema automatically respects Rails' `database_tasks: false` setting. Add this to your infrastructure databases:
+
+```yaml
+# config/database.yml
+development:
+  primary:
+    adapter: mysql2
+    database: my_app_development
+  queue:
+    adapter: mysql2
+    database: my_app_queue
+    database_tasks: false  # ActualDbSchema will skip this database
+    migrations_paths: db/queue_migrate
+```
+
+### Method 2: Using `excluded_databases` Configuration
+
+Explicitly exclude databases by name in your initializer:
+
+```ruby
+# config/initializers/actual_db_schema.rb
+ActualDbSchema.configure do |config|
+  config.excluded_databases = [:queue, :cable, :cache]
+end
+```
+
+### Method 3: Using Environment Variable
+
+Set the environment variable `ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES` with a comma-separated list:
+
+```sh
+export ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES="queue,cable,cache"
+```
+
+### Combined Approach
+
+Both `database_tasks: false` and `excluded_databases` work together. A database will be skipped if it matches either criterion:
+
+```yaml
+# config/database.yml
+development:
+  queue:
+    database_tasks: false  # Excluded via database.yml
+  cable:
+    adapter: mysql2
+    database: my_app_cable
+    # Not marked as database_tasks: false, but can be excluded via config
+```
+
+```ruby
+# config/initializers/actual_db_schema.rb
+ActualDbSchema.configure do |config|
+  config.excluded_databases = [:cable]  # Explicitly exclude cable
+end
+```
+
+In this example, both `queue` and `cable` databases will be excluded from ActualDbSchema processing.
+
 ## Multi-Tenancy Support
 
 If your application leverages multiple schemas for multi-tenancy — such as those implemented by the [apartment](https://github.com/influitive/apartment) gem or similar solutions — you can configure ActualDbSchema to handle migrations across all schemas. To do so, add the following configuration to your initializer file (`config/initializers/actual_db_schema.rb`):

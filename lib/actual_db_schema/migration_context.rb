@@ -20,11 +20,28 @@ module ActualDbSchema
     end
 
     def configs
-      # Rails < 6.0 has a Hash in configurations
-      if ActiveRecord::Base.configurations.is_a?(Hash)
-        [ActiveRecord::Base.configurations[ActiveRecord::Tasks::DatabaseTasks.env]]
-      else
-        ActiveRecord::Base.configurations.configs_for(env_name: ActiveRecord::Tasks::DatabaseTasks.env)
+      all_configs = if ActiveRecord::Base.configurations.is_a?(Hash)
+                      # Rails < 6.0 has a Hash in configurations
+                      [ActiveRecord::Base.configurations[ActiveRecord::Tasks::DatabaseTasks.env]]
+                    else
+                      ActiveRecord::Base.configurations.configs_for(env_name: ActiveRecord::Tasks::DatabaseTasks.env)
+                    end
+
+      filter_configs(all_configs)
+    end
+
+    def filter_configs(all_configs)
+      all_configs.select do |db_config|
+        # Skip if database is in the excluded list
+        db_name = db_config.respond_to?(:name) ? db_config.name.to_sym : :primary
+        next false if ActualDbSchema.config.excluded_databases&.include?(db_name)
+
+        # Skip if database_tasks is explicitly set to false
+        config_hash = db_config.respond_to?(:configuration_hash) ? db_config.configuration_hash : db_config
+        next false if config_hash.is_a?(Hash) && config_hash["database_tasks"] == false
+        next false if config_hash.is_a?(Hash) && config_hash[:database_tasks] == false
+
+        true
       end
     end
 
