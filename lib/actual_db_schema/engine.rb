@@ -24,6 +24,15 @@ module ActualDbSchema
         next unless defined?(ActiveRecord::Tasks::DatabaseTasks)
         next unless ActiveRecord::Tasks::DatabaseTasks.respond_to?(:structure_dump_flags)
 
+        # Avoid touching db config unless we explicitly use DB storage
+        # or a connection is already available.
+        has_connection = begin
+          ActiveRecord::Base.connection_pool.connected?
+        rescue ActiveRecord::ConnectionNotDefined, ActiveRecord::ConnectionNotEstablished
+          false
+        end
+        next unless ActualDbSchema.config[:migrations_storage] == :db || has_connection
+
         flags = Array(ActiveRecord::Tasks::DatabaseTasks.structure_dump_flags)
         adapter = ActualDbSchema.db_config[:adapter].to_s
         database = ActualDbSchema.db_config[:database]
