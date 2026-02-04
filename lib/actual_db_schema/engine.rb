@@ -13,6 +13,7 @@ module ActualDbSchema
       end
     end
 
+    # rubocop:disable Metrics/BlockLength
     initializer "actual_db_schema.schema_dump_exclusions" do
       ActiveSupport.on_load(:active_record) do
         table_name = ActualDbSchema::Store::DbAdapter::TABLE_NAME
@@ -50,6 +51,7 @@ module ActualDbSchema
 
         ActiveRecord::Tasks::DatabaseTasks.structure_dump_flags = flags
       end
+      # rubocop:enable Metrics/BlockLength
     end
   end
 end

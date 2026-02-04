@@ -101,7 +101,7 @@ describe "single db (db storage)" do
     describe "with acronyms defined" do
       before do
         utils.define_migration_file("20241218064344_ts360.rb", <<~RUBY)
-          class Ts360 < ActiveRecord::Migration[6.0]
+          class TS360 < ActiveRecord::Migration[6.0]
             def up
               TestingState.up << :ts360
             end
@@ -110,7 +110,6 @@ describe "single db (db storage)" do
               TestingState.down << :ts360
             end
           end
-          TS360 = Ts360 unless defined?(TS360)
         RUBY
       end
 
