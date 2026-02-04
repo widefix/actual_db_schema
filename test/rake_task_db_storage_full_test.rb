@@ -114,10 +114,10 @@ describe "single db (db storage)" do
       end
 
       it "rolls back the phantom migrations without failing" do
+        utils.define_acronym("TS360")
         utils.prepare_phantom_migrations
         assert_equal %i[first second ts360], TestingState.up
         assert_empty ActualDbSchema.failed
-        utils.define_acronym("TS360")
         utils.run_migrations
         assert_equal %i[ts360 second first], TestingState.down
         assert_empty ActualDbSchema.failed
