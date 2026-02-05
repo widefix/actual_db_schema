@@ -31,10 +31,10 @@ module ActualDbSchema
     end
 
     def filter_configs(all_configs)
-      all_configs.select do |db_config|
+      all_configs.reject do |db_config|
         # Skip if database is in the excluded list
         db_name = db_config.respond_to?(:name) ? db_config.name.to_sym : :primary
-        !ActualDbSchema.config.excluded_databases.include?(db_name)
+        ActualDbSchema.config.excluded_databases.include?(db_name)
       end
     end
 

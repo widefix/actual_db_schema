@@ -89,7 +89,7 @@ GEM
       bundler
       rake
       thor (>= 0.14.0)
-    ast (2.4.2)
+    ast (2.4.3)
     base64 (0.1.1)
     bigdecimal (3.1.4)
     builder (3.2.4)
@@ -143,13 +143,13 @@ GEM
     nokogiri (1.15.4-x86_64-linux)
       racc (~> 1.4)
     parallel (1.23.0)
-    parser (3.2.2.4)
+    parser (3.3.10.1)
       ast (~> 2.4.1)
       racc
     prism (1.8.0)
     psych (5.1.1.1)
       stringio
-    racc (1.7.3)
+    racc (1.8.1)
     rack (3.0.8)
     rack-session (2.0.0)
       rack (>= 3.0.0)
