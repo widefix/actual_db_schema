@@ -83,65 +83,6 @@ describe "database filtering" do
     end
   end
 
-  describe "with database_tasks: false" do
-    it "excludes databases marked with database_tasks: false using string keys" do
-      db_config = TestingState.db_config.dup
-      # Add database_tasks: false to secondary database
-      db_config["secondary"]["database_tasks"] = false
-      
-      utils.reset_database_yml(db_config)
-      ActiveRecord::Base.configurations = { "test" => db_config }
-      ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => db_config }
-      
-      context = ActualDbSchema::MigrationContext.instance
-      configs = context.send(:configs)
-      config_names = configs.map { |c| c.respond_to?(:name) ? c.name.to_sym : :primary }
-      
-      assert_includes config_names, :primary
-      refute_includes config_names, :secondary
-    end
-
-    it "excludes databases marked with database_tasks: false using symbol keys" do
-      db_config = TestingState.db_config.dup
-      # Add database_tasks: false to secondary database with symbol key
-      db_config["secondary"][:database_tasks] = false
-      
-      utils.reset_database_yml(db_config)
-      ActiveRecord::Base.configurations = { "test" => db_config }
-      ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => db_config }
-      
-      context = ActualDbSchema::MigrationContext.instance
-      configs = context.send(:configs)
-      config_names = configs.map { |c| c.respond_to?(:name) ? c.name.to_sym : :primary }
-      
-      assert_includes config_names, :primary
-      refute_includes config_names, :secondary
-    end
-
-    it "handles mixed string and symbol keys for database_tasks" do
-      db_config = {
-        "primary" => TestingState.db_config["primary"],
-        "queue" => {
-          "adapter" => "sqlite3",
-          "database" => "tmp/queue.sqlite3",
-          "migrations_paths" => Rails.root.join("db", "migrate_queue").to_s,
-          "database_tasks" => false
-        }
-      }
-      
-      utils.reset_database_yml(db_config)
-      ActiveRecord::Base.configurations = { "test" => db_config }
-      ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => db_config }
-      
-      context = ActualDbSchema::MigrationContext.instance
-      configs = context.send(:configs)
-      config_names = configs.map { |c| c.respond_to?(:name) ? c.name.to_sym : :primary }
-      
-      assert_includes config_names, :primary
-      refute_includes config_names, :queue
-    end
-  end
-
   describe "environment variable ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES" do
     it "parses comma-separated database names from environment variable" do
       ENV["ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES"] = "queue,cable"
@@ -190,34 +131,6 @@ describe "database filtering" do
       assert_equal [:queue, :cable, :cache], config.excluded_databases
     ensure
       ENV.delete("ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES")
-    end
-  end
-
-  describe "combined filtering" do
-    it "excludes databases matching either excluded_databases or database_tasks: false" do
-      db_config = {
-        "primary" => TestingState.db_config["primary"],
-        "secondary" => TestingState.db_config["secondary"].merge("database_tasks" => false),
-        "queue" => {
-          "adapter" => "sqlite3",
-          "database" => "tmp/queue.sqlite3",
-          "migrations_paths" => Rails.root.join("db", "migrate_queue").to_s
-        }
-      }
-      
-      utils.reset_database_yml(db_config)
-      ActiveRecord::Base.configurations = { "test" => db_config }
-      ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => db_config }
-      
-      # Exclude queue via configuration
-      ActualDbSchema.config.excluded_databases = [:queue]
-      
-      context = ActualDbSchema::MigrationContext.instance
-      configs = context.send(:configs)
-      config_names = configs.map { |c| c.respond_to?(:name) ? c.name.to_sym : :primary }
-      
-      # Only primary should be included
-      assert_equal [:primary], config_names
     end
   end
 end

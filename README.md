@@ -275,26 +275,8 @@ Modern Rails applications often use the `connects_to` pattern for infrastructure
 - **Solid Queue** (Rails 8 default job backend)
 - **Solid Cable** (WebSocket connections)
 - **Solid Cache** (caching infrastructure)
-- Any database marked with `database_tasks: false`
 
-### Method 1: Using `database_tasks: false` in `database.yml`
-
-ActualDbSchema automatically respects Rails' `database_tasks: false` setting. Add this to your infrastructure databases:
-
-```yaml
-# config/database.yml
-development:
-  primary:
-    adapter: mysql2
-    database: my_app_development
-  queue:
-    adapter: mysql2
-    database: my_app_queue
-    database_tasks: false  # ActualDbSchema will skip this database
-    migrations_paths: db/queue_migrate
-```
-
-### Method 2: Using `excluded_databases` Configuration
+### Method 1: Using `excluded_databases` Configuration
 
 Explicitly exclude databases by name in your initializer:
 
@@ -305,7 +287,7 @@ ActualDbSchema.configure do |config|
 end
 ```
 
-### Method 3: Using Environment Variable
+### Method 2: Using Environment Variable
 
 Set the environment variable `ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES` with a comma-separated list:
 
@@ -314,30 +296,6 @@ export ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES="queue,cable,cache"
 ```
 
 **Note:** If both the environment variable and the configuration setting in the initializer are provided, the configuration setting takes precedence as it's applied after the default settings are loaded.
-
-### Combined Approach
-
-Both `database_tasks: false` and `excluded_databases` work together. A database will be skipped if it matches either criterion:
-
-```yaml
-# config/database.yml
-development:
-  queue:
-    database_tasks: false  # Excluded via database.yml
-  cable:
-    adapter: mysql2
-    database: my_app_cable
-    # Not marked as database_tasks: false, but can be excluded via config
-```
-
-```ruby
-# config/initializers/actual_db_schema.rb
-ActualDbSchema.configure do |config|
-  config.excluded_databases = [:cable]  # Explicitly exclude cable
-end
-```
-
-In this example, both `queue` and `cable` databases will be excluded from ActualDbSchema processing.
 
 ## Multi-Tenancy Support
 
