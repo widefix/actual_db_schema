@@ -7,6 +7,7 @@ describe "single db (db storage)" do
 
   before do
     ActualDbSchema.config[:migrations_storage] = :db
+    utils.reset_acronyms
     utils.reset_database_yml(TestingState.db_config["primary"])
     ActiveRecord::Base.configurations = { "test" => TestingState.db_config["primary"] }
     ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config["primary"] }
@@ -101,7 +102,7 @@ describe "single db (db storage)" do
     describe "with acronyms defined" do
       before do
         utils.define_migration_file("20241218064344_ts360.rb", <<~RUBY)
-          class TS360 < ActiveRecord::Migration[6.0]
+          class Ts360 < ActiveRecord::Migration[6.0]
             def up
               TestingState.up << :ts360
             end
@@ -114,10 +115,10 @@ describe "single db (db storage)" do
       end
 
       it "rolls back the phantom migrations without failing" do
-        utils.define_acronym("TS360")
         utils.prepare_phantom_migrations
         assert_equal %i[first second ts360], TestingState.up
         assert_empty ActualDbSchema.failed
+        utils.define_acronym("TS360")
         utils.run_migrations
         assert_equal %i[ts360 second first], TestingState.down
         assert_empty ActualDbSchema.failed
