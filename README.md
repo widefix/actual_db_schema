@@ -264,6 +264,39 @@ This task will prompt you to choose one of the three options:
 
 Based on your selection, a post-checkout hook will be installed or updated in your `.git/hooks` folder.
 
+## Excluding Databases from Processing
+
+**For Rails 6.1+ applications using multiple databases** (especially with infrastructure databases like Solid Queue, Solid Cable, or Solid Cache), you can exclude specific databases from ActualDbSchema's processing to prevent connection conflicts.
+
+### Why You Might Need This
+
+Modern Rails applications often use the `connects_to` pattern for infrastructure databases. These databases maintain their own isolated connection pools, and ActualDbSchema's global connection switching can interfere with active queries. This is particularly common with:
+
+- **Solid Queue** (Rails 8 default job backend)
+- **Solid Cable** (WebSocket connections)
+- **Solid Cache** (caching infrastructure)
+
+### Method 1: Using `excluded_databases` Configuration
+
+Explicitly exclude databases by name in your initializer:
+
+```ruby
+# config/initializers/actual_db_schema.rb
+ActualDbSchema.configure do |config|
+  config.excluded_databases = [:queue, :cable, :cache]
+end
+```
+
+### Method 2: Using Environment Variable
+
+Set the environment variable `ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES` with a comma-separated list:
+
+```sh
+export ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES="queue,cable,cache"
+```
+
+**Note:** If both the environment variable and the configuration setting in the initializer are provided, the configuration setting takes precedence as it's applied after the default settings are loaded.
+
 ## Multi-Tenancy Support
 
 If your application leverages multiple schemas for multi-tenancy — such as those implemented by the [apartment](https://github.com/influitive/apartment) gem or similar solutions — you can configure ActualDbSchema to handle migrations across all schemas. To do so, add the following configuration to your initializer file (`config/initializers/actual_db_schema.rb`):

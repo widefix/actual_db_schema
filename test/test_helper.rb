@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+
+# Clear DATABASE_URL to prevent it from overriding the test database configuration
+ENV.delete("DATABASE_URL")
+
 require "logger"
 require "rails/all"
 require "actual_db_schema"
