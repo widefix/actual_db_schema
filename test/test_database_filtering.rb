@@ -15,6 +15,11 @@ describe "database filtering" do
     ActualDbSchema.config.excluded_databases = []
   end
 
+  after do
+    # Clean up configuration after each test
+    ActualDbSchema.config.excluded_databases = []
+  end
+
   describe "with excluded_databases configuration" do
     it "excludes databases from the excluded_databases list" do
       db_config = TestingState.db_config.dup
