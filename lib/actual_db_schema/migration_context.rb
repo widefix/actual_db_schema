@@ -43,7 +43,14 @@ module ActualDbSchema
       # Handle Rails >= 6.0 where configs is an array of config objects
       all_configs.reject do |db_config|
         # Skip if database is in the excluded list
-        db_name = db_config.respond_to?(:name) ? db_config.name.to_sym : :primary
+        # Rails 6.0 uses spec_name, Rails 6.1+ uses name
+        db_name = if db_config.respond_to?(:name)
+                    db_config.name.to_sym
+                  elsif db_config.respond_to?(:spec_name)
+                    db_config.spec_name.to_sym
+                  else
+                    :primary
+                  end
         ActualDbSchema.config.excluded_databases.include?(db_name)
       end
     end

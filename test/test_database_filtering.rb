@@ -10,6 +10,17 @@ describe "database filtering" do
     )
   end
 
+  # Helper to extract config name that works with Rails 6.0 (spec_name) and Rails 6.1+ (name)
+  def config_name(db_config)
+    if db_config.respond_to?(:name)
+      db_config.name.to_sym
+    elsif db_config.respond_to?(:spec_name)
+      db_config.spec_name.to_sym
+    else
+      :primary
+    end
+  end
+
   before do
     # Reset to default config
     ActualDbSchema.config.excluded_databases = []
@@ -35,7 +46,7 @@ describe "database filtering" do
 
       # Verify only primary database is included
       configs = context.send(:configs)
-      config_names = configs.map { |c| c.respond_to?(:name) ? c.name.to_sym : :primary }
+      config_names = configs.map { |c| config_name(c) }
 
       assert_includes config_names, :primary
       refute_includes config_names, :secondary
@@ -64,7 +75,7 @@ describe "database filtering" do
 
       # Verify only primary database is included
       configs = context.send(:configs)
-      config_names = configs.map { |c| c.respond_to?(:name) ? c.name.to_sym : :primary }
+      config_names = configs.map { |c| config_name(c) }
 
       assert_includes config_names, :primary
       refute_includes config_names, :secondary
@@ -81,7 +92,7 @@ describe "database filtering" do
 
       context = ActualDbSchema::MigrationContext.instance
       configs = context.send(:configs)
-      config_names = configs.map { |c| c.respond_to?(:name) ? c.name.to_sym : :primary }
+      config_names = configs.map { |c| config_name(c) }
 
       assert_includes config_names, :primary
       assert_includes config_names, :secondary
