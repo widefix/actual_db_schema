@@ -33,16 +33,32 @@ module ActualDbSchema
 
     def default_settings
       {
-        enabled: Rails.env.development?,
-        auto_rollback_disabled: ENV["ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"].present?,
-        ui_enabled: Rails.env.development? || ENV["ACTUAL_DB_SCHEMA_UI_ENABLED"].present?,
-        git_hooks_enabled: ENV["ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED"].present?,
+        enabled: enabled_by_default?,
+        auto_rollback_disabled: env_enabled?("ACTUAL_DB_SCHEMA_AUTO_ROLLBACK_DISABLED"),
+        ui_enabled: ui_enabled_by_default?,
+        git_hooks_enabled: env_enabled?("ACTUAL_DB_SCHEMA_GIT_HOOKS_ENABLED"),
         multi_tenant_schemas: nil,
-        console_migrations_enabled: ENV["ACTUAL_DB_SCHEMA_CONSOLE_MIGRATIONS_ENABLED"].present?,
+        console_migrations_enabled: env_enabled?("ACTUAL_DB_SCHEMA_CONSOLE_MIGRATIONS_ENABLED"),
         migrated_folder: ENV["ACTUAL_DB_SCHEMA_MIGRATED_FOLDER"].present?,
-        migrations_storage: ENV.fetch("ACTUAL_DB_SCHEMA_MIGRATIONS_STORAGE", "file").to_sym,
+        migrations_storage: migrations_storage_from_env,
         excluded_databases: parse_excluded_databases_env
       }
+    end
+
+    def enabled_by_default?
+      Rails.env.development?
+    end
+
+    def ui_enabled_by_default?
+      Rails.env.development? || env_enabled?("ACTUAL_DB_SCHEMA_UI_ENABLED")
+    end
+
+    def env_enabled?(key)
+      ENV[key].present?
+    end
+
+    def migrations_storage_from_env
+      ENV.fetch("ACTUAL_DB_SCHEMA_MIGRATIONS_STORAGE", "file").to_sym
     end
 
     def parse_excluded_databases_env
