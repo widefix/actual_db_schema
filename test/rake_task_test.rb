@@ -6,16 +6,11 @@ describe "single db" do
   let(:utils) { TestUtils.new }
 
   before do
-    utils.reset_acronyms
     utils.reset_database_yml(TestingState.db_config["primary"])
     ActiveRecord::Base.configurations = { "test" => TestingState.db_config["primary"] }
     ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config["primary"] }
     ActiveRecord::Base.establish_connection(**TestingState.db_config["primary"])
     utils.cleanup
-  end
-
-  after do
-    utils.reset_acronyms
   end
 
   describe "db:rollback_branches" do

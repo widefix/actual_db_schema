@@ -136,6 +136,7 @@ class TestUtils
   end
 
   def cleanup(db_config = nil)
+    reset_acronyms
     if db_config
       db_config.each do |name, c|
         ActiveRecord::Base.establish_connection(**c)

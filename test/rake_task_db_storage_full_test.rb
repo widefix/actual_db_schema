@@ -7,7 +7,6 @@ describe "single db (db storage)" do
 
   before do
     ActualDbSchema.config[:migrations_storage] = :db
-    utils.reset_acronyms
     utils.reset_database_yml(TestingState.db_config["primary"])
     ActiveRecord::Base.configurations = { "test" => TestingState.db_config["primary"] }
     ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config["primary"] }
@@ -175,7 +174,6 @@ describe "single db (db storage)" do
   after do
     utils.clear_db_storage_table
     ActualDbSchema.config[:migrations_storage] = :file
-    utils.reset_acronyms
   end
 
   describe "db:rollback_branches:manual" do
