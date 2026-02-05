@@ -31,6 +31,16 @@ module ActualDbSchema
     end
 
     def filter_configs(all_configs)
+      # Handle Rails < 6.0 where configs is a Hash
+      if all_configs.is_a?(Array) && all_configs.first.is_a?(Hash) && !all_configs.first.respond_to?(:name)
+        # For Rails < 6.0, we have a single Hash with database names as keys
+        filtered_hash = all_configs.first.reject do |db_name, _config|
+          ActualDbSchema.config.excluded_databases.include?(db_name.to_sym)
+        end
+        return [filtered_hash]
+      end
+
+      # Handle Rails >= 6.0 where configs is an array of config objects
       all_configs.reject do |db_config|
         # Skip if database is in the excluded list
         db_name = db_config.respond_to?(:name) ? db_config.name.to_sym : :primary
