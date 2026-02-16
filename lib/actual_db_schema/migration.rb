@@ -5,7 +5,8 @@ module ActualDbSchema
   class Migration
     include Singleton
 
-    Migration = Struct.new(:status, :version, :name, :branch, :database, :filename, :phantom, keyword_init: true)
+    Migration = Struct.new(:status, :version, :name, :branch, :database, :filename, :phantom, :source,
+                           keyword_init: true)
 
     def all_phantom
       migrations = []
@@ -120,7 +121,8 @@ module ActualDbSchema
         branch: branch_for(migration.version),
         database: ActualDbSchema.db_config[:database],
         filename: migration.filename,
-        phantom: phantom?(migration)
+        phantom: phantom?(migration),
+        source: ActualDbSchema::Store.instance.source_for(migration.version)
       )
     end
 
@@ -129,8 +131,7 @@ module ActualDbSchema
     end
 
     def phantom?(migration)
-      migrated_folder = ActualDbSchema.config[:migrated_folder].presence || "/tmp/migrated"
-      migration.filename.include?(migrated_folder.to_s)
+      ActualDbSchema::Store.instance.stored_migration?(migration.filename)
     end
 
     def should_include?(status, migration)

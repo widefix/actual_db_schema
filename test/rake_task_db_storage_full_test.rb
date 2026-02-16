@@ -2,14 +2,16 @@
 
 require "test_helper"
 
-describe "single db" do
+describe "single db (db storage)" do
   let(:utils) { TestUtils.new }
 
   before do
+    ActualDbSchema.config[:migrations_storage] = :db
     utils.reset_database_yml(TestingState.db_config["primary"])
     ActiveRecord::Base.configurations = { "test" => TestingState.db_config["primary"] }
     ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config["primary"] }
     ActiveRecord::Base.establish_connection(**TestingState.db_config["primary"])
+    utils.clear_db_storage_table
     utils.cleanup
   end
 
@@ -153,7 +155,6 @@ describe "single db" do
         assert_empty utils.migrated_files
       end
     end
-
     describe "when app is not a git repository" do
       it "doesn't show an error message" do
         Dir.mktmpdir do |dir|
@@ -168,6 +169,11 @@ describe "single db" do
         end
       end
     end
+  end
+
+  after do
+    utils.clear_db_storage_table
+    ActualDbSchema.config[:migrations_storage] = :file
   end
 
   describe "db:rollback_branches:manual" do

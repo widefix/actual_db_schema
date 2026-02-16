@@ -4,17 +4,22 @@ require_relative "../../test_helper"
 require_relative "../../../app/controllers/actual_db_schema/phantom_migrations_controller"
 
 module ActualDbSchema
-  class PhantomMigrationsControllerTest < ActionController::TestCase
+  class PhantomMigrationsControllerDbStorageTest < ActionController::TestCase
+    tests ActualDbSchema::PhantomMigrationsController
+
     def setup
-      @utils = TestUtils.new
-      @app = Rails.application
+      setup_utils
+      configure_storage
+      configure_app
       routes_setup
-      Rails.logger = Logger.new($stdout)
-      ActionController::Base.view_paths = [File.expand_path("../../../app/views/", __dir__)]
+      configure_views
       active_record_setup
-      @utils.reset_database_yml(TestingState.db_config)
-      @utils.cleanup(TestingState.db_config)
-      @utils.prepare_phantom_migrations(TestingState.db_config)
+      prepare_database
+    end
+
+    def teardown
+      @utils.clear_db_storage_table(TestingState.db_config)
+      ActualDbSchema.config[:migrations_storage] = :file
     end
 
     def routes_setup
@@ -34,6 +39,30 @@ module ActualDbSchema
     def active_record_setup
       ActiveRecord::Base.configurations = { "test" => TestingState.db_config }
       ActiveRecord::Tasks::DatabaseTasks.database_configuration = { "test" => TestingState.db_config }
+    end
+
+    def setup_utils
+      @utils = TestUtils.new
+    end
+
+    def configure_storage
+      ActualDbSchema.config[:migrations_storage] = :db
+    end
+
+    def configure_app
+      @app = Rails.application
+      Rails.logger = Logger.new($stdout)
+    end
+
+    def configure_views
+      ActionController::Base.view_paths = [File.expand_path("../../../app/views/", __dir__)]
+    end
+
+    def prepare_database
+      @utils.reset_database_yml(TestingState.db_config)
+      @utils.clear_db_storage_table(TestingState.db_config)
+      @utils.cleanup(TestingState.db_config)
+      @utils.prepare_phantom_migrations(TestingState.db_config)
     end
 
     test "GET #index returns a successful response" do
@@ -107,7 +136,7 @@ module ActualDbSchema
           assert_select "td", text: @utils.branch_for("20130906111511")
         end
       end
-      assert_select "span.source-badge", text: "FILE"
+      assert_select "span.source-badge", text: "DB"
     end
 
     test "GET #show returns a 404 response if migration not found" do

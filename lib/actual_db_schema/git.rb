@@ -4,7 +4,8 @@ module ActualDbSchema
   # Git helper
   class Git
     def self.current_branch
-      `git rev-parse --abbrev-ref HEAD`.strip
+      branch = `git rev-parse --abbrev-ref HEAD 2>/dev/null`.strip
+      branch.empty? ? "unknown" : branch
     rescue Errno::ENOENT
       "unknown"
     end

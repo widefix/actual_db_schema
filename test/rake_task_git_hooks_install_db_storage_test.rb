@@ -2,11 +2,13 @@
 
 require "test_helper"
 
-describe "actual_db_schema:install_git_hooks" do
+describe "actual_db_schema:install_git_hooks (db storage)" do
   let(:utils) { TestUtils.new }
   let(:hook_path) { utils.app_file(".git/hooks/post-checkout") }
 
   before do
+    ActualDbSchema.config[:migrations_storage] = :db
+    utils.clear_db_storage_table
     FileUtils.mkdir_p(utils.app_file(".git/hooks"))
     Rails.application.load_tasks
     ActualDbSchema.config[:git_hooks_enabled] = true
@@ -15,6 +17,8 @@ describe "actual_db_schema:install_git_hooks" do
   after do
     FileUtils.rm_rf(utils.app_file(".git/hooks"))
     Rake::Task["actual_db_schema:install_git_hooks"].reenable
+    utils.clear_db_storage_table
+    ActualDbSchema.config[:migrations_storage] = :file
   end
 
   describe "when .git/hooks directory is missing" do

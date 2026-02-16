@@ -1,12 +1,13 @@
 PATH
   remote: .
   specs:
-    actual_db_schema (0.8.2)
+    actual_db_schema (0.9.0)
       activerecord
       activesupport
       ast
       csv
       parser
+      prism
 
 GEM
   remote: https://rubygems.org/
@@ -95,7 +96,7 @@ GEM
     concurrent-ruby (1.2.2)
     connection_pool (2.4.1)
     crass (1.0.6)
-    csv (3.3.2)
+    csv (3.3.5)
     date (3.3.3)
     debug (1.8.0)
       irb (>= 1.5.0)
@@ -145,6 +146,7 @@ GEM
     parser (3.2.2.4)
       ast (~> 2.4.1)
       racc
+    prism (1.8.0)
     psych (5.1.1.1)
       stringio
     racc (1.7.3)

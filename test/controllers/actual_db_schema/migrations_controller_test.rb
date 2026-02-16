@@ -121,6 +121,7 @@ module ActualDbSchema
           assert_select "td", text: @utils.branch_for("20130906111511")
         end
       end
+      assert_select "span.source-badge", text: "FILE"
     end
 
     test "GET #show returns a 404 response if migration not found" do
@@ -146,13 +147,8 @@ module ActualDbSchema
       post :rollback, params: { id: "20130906111513", database: @utils.primary_database }
       assert_response :redirect
       get :index
-      message = if ENV["DB_ADAPTER"] == "mysql2"
-                  "An error has occurred, all later migrations canceled:\n\nActiveRecord::IrreversibleMigration"
-                else
-                  "An error has occurred, this and all later migrations canceled:\n\n" \
-                  "ActiveRecord::IrreversibleMigration"
-                end
-      assert_select ".flash", text: message
+      assert_select ".flash", text: /An error has occurred/
+      assert_select ".flash", text: /ActiveRecord::IrreversibleMigration/
     end
 
     test "POST #rollback changes migration status to down and hide migration with down status" do

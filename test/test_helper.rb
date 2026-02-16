@@ -1,12 +1,17 @@
 # frozen_string_literal: true
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+
+# Clear DATABASE_URL to prevent it from overriding the test database configuration
+ENV.delete("DATABASE_URL")
+
 require "logger"
 require "rails/all"
 require "actual_db_schema"
 require "minitest/autorun"
 require "debug"
 require "rake"
+require "fileutils"
 require "support/test_utils"
 
 Rails.env = "test"
@@ -112,6 +117,67 @@ class TestingState
 end
 
 ActualDbSchema.config[:enabled] = true
+
+module Minitest
+  class Test
+    def before_setup
+      super
+      if defined?(ActualDbSchema)
+        ActualDbSchema::Store.instance.reset_adapter
+        ActualDbSchema.failed = []
+      end
+      cleanup_migrated_cache if defined?(Rails) && Rails.respond_to?(:root)
+      clear_db_storage_tables if defined?(TestingState)
+      ActualDbSchema.config[:migrations_storage] = :file if defined?(ActualDbSchema)
+      return unless defined?(ActualDbSchema::Migration)
+
+      ActualDbSchema::Migration.instance.instance_variable_set(:@metadata, {})
+    end
+
+    private
+
+    def cleanup_migrated_cache
+      Dir.glob(Rails.root.join("tmp", "migrated*")).each { |path| FileUtils.rm_rf(path) }
+      FileUtils.rm_rf(Rails.root.join("custom", "migrated"))
+    end
+
+    def clear_db_storage_tables
+      db_storage_configs.each do |config|
+        ActiveRecord::Base.establish_connection(**config)
+        drop_db_storage_table(ActiveRecord::Base.connection)
+      rescue StandardError
+        next
+      end
+    end
+
+    def db_storage_configs
+      db_config = TestingState.db_config
+      return db_config.values if db_config.is_a?(Hash) && db_config.key?("primary")
+
+      [db_config]
+    end
+
+    def drop_db_storage_table(conn)
+      table_name = "actual_db_schema_migrations"
+      if conn.adapter_name =~ /postgresql|mysql/i
+        drop_db_storage_table_in_schemas(conn, table_name)
+      elsif conn.table_exists?(table_name)
+        conn.drop_table(table_name)
+      end
+    end
+
+    def drop_db_storage_table_in_schemas(conn, table_name)
+      schemas = conn.select_values(<<~SQL.squish)
+        SELECT table_schema
+        FROM information_schema.tables
+        WHERE table_name = #{conn.quote(table_name)}
+      SQL
+      schemas.each do |schema|
+        conn.execute("DROP TABLE IF EXISTS #{conn.quote_table_name(schema)}.#{conn.quote_table_name(table_name)}")
+      end
+    end
+  end
+end
 
 module Kernel
   alias original_puts puts

@@ -107,11 +107,20 @@ class TestUtils
 
   def reset_database_yml(db_config)
     database_yml_path = Rails.root.join("config", "database.yml")
-    File.delete(database_yml_path) if File.exist?(database_yml_path)
+    cleanup_config_files(db_config)
     File.open(database_yml_path, "w") do |file|
       file.write({
         "test" => db_config
       }.to_yaml)
+    end
+  end
+
+  def cleanup_config_files(db_config)
+    is_multi_db = db_config.is_a?(Hash) && db_config.key?("primary")
+    configs = is_multi_db ? db_config.values : [db_config]
+    configs.each do |config|
+      database_path = Rails.root.join(config["database"])
+      File.delete(database_path) if File.exist?(database_path)
     end
   end
 
@@ -127,6 +136,7 @@ class TestUtils
   end
 
   def cleanup(db_config = nil)
+    reset_acronyms
     if db_config
       db_config.each do |name, c|
         ActiveRecord::Base.establish_connection(**c)
@@ -136,6 +146,24 @@ class TestUtils
       cleanup_call
     end
     TestingState.reset
+  end
+
+  def clear_db_storage_table(db_config = nil)
+    if db_config
+      db_config.each do |(_, config)|
+        ActiveRecord::Base.establish_connection(**config)
+        drop_db_storage_table
+      end
+    else
+      drop_db_storage_table
+    end
+  end
+
+  def drop_db_storage_table
+    return unless ActiveRecord::Base.connected?
+
+    conn = ActiveRecord::Base.connection
+    conn.drop_table("actual_db_schema_migrations") if conn.table_exists?("actual_db_schema_migrations")
   end
 
   def migrated_files(db_config = nil)
@@ -157,6 +185,16 @@ class TestUtils
     ActiveSupport::Inflector.inflections(:en) do |inflect|
       inflect.acronym acronym
     end
+  end
+
+  def reset_acronyms
+    inflections = ActiveSupport::Inflector.inflections(:en)
+    return unless inflections.respond_to?(:acronyms)
+
+    inflections.acronyms.clear
+    inflections.send(:define_acronym_regex_patterns)
+  rescue NoMethodError
+    nil
   end
 
   def primary_database
@@ -217,7 +255,7 @@ class TestUtils
   end
 
   def applied_migrations_call
-    run_sql("select * from schema_migrations").map do |row|
+    run_sql("select version from schema_migrations order by version").map do |row|
       row.is_a?(Hash) ? row["version"] : row[0]
     end
   end

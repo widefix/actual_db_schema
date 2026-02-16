@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "parser/current"
 require "parser/ast/processor"
+require "prism"
 
 module ActualDbSchema
   # Parses the content of a `schema.rb` file into a structured hash representation.
@@ -9,10 +9,7 @@ module ActualDbSchema
     module_function
 
     def parse_string(schema_content)
-      buffer = Parser::Source::Buffer.new("(schema)")
-      buffer.source = schema_content
-      parser = Parser::CurrentRuby.new
-      ast = parser.parse(buffer)
+      ast = Prism::Translation::Parser.parse(schema_content)
 
       collector = SchemaCollector.new
       collector.process(ast)

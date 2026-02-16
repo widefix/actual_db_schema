@@ -79,12 +79,12 @@ module ActualDbSchema
     end
 
     def migrated_folders
+      ActualDbSchema::Store.instance.materialize_all
       dirs = find_migrated_folders
 
-      if (configured_migrated_folder = ActualDbSchema.config[:migrated_folder].presence)
-        relative_migrated_folder = configured_migrated_folder.to_s.sub(%r{\A#{Regexp.escape(Rails.root.to_s)}/?}, "")
-        dirs << relative_migrated_folder unless dirs.include?(relative_migrated_folder)
-      end
+      configured_migrated_folder = ActualDbSchema.migrated_folder
+      relative_migrated_folder = configured_migrated_folder.to_s.sub(%r{\A#{Regexp.escape(Rails.root.to_s)}/?}, "")
+      dirs << relative_migrated_folder unless dirs.include?(relative_migrated_folder)
 
       dirs.map { |dir| dir.sub(%r{\A\./}, "") }.uniq
     end

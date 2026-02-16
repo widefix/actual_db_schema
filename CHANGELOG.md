@@ -1,3 +1,26 @@
+## [0.9.0] - 2026-01-27
+- Store migration files in the DB to avoid reliance on the filesystem, enabling CI/CD usage on platforms with ephemeral storage (e.g., Heroku, Docker).
+
+## [0.8.6] - 2025-05-21
+- Fix gem installtion with git hooks
+- Update README
+
+## [0.8.5] - 2025-04-10
+
+- Fix the gem working on projects without git
+
+## [0.8.4] - 2025-03-20
+
+- Fix initializer file that can break other bundle groups that development
+- Use prism gem instead of parser for Ruby 3.4 compatibility
+
+## [0.8.3] - 2025-03-03
+
+- View Schema with Migration Annotations in the UI
+- Clean Up Broken Migrations
+- Filter Migrations in the UI
+- Customize Your Migrated Folder Location
+
 ## [0.8.2] - 2025-02-06
 
 - Show migration name in the schema.rb diff that caused the change
