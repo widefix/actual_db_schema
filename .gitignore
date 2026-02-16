@@ -9,6 +9,7 @@
 /test/dummy_app/tmp/
 /test/dummy_app/custom/
 /test/dummy_app/db/**/*.rb
+/test/dummy_app/db/structure.sql
 /test/dummy_app/config/database.yml
 .ruby-version
 .ruby-gemset

@@ -11,7 +11,8 @@ module ActualDbSchema
     private
 
     helper_method def schema_diff_html
-      schema_diff = ActualDbSchema::SchemaDiffHtml.new("./db/schema.rb", "db/migrate")
+      schema_path = Rails.configuration.active_record.schema_format == :sql ? "./db/structure.sql" : "./db/schema.rb"
+      schema_diff = ActualDbSchema::SchemaDiffHtml.new(schema_path, "db/migrate")
       schema_diff.render_html(params[:table])
     end
   end
