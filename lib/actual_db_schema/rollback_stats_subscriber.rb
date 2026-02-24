@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
 module ActualDbSchema
+  # Subscribes to rollback events and tracks in-memory counters for observability.
   class RollbackStatsSubscriber
     class << self
       def enable!
         return if enabled?
 
-        @subscription = ActiveSupport::Notifications.subscribe(ActualDbSchema::Instrumentation::ROLLBACK_EVENT) do |_name, _start, _finish, _id, payload|
-          RollbackStatsRepository.record(payload)
-        end
+        @subscription = ActiveSupport::Notifications.subscribe(ActualDbSchema::Instrumentation::ROLLBACK_EVENT) \
+          do |_name, _start, _finish, _id, payload|
+            RollbackStatsRepository.record(payload)
+          end
       end
 
       def disable!

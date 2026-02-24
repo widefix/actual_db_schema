@@ -61,11 +61,11 @@ describe "single db" do
       end
 
       assert_equal 2, events.size
-      assert_equal %w[20130906111512 20130906111511], events.map { |event| event.payload[:version] }
-      assert_equal [false, false], events.map { |event| event.payload[:manual_mode] }
-      assert_equal [utils.primary_database, utils.primary_database], events.map { |event| event.payload[:database] }
-      assert_equal [nil, nil], events.map { |event| event.payload[:schema] }
-      assert_equal ["main", "main"], events.map { |event| event.payload[:branch] }
+      assert_equal(%w[20130906111512 20130906111511], events.map { |event| event.payload[:version] })
+      assert_equal([false, false], events.map { |event| event.payload[:manual_mode] })
+      assert_equal([utils.primary_database, utils.primary_database], events.map { |event| event.payload[:database] })
+      assert_equal([nil, nil], events.map { |event| event.payload[:schema] })
+      assert_equal(%w[main main], events.map { |event| event.payload[:branch] })
     end
 
     describe "with irreversible migration" do
@@ -103,7 +103,7 @@ describe "single db" do
           events = captured_events
         end
 
-        assert_equal %w[20130906111512 20130906111511], events.map { |event| event.payload[:version] }
+        assert_equal(%w[20130906111512 20130906111511], events.map { |event| event.payload[:version] })
       end
     end
 

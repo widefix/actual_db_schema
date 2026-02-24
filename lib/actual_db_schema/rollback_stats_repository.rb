@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 module ActualDbSchema
+  # Persists rollback events to a DB table so stats survive process restarts.
   class RollbackStatsRepository
     TABLE_NAME = "actual_db_schema_rollback_events"
 
     class << self
-      def record(payload)
+      def record(payload) # rubocop:disable Metrics/AbcSize
         ensure_table!
         connection.execute(<<~SQL.squish)
           INSERT INTO #{quoted_table}

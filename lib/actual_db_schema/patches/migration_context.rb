@@ -37,7 +37,10 @@ module ActualDbSchema
           next unless status_up?(migration)
 
           show_info_for(migration, schema_name) if manual_mode
-          migrate(migration, rolled_back_migrations, schema_name, manual_mode: manual_mode) if !manual_mode || user_wants_rollback?
+          if !manual_mode || user_wants_rollback?
+            migrate(migration, rolled_back_migrations, schema_name,
+                    manual_mode: manual_mode)
+          end
         rescue StandardError => e
           handle_rollback_error(migration, e, schema_name)
         end
@@ -116,7 +119,8 @@ module ActualDbSchema
         migrator = down_migrator_for(migration)
         migrator.extend(ActualDbSchema::Patches::Migrator)
         migrator.migrate
-        notify_rollback_migration(migration: migration, schema_name: schema_name, branch: branch, manual_mode: manual_mode)
+        notify_rollback_migration(migration: migration, schema_name: schema_name, branch: branch,
+                                  manual_mode: manual_mode)
         rolled_back_migrations << migration
       end
 
