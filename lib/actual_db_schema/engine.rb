@@ -19,16 +19,6 @@ module ActualDbSchema
       end
     end
 
-    initializer "actual_db_schema.rollback_stats_subscriber" do
-      ActualDbSchema::Engine.setup_rollback_stats_subscriber
-    end
-
-    def self.setup_rollback_stats_subscriber
-      return unless ActualDbSchema.config[:rollback_stats_subscriber_enabled]
-
-      ActualDbSchema::RollbackStatsSubscriber.enable!
-    end
-
     def self.apply_schema_dump_exclusions
       ignore_schema_dump_table(ActualDbSchema::Store::DbAdapter::TABLE_NAME)
       ignore_schema_dump_table(ActualDbSchema::RollbackStatsRepository::TABLE_NAME)

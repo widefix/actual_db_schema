@@ -149,24 +149,4 @@ describe "database filtering" do
       ENV.delete("ACTUAL_DB_SCHEMA_EXCLUDED_DATABASES")
     end
   end
-
-  describe "environment variable ACTUAL_DB_SCHEMA_ROLLBACK_STATS_SUBSCRIBER_ENABLED" do
-    it "enables rollback stats subscriber from environment variable" do
-      ENV["ACTUAL_DB_SCHEMA_ROLLBACK_STATS_SUBSCRIBER_ENABLED"] = "true"
-
-      config = ActualDbSchema::Configuration.new
-
-      assert_equal true, config.rollback_stats_subscriber_enabled
-    ensure
-      ENV.delete("ACTUAL_DB_SCHEMA_ROLLBACK_STATS_SUBSCRIBER_ENABLED")
-    end
-
-    it "is disabled by default when environment variable is not set" do
-      ENV.delete("ACTUAL_DB_SCHEMA_ROLLBACK_STATS_SUBSCRIBER_ENABLED")
-
-      config = ActualDbSchema::Configuration.new
-
-      assert_equal false, config.rollback_stats_subscriber_enabled
-    end
-  end
 end

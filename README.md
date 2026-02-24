@@ -230,13 +230,12 @@ Add the following line to your initializer file (`config/initializers/actual_db_
 config.auto_rollback_disabled = true
 ```
 
-## Rollback Instrumentation and Stats Subscriber
+## Rollback Instrumentation
 
 ActualDbSchema emits an `ActiveSupport::Notifications` event for each successful phantom rollback:
 
-- Event name: `rollback.actual_db_schema`
+- Event name: `rollback_migration.actual_db_schema`
 - Event is always emitted when a phantom rollback succeeds
-- Stats subscriber is optional and disabled by default
 
 ### Event payload
 
@@ -248,30 +247,31 @@ ActualDbSchema emits an `ActiveSupport::Notifications` event for each successful
 | `schema` | Tenant schema name (or `nil` for default schema) |
 | `branch` | Branch associated with the migration metadata |
 | `manual_mode` | Whether rollback was run in manual mode |
-| `storage` | Current migrations storage strategy (`:file` or `:db`) |
 
-### Enable the built-in stats subscriber
+### Subscribing to rollback events
 
-By default, the stats subscriber is disabled. To enable it, configure it in your initializer:
+You can subscribe to rollback events in your initializer to track statistics or perform custom actions:
 
 ```ruby
 # config/initializers/actual_db_schema.rb
-ActualDbSchema.configure do |config|
-  config.rollback_stats_subscriber_enabled = true
+ActiveSupport::Notifications.subscribe(ActualDbSchema::Instrumentation::ROLLBACK_EVENT) do |_name, _start, _finish, _id, payload|
+  ActualDbSchema::RollbackStatsRepository.record(payload)
 end
 ```
 
-You can also enable it with:
+The `RollbackStatsRepository` persists rollback events to a database table (`actual_db_schema_rollback_events`) that is automatically excluded from schema dumps.
 
-```sh
-export ACTUAL_DB_SCHEMA_ROLLBACK_STATS_SUBSCRIBER_ENABLED=true
-```
-
-Read current counters at runtime:
+Read aggregated stats at runtime:
 
 ```ruby
-ActualDbSchema::RollbackStatsSubscriber.stats
+ActualDbSchema::RollbackStatsRepository.stats
 # => { total: 3, by_database: { "primary" => 3 }, by_schema: { "default" => 3 }, by_branch: { "main" => 3 } }
+
+ActualDbSchema::RollbackStatsRepository.total_rollbacks
+# => 3
+
+ActualDbSchema::RollbackStatsRepository.reset!
+# Clears all recorded stats
 ```
 
 ## Automatic Phantom Migration Rollback On Branch Switch
