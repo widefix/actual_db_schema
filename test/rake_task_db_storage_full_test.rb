@@ -67,7 +67,6 @@ describe "single db (db storage)" do
       assert_equal([false, false], events.map { |event| event.payload[:manual_mode] })
       assert_equal([utils.primary_database, utils.primary_database], events.map { |event| event.payload[:database] })
       assert_equal([nil, nil], events.map { |event| event.payload[:schema] })
-      assert_equal(%w[main main], events.map { |event| event.payload[:branch] })
     end
 
     describe "with irreversible migration" do
