@@ -230,6 +230,50 @@ Add the following line to your initializer file (`config/initializers/actual_db_
 config.auto_rollback_disabled = true
 ```
 
+## Rollback Instrumentation and Stats Subscriber
+
+ActualDbSchema emits an `ActiveSupport::Notifications` event for each successful phantom rollback:
+
+- Event name: `rollback.actual_db_schema`
+- Event is always emitted when a phantom rollback succeeds
+- Stats subscriber is optional and disabled by default
+
+### Event payload
+
+| Field | Description |
+|-------|-------------|
+| `version` | Migration version that was rolled back |
+| `name` | Migration class name |
+| `database` | Current database name from Active Record config |
+| `schema` | Tenant schema name (or `nil` for default schema) |
+| `branch` | Branch associated with the migration metadata |
+| `manual_mode` | Whether rollback was run in manual mode |
+| `storage` | Current migrations storage strategy (`:file` or `:db`) |
+
+### Enable the built-in stats subscriber
+
+By default, the stats subscriber is disabled. To enable it, configure it in your initializer:
+
+```ruby
+# config/initializers/actual_db_schema.rb
+ActualDbSchema.configure do |config|
+  config.rollback_stats_subscriber_enabled = true
+end
+```
+
+You can also enable it with:
+
+```sh
+export ACTUAL_DB_SCHEMA_ROLLBACK_STATS_SUBSCRIBER_ENABLED=true
+```
+
+Read current counters at runtime:
+
+```ruby
+ActualDbSchema::RollbackStatsSubscriber.stats
+# => { total: 3, by_database: { "primary" => 3 }, by_schema: { "default" => 3 }, by_branch: { "main" => 3 } }
+```
+
 ## Automatic Phantom Migration Rollback On Branch Switch
 
 By default, the automatic rollback of migrations on branch switch is disabled. If you prefer to automatically rollback phantom migrations whenever you switch branches with `git checkout`, you can enable it in two ways:

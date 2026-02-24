@@ -27,6 +27,10 @@ if defined?(ActualDbSchema)
     # config.console_migrations_enabled = true
     config.console_migrations_enabled = ENV["ACTUAL_DB_SCHEMA_CONSOLE_MIGRATIONS_ENABLED"].present?
 
+    # This subscribes to rollback events and tracks in-memory counters for observability.
+    # config.rollback_stats_subscriber_enabled = true
+    config.rollback_stats_subscriber_enabled = ENV["ACTUAL_DB_SCHEMA_ROLLBACK_STATS_SUBSCRIBER_ENABLED"].present?
+
     # Define the migrated folder location.
     # config.migrated_folder = Rails.root.join("custom", "migrated")
     config.migrated_folder = Rails.root.join("tmp", "migrated")

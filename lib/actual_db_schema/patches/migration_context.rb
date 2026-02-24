@@ -37,7 +37,7 @@ module ActualDbSchema
           next unless status_up?(migration)
 
           show_info_for(migration, schema_name) if manual_mode
-          migrate(migration, rolled_back_migrations, schema_name) if !manual_mode || user_wants_rollback?
+          migrate(migration, rolled_back_migrations, schema_name, manual_mode: manual_mode) if !manual_mode || user_wants_rollback?
         rescue StandardError => e
           handle_rollback_error(migration, e, schema_name)
         end
@@ -103,19 +103,33 @@ module ActualDbSchema
         puts File.read(migration.filename)
       end
 
-      def migrate(migration, rolled_back_migrations, schema_name = nil)
+      def migrate(migration, rolled_back_migrations, schema_name = nil, manual_mode: false)
         migration.name = extract_class_name(migration.filename)
 
+        branch = branch_for(migration.version.to_s)
         message = "[ActualDbSchema]"
         message += " #{schema_name}:" if schema_name
         message += " Rolling back phantom migration #{migration.version} #{migration.name} " \
-                   "(from branch: #{branch_for(migration.version.to_s)})"
+                   "(from branch: #{branch})"
         puts colorize(message, :gray)
 
         migrator = down_migrator_for(migration)
         migrator.extend(ActualDbSchema::Patches::Migrator)
         migrator.migrate
+        notify_rollback_migration(migration: migration, schema_name: schema_name, branch: branch, manual_mode: manual_mode)
         rolled_back_migrations << migration
+      end
+
+      def notify_rollback_migration(migration:, schema_name:, branch:, manual_mode:)
+        ActiveSupport::Notifications.instrument(
+          ActualDbSchema::Instrumentation::ROLLBACK_EVENT,
+          version: migration.version.to_s,
+          name: migration.name,
+          database: ActualDbSchema.db_config[:database],
+          schema: schema_name,
+          branch: branch,
+          manual_mode: manual_mode
+        )
       end
 
       def extract_class_name(filename)
