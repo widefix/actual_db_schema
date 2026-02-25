@@ -1,3 +1,10 @@
+## [0.9.1] - 2026-02-25
+
+- Support schema diffs for `structure.sql`
+- Add an option to exclude specific databases from the gem's visibility scope
+- Fix a crash when the database is not available at application startup
+- Add instrumentation tooling to track stats about rolled-back phantom migrations
+
 ## [0.9.0] - 2026-01-27
 - Store migration files in the DB to avoid reliance on the filesystem, enabling CI/CD usage on platforms with ephemeral storage (e.g., Heroku, Docker).
 
