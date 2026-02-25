@@ -40,3 +40,6 @@ Metrics/CyclomaticComplexity:
 
 Metrics/PerceivedComplexity:
   Max: 10
+
+Metrics/AbcSize:
+  Enabled: false

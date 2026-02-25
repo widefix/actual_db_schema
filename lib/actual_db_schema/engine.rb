@@ -15,17 +15,18 @@ module ActualDbSchema
 
     initializer "actual_db_schema.schema_dump_exclusions" do
       ActiveSupport.on_load(:active_record) do
-        apply_schema_dump_exclusions
+        ActualDbSchema::Engine.apply_schema_dump_exclusions
       end
     end
 
     def self.apply_schema_dump_exclusions
-      table_name = ActualDbSchema::Store::DbAdapter::TABLE_NAME
-      ignore_schema_dump_table(table_name)
+      ignore_schema_dump_table(ActualDbSchema::Store::DbAdapter::TABLE_NAME)
+      ignore_schema_dump_table(ActualDbSchema::RollbackStatsRepository::TABLE_NAME)
       return unless schema_dump_flags_supported?
       return unless schema_dump_connection_available?
 
-      apply_structure_dump_flags(table_name)
+      apply_structure_dump_flags(ActualDbSchema::Store::DbAdapter::TABLE_NAME)
+      apply_structure_dump_flags(ActualDbSchema::RollbackStatsRepository::TABLE_NAME)
     end
 
     class << self

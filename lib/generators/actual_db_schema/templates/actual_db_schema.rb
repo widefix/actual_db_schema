@@ -35,4 +35,13 @@ if defined?(ActualDbSchema)
     # config.migrations_storage = :db
     config.migrations_storage = :file
   end
+
+  # Subscribe to rollback events to persist stats (optional).
+  # Uncomment the following to track rollback statistics in the database:
+  #
+  # ActiveSupport::Notifications.subscribe(
+  #   ActualDbSchema::Instrumentation::ROLLBACK_EVENT
+  # ) do |_name, _start, _finish, _id, payload|
+  #   ActualDbSchema::RollbackStatsRepository.record(payload)
+  # end
 end

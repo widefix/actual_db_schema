@@ -14,6 +14,17 @@ describe "single db" do
   end
 
   describe "db:rollback_branches" do
+    def collect_rollback_events
+      events = []
+      subscriber = ActiveSupport::Notifications.subscribe(ActualDbSchema::Instrumentation::ROLLBACK_EVENT) do |*args|
+        events << ActiveSupport::Notifications::Event.new(*args)
+      end
+
+      yield events
+    ensure
+      ActiveSupport::Notifications.unsubscribe(subscriber) if subscriber
+    end
+
     it "creates the tmp/migrated folder" do
       refute File.exist?(utils.app_file("tmp/migrated"))
       utils.run_migrations
@@ -40,6 +51,22 @@ describe "single db" do
       assert_empty utils.migrated_files
     end
 
+    it "emits one instrumentation event per successful rollback" do
+      utils.prepare_phantom_migrations
+      events = nil
+
+      collect_rollback_events do |captured_events|
+        utils.run_migrations
+        events = captured_events
+      end
+
+      assert_equal 2, events.size
+      assert_equal(%w[20130906111512 20130906111511], events.map { |event| event.payload[:version] })
+      assert_equal([false, false], events.map { |event| event.payload[:manual_mode] })
+      assert_equal([utils.primary_database, utils.primary_database], events.map { |event| event.payload[:database] })
+      assert_equal([nil, nil], events.map { |event| event.payload[:schema] })
+    end
+
     describe "with irreversible migration" do
       before do
         utils.define_migration_file("20130906111513_irreversible.rb", <<~RUBY)
@@ -64,6 +91,18 @@ describe "single db" do
         assert_match(/Error encountered during rollback:/, TestingState.output)
         assert_match(/ActiveRecord::IrreversibleMigration/, TestingState.output)
         assert_equal %w[20130906111513_irreversible.rb], utils.migrated_files
+      end
+
+      it "does not emit instrumentation for failed rollbacks" do
+        utils.prepare_phantom_migrations
+        events = nil
+
+        collect_rollback_events do |captured_events|
+          utils.run_migrations
+          events = captured_events
+        end
+
+        assert_equal(%w[20130906111512 20130906111511], events.map { |event| event.payload[:version] })
       end
     end
 
