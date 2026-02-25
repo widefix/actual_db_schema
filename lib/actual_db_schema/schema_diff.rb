@@ -207,7 +207,7 @@ module ActualDbSchema
     end
 
     def migration_matches?(chg, action, col_or_index_name)
-      return chg[:action] == action if col_or_index_name.nil?
+      return (chg[:action] == action) if col_or_index_name.nil?
 
       matchers = {
         rename_column: -> { rename_column_matches?(chg, action, col_or_index_name) },
