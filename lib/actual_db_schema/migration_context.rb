@@ -23,8 +23,11 @@ module ActualDbSchema
     end
 
     def current_config
-      pool = ActiveRecord::Base.connection_pool
-      pool.respond_to?(:db_config) ? pool.db_config : pool.spec.config
+      if ActiveRecord::Base.respond_to?(:connection_db_config)
+        ActiveRecord::Base.connection_db_config
+      else
+        ActiveRecord::Base.connection_config
+      end
     end
 
     def configs
