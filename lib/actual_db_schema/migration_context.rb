@@ -6,10 +6,13 @@ module ActualDbSchema
     include Singleton
 
     def each
+      original_config = current_config
       configs.each do |db_config|
         establish_connection(db_config)
         yield context
       end
+    ensure
+      establish_connection(original_config) if original_config
     end
 
     private
@@ -17,6 +20,14 @@ module ActualDbSchema
     def establish_connection(db_config)
       config = db_config.respond_to?(:config) ? db_config.config : db_config
       ActiveRecord::Base.establish_connection(config)
+    end
+
+    def current_config
+      if ActiveRecord::Base.respond_to?(:connection_db_config)
+        ActiveRecord::Base.connection_db_config
+      else
+        ActiveRecord::Base.connection_config
+      end
     end
 
     def configs
