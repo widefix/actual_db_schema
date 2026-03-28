@@ -30,8 +30,8 @@ describe "ActualDbSchema::MigrationContext#each" do
     # means any subsequent ActiveRecord queries silently hit the wrong database.
     current_db = File.basename(current_database)
     assert_equal primary_db, current_db,
-      "MigrationContext#each must restore the original connection after iteration, " \
-      "but was left on '#{current_db}' instead of '#{primary_db}'"
+                 "MigrationContext#each must restore the original connection after iteration, " \
+                 "but was left on '#{current_db}' instead of '#{primary_db}'"
   end
 
   private
