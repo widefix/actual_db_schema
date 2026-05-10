@@ -10,6 +10,13 @@ module ActualDbSchema
         app.routes.append do
           mount ActualDbSchema::Engine => "/rails"
         end
+
+        ActiveRecord::Migration::CheckPending.prepend(ActualDbSchema::Patches::CheckPending)
+
+        app.middleware.insert_before(
+          ActiveRecord::Migration::CheckPending,
+          ActualDbSchema::Middlewares::SkipPendingMigrationCheck
+        )
       end
     end
 

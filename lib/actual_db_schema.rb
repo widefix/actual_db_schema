@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "actual_db_schema/middlewares/skip_pending_migration_check"
 require "actual_db_schema/engine"
 require "active_record/migration"
 require "csv"
@@ -14,6 +15,7 @@ require_relative "actual_db_schema/failed_migration"
 require_relative "actual_db_schema/migration_context"
 require_relative "actual_db_schema/migration_parser"
 require_relative "actual_db_schema/output_formatter"
+require_relative "actual_db_schema/patches/check_pending"
 require_relative "actual_db_schema/patches/migration_proxy"
 require_relative "actual_db_schema/patches/migrator"
 require_relative "actual_db_schema/patches/migration_context"
