@@ -17,6 +17,7 @@ require_relative "actual_db_schema/output_formatter"
 require_relative "actual_db_schema/patches/migration_proxy"
 require_relative "actual_db_schema/patches/migrator"
 require_relative "actual_db_schema/patches/migration_context"
+require_relative "actual_db_schema/patches/check_pending"
 require_relative "actual_db_schema/git_hooks"
 require_relative "actual_db_schema/multi_tenant"
 require_relative "actual_db_schema/railtie"
@@ -87,3 +88,6 @@ module ActualDbSchema
 end
 
 ActiveRecord::MigrationProxy.prepend(ActualDbSchema::Patches::MigrationProxy)
+if defined?(ActiveRecord::Migration::CheckPending)
+  ActiveRecord::Migration::CheckPending.prepend(ActualDbSchema::Patches::CheckPending)
+end
