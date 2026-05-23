@@ -2,25 +2,25 @@
 
 require "test_helper"
 
+class CheckPendingBaseForTest
+  attr_reader :super_calls
+
+  def initialize
+    @app = ->(_env) { :app_called }
+    @super_calls = 0
+  end
+
+  def call(_env)
+    @super_calls += 1
+    :super_called
+  end
+end
+
+class CheckPendingWithPatchForTest < CheckPendingBaseForTest
+  prepend ActualDbSchema::Patches::CheckPending
+end
+
 describe "ActualDbSchema::Patches::CheckPending" do
-  class CheckPendingBaseForTest
-    attr_reader :super_calls
-
-    def initialize
-      @app = ->(_env) { :app_called }
-      @super_calls = 0
-    end
-
-    def call(_env)
-      @super_calls += 1
-      :super_called
-    end
-  end
-
-  class CheckPendingWithPatchForTest < CheckPendingBaseForTest
-    prepend ActualDbSchema::Patches::CheckPending
-  end
-
   let(:patched_instance) { CheckPendingWithPatchForTest.new }
 
   it "prepends the patch to ActiveRecord::Migration::CheckPending" do
