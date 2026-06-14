@@ -1,3 +1,7 @@
+## [0.9.2] - 2026-06-14
+
+- Skip pending migrations in the UI
+
 ## [0.9.1] - 2026-02-25
 
 - Support schema diffs for `structure.sql`
