@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "parser/ast/processor"
 require "prism"
 
 module ActualDbSchema
@@ -9,141 +8,121 @@ module ActualDbSchema
     module_function
 
     def parse_string(schema_content)
-      ast = Prism::Translation::Parser.parse(schema_content)
+      parse_result = Prism.parse(schema_content)
+      raise SyntaxError, "Schema is syntax invalid" unless parse_result.success?
 
-      collector = SchemaCollector.new
-      collector.process(ast)
-      collector.schema
+      visitor = SchemaVisitor.new
+      visitor.visit(parse_result.value)
+      visitor.schema
+    end
+
+    # Internal class used to visit a create_table block
+    class CreateTableVisitor < Prism::Visitor
+      attr_reader :columns
+
+      def initialize(block_arg)
+        super()
+        @block_arg = block_arg
+        @columns = {}
+      end
+
+      def visit_call_node(node)
+        return unless node.receiver.is_a?(Prism::LocalVariableReadNode) && node.receiver.name == @block_arg
+
+        if node.name == :timestamps
+          name = "timestamps"
+          options = {}
+        else
+          name_arg, *, keyword_args = node.arguments&.arguments
+          name = extract_column_name(name_arg)
+          options = extract_column_options(keyword_args)
+        end
+        return unless name
+
+        @columns[name] = { type: node.message.to_sym, options: options }
+      end
+
+      def extract_column_name(node)
+        case node
+        when Prism::StringNode
+          node.content
+        when Prism::SymbolNode
+          node.value
+        end
+      end
+
+      def extract_column_options(node)
+        return {} unless node.is_a?(Prism::KeywordHashNode)
+
+        options = {}
+        node.elements.each do |assoc_node|
+          next unless assoc_node.is_a?(Prism::AssocNode)
+          next unless (key = extract_key(assoc_node.key))
+
+          options[key] = extract_literal(assoc_node.value)
+        end
+        options
+      end
+
+      def extract_key(node)
+        case node
+        when Prism::SymbolNode then node.value.to_sym
+        when Prism::StringNode then node.content.to_sym
+        end
+      end
+
+      def extract_literal(node)
+        case node
+        when Prism::TrueNode then true
+        when Prism::FalseNode then false
+        when Prism::IntegerNode then node.value
+        when Prism::SymbolNode then node.value.to_sym
+        when Prism::StringNode then node.content
+        end
+      end
     end
 
     # Internal class used to process the AST and collect schema information.
-    class SchemaCollector < Parser::AST::Processor
+    class SchemaVisitor < Prism::Visitor
       attr_reader :schema
 
       def initialize
-        super()
+        super
         @schema = {}
       end
 
-      def on_block(node)
-        send_node, _args_node, body = *node
+      def visit_call_node(node)
+        if node.name == :create_table
+          return unless node.block
 
-        if create_table_call?(send_node)
-          table_name = extract_table_name(send_node)
-          columns    = extract_columns(body)
-          @schema[table_name] = columns if table_name
-        end
-
-        super
-      end
-
-      def on_send(node)
-        _receiver, method_name, *args = *node
-        if method_name == :create_table && args.any?
           table_name = extract_table_name(node)
-          @schema[table_name] ||= {}
-        end
+          return unless table_name
 
+          columns = extract_columns(node.block)
+          @schema[table_name] = columns
+          return
+        end
         super
       end
 
       private
 
-      def create_table_call?(node)
-        return false unless node.is_a?(Parser::AST::Node)
-
-        _receiver, method_name, *_args = node.children
-        method_name == :create_table
-      end
-
-      def extract_table_name(send_node)
-        _receiver, _method_name, table_arg, *_rest = send_node.children
-        return unless table_arg
-
-        case table_arg.type
-        when :str then table_arg.children.first
-        when :sym then table_arg.children.first.to_s
+      def extract_table_name(call_node)
+        first_arg = call_node.arguments&.arguments&.first
+        case first_arg
+        when Prism::StringNode
+          first_arg.content
+        when Prism::SymbolNode
+          first_arg.value
         end
       end
 
-      def extract_columns(body_node)
-        return {} unless body_node
+      def extract_columns(block_node)
+        return unless (block_arg = block_node.locals&.first)
 
-        children = body_node.type == :begin ? body_node.children : [body_node]
-
-        columns = {}
-        children.each do |expr|
-          col = process_column_node(expr)
-          columns[col[:name]] = { type: col[:type], options: col[:options] } if col && col[:name]
-        end
-        columns
-      end
-
-      def process_column_node(node)
-        return unless node.is_a?(Parser::AST::Node)
-        return unless node.type == :send
-
-        receiver, method_name, column_node, *args = node.children
-
-        return unless receiver && receiver.type == :lvar
-
-        return { name: "timestamps", type: :timestamps, options: {} } if method_name == :timestamps
-
-        col_name = extract_column_name(column_node)
-        options  = extract_column_options(args)
-
-        { name: col_name, type: method_name, options: options }
-      end
-
-      def extract_column_name(node)
-        return nil unless node.is_a?(Parser::AST::Node)
-
-        case node.type
-        when :str then node.children.first
-        when :sym then node.children.first.to_s
-        end
-      end
-
-      def extract_column_options(args)
-        opts = {}
-        args.each do |arg|
-          next unless arg && arg.type == :hash
-
-          opts.merge!(parse_hash(arg))
-        end
-        opts
-      end
-
-      def parse_hash(node)
-        hash = {}
-        return hash unless node && node.type == :hash
-
-        node.children.each do |pair|
-          key_node, value_node = pair.children
-          key = extract_key(key_node)
-          value = extract_literal(value_node)
-          hash[key] = value
-        end
-        hash
-      end
-
-      def extract_key(node)
-        return unless node.is_a?(Parser::AST::Node)
-
-        case node.type
-        when :sym then node.children.first
-        when :str then node.children.first.to_sym
-        end
-      end
-
-      def extract_literal(node)
-        return unless node.is_a?(Parser::AST::Node)
-
-        case node.type
-        when :int, :str, :sym then node.children.first
-        when true then true
-        when false then false
-        end
+        v = CreateTableVisitor.new(block_arg)
+        v.visit(block_node)
+        v.columns
       end
     end
   end
