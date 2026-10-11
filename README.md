@@ -71,6 +71,10 @@ The gem needs a stored copy of a migration to roll it back, so install it before
 
 ActualDbSchema does not detect edits to an already-applied migration that remains on the current branch. Its schema cleanup targets phantom migrations; it does not sort schema columns or resolve every Git merge conflict.
 
+## Video Demo
+
+[Watch the ActualDbSchema video demo](docs/actual_db_schema_h264.mp4)
+
 <img width="3024" height="1886" alt="ActualDbSchema Rails migration dashboard showing migration history and database management" src="https://github.com/user-attachments/assets/87cfb7b4-6380-4dad-ab18-6a0633f561b5" />
 
 ## 🌟 Complete Feature Set
