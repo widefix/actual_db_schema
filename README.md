@@ -1,46 +1,85 @@
 [![Gem Version](https://badge.fury.io/rb/actual_db_schema.svg)](https://badge.fury.io/rb/actual_db_schema)
 
-# ActualDbSchema
+# ActualDbSchema: Keep Rails Databases in Sync with Git Branches
 
-**Stop database headaches when switching Git branches in Rails**
+**Manage stale migrations, fix database drift, and understand schema changes in Rails.**
 
-Keep your database schema perfectly synchronized across Git branches, eliminate broken tests and schema conflicts, and save wasted hours on phantom migrations.
+`actual_db_schema` keeps your database aligned with the migrations on your current Git branch. It tracks executed migration source code and rolls back **phantom migrations** left behind by other branches. It also provides a web dashboard, annotated schema diffs, migration history, and manual cleanup tools for development, staging, and sandbox environments.
 
-## 🚀 What You Get
+## Problems ActualDbSchema Solves
 
-- **Zero Manual Work**: Switch branches freely - phantom migrations roll back automatically
-- **No More Schema Conflicts**: Clean `schema.rb`/`structure.sql` diffs every time, no irrelevant changes
-- **Error Prevention**: Eliminates `ActiveRecord::NotNullViolation` and similar errors when switching branches
-- **Time Savings**: Stop hunting down which branch has the problematic migration
-- **Team Productivity**: Everyone stays focused on coding, not database maintenance
-- **Staging/Sandbox Sync**: Keep staging and sandbox databases aligned with your current branch code
-- **Visual Management**: Web UI to view and manage migrations across all databases
+### Database errors and failing tests after switching branches
 
-<img width="3024" height="1886" alt="Visual management of Rails DB migrations with ActualDbSchema" src="https://github.com/user-attachments/assets/87cfb7b4-6380-4dad-ab18-6a0633f561b5" />
+Switching Git branches changes your code and migration files, but does not undo migrations already applied to your database. A column, table, index, or constraint from another branch can break the application or its tests—for example, an extra `NOT NULL` column can cause `ActiveRecord::NotNullViolation` when the current branch inserts a record.
 
-And you get all of that with **zero** changes to your workflow!
+ActualDbSchema rolls back tracked migrations missing from the current branch, removing their database changes when their reversals succeed.
 
-## 🎯 The Problem This Solves
+### Manual rollback work when moving between feature branches
 
-**Before ActualDbSchema:**
-1. Work on Branch A → Add migration → Run migration
-2. Switch to Branch B → Code breaks with database errors
-3. Manually find and rollback the "phantom" migration
-4. Deal with irrelevant `schema.rb` diffs
-5. Repeat this tedious process constantly
+Without a stored copy of a migration, you may need to find the branch that introduced it, check it out, roll it back, and return to your work. These stale migrations are called **phantom migrations**: they have been applied to the database, but their files are absent from the current branch.
 
-**After ActualDbSchema:**
-1. Work on any branch → Add migrations as usual
-2. Switch branches freely → Everything just works
-3. Focus on building features, not fixing database issues
+The gem saves migration source code and branch metadata so it can identify and roll back phantom migrations without checking out their original branch. Cleanup runs as part of the schema dump triggered by `rails db:migrate`; an optional [post-checkout Git hook](#automatic-phantom-migration-rollback-on-branch-switch) runs cleanup when you switch branches. You can also inspect and roll back migrations manually through rake tasks or the web UI.
+
+### Unwanted schema.rb diffs and schema conflicts in Git
+
+**Why does `schema.rb` keep changing after `db:migrate`, even when you have not changed a migration?** Rails dumps your database's actual structure, including leftover tables, columns, and indexes from other branches. Those changes pollute `db/schema.rb` or `db/structure.sql` and can lead to unrelated pull request changes and Git merge conflicts.
+
+ActualDbSchema rolls back tracked phantom migrations before the schema dump, preventing their leftover changes from appearing in the generated file. Legitimate schema changes from the current branch still appear in the diff. Both schema formats are supported.
+
+### Rebuilding the entire database to clean up stale migrations
+
+Resetting a development database and replaying migrations can take time and discard local data. ActualDbSchema targets tracked phantom migrations instead of requiring a full database reset. Each rollback still executes the migration's reversal and can remove data in affected tables or columns.
+
+### Difficulty tracing a schema change to its migration
+
+When a schema diff contains unexpected changes, it can be hard to tell which migration introduced them. The [annotated schema diff](#schema-diff-with-migration-annotations) associates changes with migration source files, available through a rake task or the web UI. This helps you investigate a diff before deciding how to resolve it.
+
+### Missing visibility into migration history and database state
+
+The [web dashboard](#-web-interface) lets you inspect migration status, source code, branch metadata, and phantom migrations across configured databases. It supports individual migration actions and remains accessible when pending migrations would otherwise block Rails requests.
+
+### Orphaned migration versions with missing source files
+
+Your database can contain migration version records whose source files are no longer available. The [broken migration cleanup tools](#delete-broken-migrations) identify and delete these orphaned records through the UI or a rake task. Deleting a version record does **not** reverse its database changes; use phantom migration rollback when stored source code is available.
+
+### Database drift across multiple databases, tenants, and shared environments
+
+Branch-specific migrations can leave several databases or tenant schemas out of sync, not just the primary development database. ActualDbSchema processes configured databases, supports a configurable list of [tenant schemas](#multi-tenancy-support), and lets you [exclude infrastructure databases](#excluding-databases-from-processing).
+
+For staging or sandbox environments, optional [database-backed migration storage](#3-store-migrations-in-the-database) retains executed migration sources in the database rather than relying on one machine's local files. Features can be enabled per environment.
+
+### Friction when experimenting with schema changes in the Rails console
+
+The optional [console migrations](#console-migrations) feature exposes migration methods such as `add_column`, `add_index`, and `create_table` directly in the Rails console. This helps with local schema experiments and manual repairs; it does not create a migration file for you.
+
+## Example: Switch Branches Without Leaving Phantom Migrations Behind
+
+Suppose a feature branch adds a required `users.nickname` column. After switching to `main`, which has no such migration, inserts may fail because the application does not populate that column. The next schema dump can also add the unrelated column to `schema.rb`.
+
+With `actual_db_schema` installed ([Quick Start](#-quick-start)), keep using your normal workflow:
+
+```sh
+git switch main
+bundle exec rails db:migrate
+```
+
+The gem uses its stored migration source to roll back the phantom migration before Rails dumps the schema. When the rollback succeeds, the extra column is removed, fixing both the stale constraint and its unwanted schema diff.
+
+## Scope and Rollback Requirements
+
+The gem needs a stored copy of a migration to roll it back, so install it before running migrations you want it to track. Irreversible migrations and rollbacks that depend on unavailable branch code require manual intervention; failed rollbacks are reported. Phantom migrations are rolled back in reverse migration order.
+
+ActualDbSchema does not detect edits to an already-applied migration that remains on the current branch. Its schema cleanup targets phantom migrations; it does not sort schema columns or resolve every Git merge conflict.
+
+<img width="3024" height="1886" alt="ActualDbSchema Rails migration dashboard showing migration history and database management" src="https://github.com/user-attachments/assets/87cfb7b4-6380-4dad-ab18-6a0633f561b5" />
 
 ## 🌟 Complete Feature Set
 
 ### Core Migration Management
 - **Phantom Migration Detection**: Automatically identifies migrations from other branches
-- **Smart Rollback**: Rolls back phantom migrations in correct dependency order
-- **Irreversible Migration Handling**: Safely handles and reports irreversible migrations
-- **Multi-Database Support**: Works seamlessly with multiple database configurations
+- **Smart Rollback**: Rolls back phantom migrations in reverse migration order
+- **Rollback Failure Reporting**: Reports irreversible migrations and other rollback failures for manual resolution
+- **Multi-Database Support**: Processes multiple database configurations with configurable exclusions
 - **Schema Format Agnostic**: Supports both `schema.rb` and `structure.sql`
 
 ### Automation & Git Integration
@@ -65,8 +104,8 @@ And you get all of that with **zero** changes to your workflow!
 ### Team & Environment Support
 - **Multi-Tenant Compatible**: Works with apartment gem and similar multi-tenant setups
 - **Environment Flexibility**: Enable/disable features per environment
-- **Team Synchronization**: Keeps all team members' databases in sync
-- **CI/CD Friendly**: No interference with deployment pipelines
+- **Shared Migration Storage**: Optional database storage retains migration sources across environments
+- **Rollback Instrumentation**: Emits notifications for successful rollbacks and provides optional persisted statistics
 
 ### Manual Control Options
 - **Manual Rollback Mode**: Disable automatic rollback for full manual control
@@ -95,11 +134,11 @@ That's it! Now just run `rails db:migrate` as usual - phantom migrations roll ba
 
 ## 🔧 How It Works
 
-This gem stores all run migrations with their code in the `tmp/migrated` folder. Whenever you perform a schema dump, it rolls back the *phantom migrations*.
+This gem stores migrations executed while it is installed, including their source code, in the `tmp/migrated` folder by default. [Database storage](#3-store-migrations-in-the-database) is also available. Before the Rails `db:schema:dump` task runs, it attempts to roll back the *phantom migrations*.
 
 The *phantom migrations* list is the difference between the migrations you've executed (in the `tmp/migrated` folder) and the current ones (in the `db/migrate` folder).
 
-Therefore, all you do is run rails `db:migrate` in your current branch. `actual_db_schema` will ensure the DB schema is up-to-date. You'll never have an inaccurate `schema.rb` file again.
+Run `rails db:migrate` in your current branch as usual. With automatic rollback enabled (the default), `actual_db_schema` rolls back tracked phantom migrations in reverse migration order before the schema dump, removing their leftover schema changes when the rollbacks succeed.
 
 ## Installation
 
