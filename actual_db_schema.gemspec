@@ -8,11 +8,10 @@ Gem::Specification.new do |spec|
   spec.authors = ["Andrei Kaleshka"]
   spec.email = ["ka8725@gmail.com"]
 
-  spec.summary = "Keep DB schema in sync across branches effortlessly."
+  spec.summary = "Keep Rails databases in sync across Git branches."
   spec.description = <<~DESC
-    Keep your DB schema in sync across all branches effortlessly.
-    Install once, then use `rails db:migrate` normally — the gem handles phantom migration rollback automatically, eliminating schema conflicts and inconsistent database states.
-    Stop wasting hours on DB maintenance locally, CI, staging/sandbox, or even production.
+    Keep Rails databases in sync across Git branches. Automatically roll back stale migrations,
+    prevent database errors and unwanted schema diffs, and inspect migration history with a web dashboard.
   DESC
   spec.homepage = "https://blog.widefix.com/actual-db-schema/"
   spec.license = "MIT"
@@ -28,7 +27,8 @@ Gem::Specification.new do |spec|
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     `git ls-files -z`.split("\x0").reject do |f|
-      (f == __FILE__) || f.match(%r{\A(?:(?:bin|test|spec|features)/|\.(?:git|travis|circleci)|appveyor)})
+      (f == __FILE__) || f == "docs/actual_db_schema_h264.mp4" ||
+        f.match(%r{\A(?:(?:bin|test|spec|features)/|\.(?:git|travis|circleci)|appveyor)})
     end
   end
   spec.bindir = "exe"
