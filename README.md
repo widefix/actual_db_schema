@@ -10,7 +10,7 @@
 
 ### Database errors and failing tests after switching branches
 
-Switching Git branches changes your code and migration files, but does not undo migrations already applied to your database. A column, table, index, or constraint from another branch can break the application or its tests—for example, an extra `NOT NULL` column can cause `ActiveRecord::NotNullViolation` when the current branch inserts a record.
+Switching Git branches changes your code and migration files, but does not undo migrations already applied to your database. A column, table, index, or constraint from another branch can break the application or its tests. For example, an extra `NOT NULL` column can cause `ActiveRecord::NotNullViolation` when the current branch inserts a record.
 
 ActualDbSchema rolls back tracked migrations missing from the current branch, removing their database changes when their reversals succeed.
 
@@ -18,7 +18,7 @@ ActualDbSchema rolls back tracked migrations missing from the current branch, re
 
 Without a stored copy of a migration, you may need to find the branch that introduced it, check it out, roll it back, and return to your work. These stale migrations are called **phantom migrations**: they have been applied to the database, but their files are absent from the current branch.
 
-The gem saves migration source code and branch metadata so it can identify and roll back phantom migrations without checking out their original branch. Cleanup runs as part of the schema dump triggered by `rails db:migrate`; an optional [post-checkout Git hook](#automatic-phantom-migration-rollback-on-branch-switch) runs cleanup when you switch branches. You can also inspect and roll back migrations manually through rake tasks or the web UI.
+The gem saves migration source code and branch metadata so it can identify and roll back phantom migrations without checking out their original branch. Cleanup runs as part of the schema dump triggered by `rails db:migrate`. An optional [post-checkout Git hook](#automatic-phantom-migration-rollback-on-branch-switch) runs cleanup when you switch branches. You can also inspect and roll back migrations manually through rake tasks or the web UI.
 
 ### Unwanted schema.rb diffs and schema conflicts in Git
 
