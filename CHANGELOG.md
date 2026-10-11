@@ -1,3 +1,9 @@
+## [0.10.0] - 2026-10-11
+
+- Remove the `parser` dependency and use `prism` directly.
+- Update the README and gem description to explain database synchronization, migration management, and schema diff troubleshooting.
+- Add an animated demo to the README; exclude demo media from the gem package.
+
 ## [0.9.2] - 2026-06-14
 
 - Skip pending migrations in the UI
