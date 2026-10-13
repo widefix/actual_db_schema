@@ -6,14 +6,14 @@ Gem::Specification.new do |spec|
   spec.name = "actual_db_schema"
   spec.version = ActualDbSchema::VERSION
   spec.authors = ["Andrei Kaleshka"]
-  spec.email = ["ka8725@gmail.com"]
+  spec.email = ["dev@widefix.com"]
 
   spec.summary = "Keep Rails databases in sync across Git branches."
   spec.description = <<~DESC
     Keep Rails databases in sync across Git branches. Automatically roll back stale migrations,
     prevent database errors and unwanted schema diffs, and inspect migration history with a web dashboard.
   DESC
-  spec.homepage = "https://blog.widefix.com/actual-db-schema/"
+  spec.homepage = "https://widefix.com/actual-db-schema"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 2.7.0"
 
