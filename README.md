@@ -6,6 +6,8 @@
 
 `actual_db_schema` keeps your database aligned with the migrations on your current Git branch. It tracks executed migration source code and rolls back **phantom migrations** left behind by other branches. It also provides a web dashboard, annotated schema diffs, migration history, and manual cleanup tools for development, staging, and sandbox environments.
 
+[Explore ActualDbSchema on WideFix](https://widefix.com/actual-db-schema) for a visual walkthrough and an overview of the branch-switching workflow.
+
 ## Problems ActualDbSchema Solves
 
 ### Database errors and failing tests after switching branches
@@ -565,6 +567,14 @@ By default, `rake test` runs tests using `SQLite3`. To explicitly run tests with
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/widefix/actual_db_schema. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/widefix/actual_db_schema/blob/master/CODE_OF_CONDUCT.md).
+
+## Maintained by WideFix
+
+ActualDbSchema is built and maintained by [WideFix](https://widefix.com/), a team specializing in maintaining, upgrading, and improving existing Ruby on Rails applications.
+
+Need help with your Rails application's migrations, upgrades, or performance? [Learn about WideFix's Rails services](https://widefix.com/services).
+
+For testable data migration hooks, see our companion gem, [MigrationData](https://github.com/ka8725/migration_data).
 
 ## License
 
