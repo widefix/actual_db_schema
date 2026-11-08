@@ -194,5 +194,27 @@ module ActualDbSchema
       get :index
       assert_select "p", text: "No phantom migrations found."
     end
+
+    test "POST #rollback_all with irreversible migration returns error message" do
+      %w[primary secondary].each do |prefix|
+        @utils.define_migration_file("20130906111513_irreversible_#{prefix}.rb", <<~RUBY, prefix: prefix)
+          class Irreversible#{prefix.camelize} < ActiveRecord::Migration[6.0]
+            def up
+              TestingState.up << :irreversible_#{prefix}
+            end
+
+            def down
+              raise ActiveRecord::IrreversibleMigration
+            end
+          end
+        RUBY
+      end
+      @utils.prepare_phantom_migrations(TestingState.db_config)
+      post :rollback_all
+      assert_response :redirect
+      get :index
+      assert_select ".flash", text: /An error has occurred/
+      assert_select ".flash", text: /ActiveRecord::IrreversibleMigration/
+    end
   end
 end

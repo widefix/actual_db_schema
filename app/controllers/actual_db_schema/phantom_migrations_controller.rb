@@ -32,8 +32,13 @@ module ActualDbSchema
     end
 
     def handle_rollback_all
+      ActualDbSchema.failed = []
       ActualDbSchema::Migration.instance.rollback_all
-      flash[:notice] = "Migrations was successfully rolled back."
+      if ActualDbSchema.failed.any?
+        flash[:alert] = ActualDbSchema.failed.map { |f| "#{f.short_filename}: #{f.exception.message}" }.join("\n")
+      else
+        flash[:notice] = "Migrations was successfully rolled back."
+      end
     rescue StandardError => e
       flash[:alert] = e.message
     end
